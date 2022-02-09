@@ -1,5 +1,14 @@
+# Java stuff
 classes/
 classes/*
 
 lib/
 lib/*
+
+# IntelliJ stuff
+.idea/
+.idea/*
+
+# Safe to ignore as long as we're not setting something up
+# in IntelliJ that should be reflected in all our setups. 
+*.iml
