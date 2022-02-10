@@ -158,6 +158,9 @@ class Scanner {
         case '*':
             nextCh();
             return new TokenInfo(STAR, line);
+        case '%':
+            nextCh();
+            return new TokenInfo(REM, line);
         case '+':
             nextCh();
             if (ch == '=') {
