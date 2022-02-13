@@ -1212,7 +1212,7 @@ public class Parser {
         int line = scanner.token().line();
         if (have(LNOT)) {
             return new JLogicalNotOp(line, unaryExpression());
-        else if (have(UNARY_COMP)) {
+        } else if (have(UNARY_COMP)) {
             return new JBitwiseComplementOp(line, unaryExpression()); 
         } else if (seeCast()) {
             mustBe(LPAREN);
