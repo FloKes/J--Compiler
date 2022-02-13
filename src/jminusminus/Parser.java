@@ -1041,8 +1041,8 @@ public class Parser {
      * Parse a bitwise or operation
      * 
      * <pre>
-     *   bitwiseOr ::= equalityExpression // level 9
-     *           {BITWISE_OR equalityExpression}
+     *   bitwiseOr ::= bitwiseXor // level 9
+     *           {BITWISE_OR bitwiseXor}
      * </pre>
      * 
      * @return an AST for a bitwise OR expression.
@@ -1051,10 +1051,10 @@ public class Parser {
     private JExpression bitwiseOrExpression() {
         int line = scanner.token().line();
         boolean more = true;
-        JExpression lhs = equalityExpression();
+        JExpression lhs = bitwiseXorExpression();
         while (more) {
             if (have(BITWISE_OR)) {
-                lhs = new JBitwiseOrOp(line, lhs, equalityExpression());
+                lhs = new JBitwiseOrOp(line, lhs, bitwiseXorExpression());
             } else {
                 more = false;
             }
@@ -1062,6 +1062,30 @@ public class Parser {
         return lhs;
     }
 
+    /**
+     * Parse a bitwise xor operation
+     * 
+     * <pre>
+     *   bitwiseXor ::= equalityExpression // level 8
+     *           {BITWISE_XOR equalityExpression}
+     * </pre>
+     * 
+     * @return an AST for a bitwise XOR expression.
+     */
+
+    private JExpression bitwiseXorExpression() {
+        int line = scanner.token().line();
+        boolean more = true;
+        JExpression lhs = equalityExpression();
+        while (more) {
+            if (have(BITWISE_XOR)) {
+                lhs = new JBitwiseXorOp(line, lhs, equalityExpression());
+            } else {
+                more = false;
+            }
+        }
+        return lhs;
+    }
     /**
      * Parse an equality expression.
      * 

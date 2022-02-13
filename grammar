@@ -76,8 +76,11 @@ assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}
 
-bitwiseOr ::= equalityExpression // level 9
-                {BITWISE_OR equalityExpression}
+bitwiseOr ::= bitwiseXor // level 9
+                {BITWISE_OR bitwiseXor}
+
+bitwiseXor ::= equalityExpression // level 8
+                {BITWISE_XOR equalityExpression}
 
 equalityExpression ::= relationalExpression  // level 6
                          {EQUAL relationalExpression}
