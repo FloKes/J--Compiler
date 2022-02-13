@@ -1,7 +1,5 @@
 package pass;
 
 public class SignedShiftRight {
-    public int shiftRight (int x, int y ) {
-        return x >> y ;
-    }
+    public int shiftRight (int x, int y ) { return x >> y ; }
 }

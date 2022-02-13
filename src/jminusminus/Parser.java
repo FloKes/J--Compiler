@@ -1076,13 +1076,34 @@ public class Parser {
 
     private JExpression relationalExpression() {
         int line = scanner.token().line();
-        JExpression lhs = additiveExpression();
+        JExpression lhs = bitwiseShiftExpression();
         if (have(GT)) {
-            return new JGreaterThanOp(line, lhs, additiveExpression());
+            return new JGreaterThanOp(line, lhs, bitwiseShiftExpression());
         } else if (have(LE)) {
-            return new JLessEqualOp(line, lhs, additiveExpression());
+            return new JLessEqualOp(line, lhs, bitwiseShiftExpression());
         } else if (have(INSTANCEOF)) {
             return new JInstanceOfOp(line, lhs, referenceType());
+        } else {
+            return lhs;
+        }
+    }
+
+    /**
+     * Parse a bitwise shift expression.
+     *
+     * <pre>
+     *   bitwiseShiftExpression ::= additiveExpression // level 3
+     *                            {MINUS additiveExpression}
+     * </pre>
+     *
+     * @return an AST for an bitwiseShiftExpression.
+     */
+
+    private JExpression bitwiseShiftExpression() {
+        int line = scanner.token().line();
+        JExpression lhs = additiveExpression();
+        if (have(SHR)) {
+            return new JSignedShiftRight(line, lhs, additiveExpression());
         } else {
             return lhs;
         }
