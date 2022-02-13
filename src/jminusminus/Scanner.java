@@ -189,6 +189,9 @@ class Scanner {
                 reportScannerError("Operator & is not supported in j--.");
                 return getNextToken();
             }
+        case '|':
+            nextCh();
+            return new TokenInfo(BITWISE_OR, line);
         case '>':
             nextCh();
             return new TokenInfo(GT, line);
