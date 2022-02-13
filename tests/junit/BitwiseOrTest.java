@@ -16,9 +16,9 @@ public class BitwiseOrTest extends TestCase {
     }
 
     public void testBitwiseOr() {
-        this.assertEquals(0, bitwiseOr.or(8, 8));
+        this.assertEquals(8, bitwiseOr.or(8, 8));
         this.assertEquals(4, bitwiseOr.or(0, 4));
         this.assertEquals(5, bitwiseOr.or(5, 0));
-        this.assertEquals(2, bitwiseOr.or(3, 1));
+        this.assertEquals(3, bitwiseOr.or(2, 1));
     }
 }
