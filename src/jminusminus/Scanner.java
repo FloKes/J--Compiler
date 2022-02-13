@@ -191,7 +191,14 @@ class Scanner {
             }
         case '>':
             nextCh();
-            return new TokenInfo(GT, line);
+            if (ch == '=') {
+                reportScannerError("Operator >= is not supported yet.");
+                return getNextToken();
+            } else if (ch == '>') {
+                return new TokenInfo(ISHR, line);
+            } else {
+                return new TokenInfo(GT, line);
+            }
         case '<':
             nextCh();
             if (ch == '=') {
