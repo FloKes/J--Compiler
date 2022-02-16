@@ -20,7 +20,7 @@ abstract class JUnaryExpression extends JExpression {
     /**
      * Constructs an AST node for an unary expression given its line number, the
      * unary operator, and the operand.
-     * 
+     *
      * @param line
      *            line in which the unary expression occurs in the source file.
      * @param operator
@@ -64,7 +64,7 @@ class JNegateOp extends JUnaryExpression {
     /**
      * Constructs an AST node for a negation expression given its line number,
      * and the operand.
-     * 
+     *
      * @param line
      *            line in which the negation expression occurs in the source
      *            file.
@@ -79,7 +79,7 @@ class JNegateOp extends JUnaryExpression {
     /**
      * Analyzing the negation operation involves analyzing its operand, checking
      * its type and determining the result type.
-     * 
+     *
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
@@ -95,7 +95,7 @@ class JNegateOp extends JUnaryExpression {
     /**
      * Generating code for the negation operation involves generating code for
      * the operand, and then the negation instruction.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
@@ -108,6 +108,61 @@ class JNegateOp extends JUnaryExpression {
 
 }
 
+
+/**
+ * The AST node for a unary plus (+) expression.
+ */
+
+class JUnaryPlusOp extends JUnaryExpression {
+
+    /**
+     * Constructs an AST node for a unary plus expression given its line number,
+     * and the operand.
+     *
+     * @param line
+     *            line in which the unary plus expression occurs in the source
+     *            file.
+     * @param arg
+     *            the operand.
+     */
+
+    public JUnaryPlusOp(int line, JExpression arg) {
+        super(line, "+", arg);
+    }
+
+    /**
+     * Analyzing the unary plus operation involves analyzing its operand, checking
+     * its type and determining the result type.
+     *
+     * @param context
+     *            context in which names are resolved.
+     * @return the analyzed (and possibly rewritten) AST subtree.
+     */
+
+    public JExpression analyze(Context context) {
+        arg = arg.analyze(context);
+        arg.type().mustMatchExpected(line(), Type.INT);
+        type = Type.INT;
+        return this;
+    }
+
+    /**
+     * Generating code for the unary plus operation involves generating code for
+     * the operand, and then the negation instruction.
+     *
+     * @param output
+     *            the code emitter (basically an abstraction for producing the
+     *            .class file).
+     */
+
+    public void codegen(CLEmitter output) {
+        arg.codegen(output);
+        output.addNoArgInstruction(ICONST_0);
+        output.addNoArgInstruction(IADD);
+    }
+}
+
+
 /**
  * The AST node for a logical NOT (!) expression.
  */
@@ -117,7 +172,7 @@ class JLogicalNotOp extends JUnaryExpression {
     /**
      * Constructs an AST for a logical NOT expression given its line number, and
      * the operand.
-     * 
+     *
      * @param line
      *            line in which the logical NOT expression occurs in the source
      *            file.
@@ -132,7 +187,7 @@ class JLogicalNotOp extends JUnaryExpression {
     /**
      * Analyzing a logical NOT operation means analyzing its operand, insuring
      * it's a boolean, and setting the result to boolean.
-     * 
+     *
      * @param context
      *            context in which names are resolved.
      */
@@ -145,10 +200,10 @@ class JLogicalNotOp extends JUnaryExpression {
     }
 
     /**
-     * Generates code for the case where we actually want a boolean value 
+     * Generates code for the case where we actually want a boolean value
      * ({@code true} or {@code false}) computed onto the stack. For example,
      * assignment to a boolean variable.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
@@ -168,7 +223,7 @@ class JLogicalNotOp extends JUnaryExpression {
     /**
      * The code generation necessary for branching simply flips the condition on
      * which we branch.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
@@ -189,7 +244,7 @@ class JPostDecrementOp extends JUnaryExpression {
     /**
      * Constructs an AST node for an expr-- expression given its line number, and
      * the operand.
-     * 
+     *
      * @param line
      *            line in which the expression occurs in the source file.
      * @param arg
@@ -203,7 +258,7 @@ class JPostDecrementOp extends JUnaryExpression {
     /**
      * Analyzes the operand as a lhs (since there is a side effect), checks types
      * and determines the type of the result.
-     * 
+     *
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
@@ -224,14 +279,14 @@ class JPostDecrementOp extends JUnaryExpression {
 
     /**
      * In generating code for a post-decrement operation, we treat simple
-     * variable ({@link JVariable}) operands specially since the JVM has an 
-     * increment instruction. 
+     * variable ({@link JVariable}) operands specially since the JVM has an
+     * increment instruction.
      * Otherwise, we rely on the {@link JLhs} code generation support for
      * generating the proper code. Notice that we distinguish between
      * expressions that are statement expressions and those that are not; we
      * insure the proper value (before the decrement) is left atop the stack in
      * the latter case.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
@@ -272,7 +327,7 @@ class JPreIncrementOp extends JUnaryExpression {
     /**
      * Constructs an AST node for a ++expr given its line number, and the
      * operand.
-     * 
+     *
      * @param line
      *            line in which the expression occurs in the source file.
      * @param arg
@@ -286,7 +341,7 @@ class JPreIncrementOp extends JUnaryExpression {
     /**
      * Analyzes the operand as a lhs (since there is a side effect), check types
      * and determine the type of the result.
-     * 
+     *
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
@@ -307,14 +362,14 @@ class JPreIncrementOp extends JUnaryExpression {
 
     /**
      * In generating code for a pre-increment operation, we treat simple
-     * variable ({@link JVariable}) operands specially since the JVM has an 
-     * increment instruction. 
+     * variable ({@link JVariable}) operands specially since the JVM has an
+     * increment instruction.
      * Otherwise, we rely on the {@link JLhs} code generation support for
      * generating the proper code. Notice that we distinguish between
      * expressions that are statement expressions and those that are not; we
      * insure the proper value (after the increment) is left atop the stack in
      * the latter case.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
