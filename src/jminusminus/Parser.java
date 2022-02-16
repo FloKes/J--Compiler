@@ -1012,12 +1012,13 @@ public class Parser {
         }
     }
 
+
     /**
      * Parse a conditional-and expression.
      * 
      * <pre>
-     *   conditionalAndExpression ::= equalityExpression // level 10
-     *                                  {LAND equalityExpression}
+     *   conditionalAndExpression ::= bitwiseAnd // level 10
+     *                                  {LAND bitwiseAnd}
      * </pre>
      * 
      * @return an AST for a conditionalExpression.
@@ -1026,16 +1027,42 @@ public class Parser {
     private JExpression conditionalAndExpression() {
         int line = scanner.token().line();
         boolean more = true;
-        JExpression lhs = equalityExpression();
+        JExpression lhs = bitwiseAndExpression();
         while (more) {
             if (have(LAND)) {
-                lhs = new JLogicalAndOp(line, lhs, equalityExpression());
+                lhs = new JLogicalAndOp(line, lhs, bitwiseAndExpression());
             } else {
                 more = false;
             }
         }
         return lhs;
     }
+
+    /**
+     * Parse a bitwise and
+     * 
+     * <pre>
+     *   bitwiseAnd ::= equalityExpression // level 7
+     *           {BITWISE_AND equalityExpression}
+     * </pre>
+     * 
+     * @return an AST for a bitwise AND expression
+     */
+
+    private JExpression bitwiseAndExpression() {
+        int line = scanner.token().line();
+        boolean more = true;
+        JExpression lhs = equalityExpression();
+        while (more) {
+            if (have(BITWISE_AND)) {
+                lhs = new JBitwiseAndOp(line, lhs, equalityExpression());
+            } else {
+                more = false;
+            }
+        }
+        return lhs;
+    }
+
 
     /**
      * Parse an equality expression.
@@ -1061,7 +1088,10 @@ public class Parser {
         }
         return lhs;
     }
+    
 
+
+ 
     /**
      * Parse a relational expression.
      * 

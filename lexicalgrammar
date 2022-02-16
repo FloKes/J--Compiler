@@ -48,6 +48,7 @@ STAR        ::= "*"
 DIV         ::= "/"
 MOD 		::= "%"
 SHL			::= "<<"
+BITWISE_AND ::= "&"
 
 // Separators
 COMMA       ::= ","
