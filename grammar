@@ -88,12 +88,12 @@ bitwiseAnd ::= equalityExpression // level 7
 equalityExpression ::= relationalExpression  // level 6
                          {EQUAL relationalExpression}
 
-relationalExpression ::= additiveExpression       // level 5
-                           [(GT | LE) additiveExpression
+relationalExpression ::= bitwiseShiftExpression       // level 5
+                           [(GT | LE) bitwiseShiftExpression
                            | INSTANCEOF referenceType]
 
 bitwiseShiftExpression ::=  additiveExpression       // level 4
-                     {(SHL) additiveExpression}  
+                     {(SHL | SHR) additiveExpression}  
 
 additiveExpression ::= multiplicativeExpression // level 3
                          {(PLUS | MINUS) multiplicativeExpression}

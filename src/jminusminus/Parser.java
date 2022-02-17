@@ -1137,16 +1137,14 @@ public class Parser {
         }
         return lhs;
     }
-    
-
 
  
     /**
      * Parse a relational expression.
      *
      * <pre>
-     *   relationalExpression ::= additiveExpression  // level 5
-     *                              [(GT | LE) additiveExpression
+     *   relationalExpression ::= bitwiseShiftExpression  // level 5
+     *                              [(GT | LE) bitwiseShiftExpression
      *                              | INSTANCEOF referenceType]
      * </pre>
      *
@@ -1167,12 +1165,12 @@ public class Parser {
         }
     }
 
-        /**
+    /**
      * Parse an bitwise shift expression.
      * 
      * <pre>
-     *   bitwiseShiftExpression ::= additiveExpression // level 4
-     *                            {MINUS additiveExpression}
+     *   bitwiseShiftExpression ::=  additiveExpression       // level 4
+     *                {(SHL | SHR) additiveExpression}  
      * </pre>
      * 
      * @return an AST for an additiveExpression.
@@ -1185,32 +1183,13 @@ public class Parser {
         while (more) {
             if (have(SHL)) {
                 lhs = new JSignedShiftLeft(line, lhs, additiveExpression());
+            } else if (have(SHR)) {
+                lhs = new JSignedShiftRight(line, lhs, additiveExpression());
             } else {
                 more = false;
             }
         }
         return lhs;
-    }
-
-    /**
-     * Parse a bitwise shift expression.
-     *
-     * <pre>
-     *   bitwiseShiftExpression ::= additiveExpression // level 3
-     *                            {MINUS additiveExpression}
-     * </pre>
-     *
-     * @return an AST for an bitwiseShiftExpression.
-     */
-
-    private JExpression bitwiseShiftExpression() {
-        int line = scanner.token().line();
-        JExpression lhs = additiveExpression();
-        if (have(SHR)) {
-            return new JSignedShiftRight(line, lhs, additiveExpression());
-        } else {
-            return lhs;
-        }
     }
 
     /**
