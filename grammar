@@ -84,7 +84,7 @@ relationalExpression ::= additiveExpression       // level 5
                            | INSTANCEOF referenceType]
 
 bitwiseShiftExpression ::=  additiveExpression       // level 4
-                     {(SHL) additiveExpression}  
+                     {(SHL | UHR) additiveExpression}  
 
 
 additiveExpression ::= multiplicativeExpression // level 3

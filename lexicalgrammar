@@ -48,6 +48,7 @@ STAR        ::= "*"
 DIV         ::= "/"
 MOD 		::= "%"
 SHL			::= "<<"
+UHR			::= ">>>"
 
 // Separators
 COMMA       ::= ","
