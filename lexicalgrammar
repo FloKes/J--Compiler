@@ -46,10 +46,11 @@ PLUS        ::= "+"
 PLUS_ASSIGN ::= "+="
 STAR        ::= "*"
 DIV         ::= "/"
-MOD 		::= "%"
+MOD 		    ::= "%"
 BITWISE_OR	::= "|"
 BITWISE_XOR	::= "^"
 UNARY_COMP	::= "~"
+SHL			    ::= "<<"
 
 // Separators
 COMMA       ::= ","

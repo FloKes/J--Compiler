@@ -186,8 +186,7 @@ class Scanner {
                 nextCh();
                 return new TokenInfo(LAND, line);
             } else {
-                reportScannerError("Operator & is not supported in j--.");
-                return getNextToken();
+                return new TokenInfo(BITWISE_AND, line);
             }
         case '|':
             nextCh();
@@ -206,6 +205,10 @@ class Scanner {
             if (ch == '=') {
                 nextCh();
                 return new TokenInfo(LE, line);
+            }
+            else if (ch == '<'){
+                nextCh();
+                return new TokenInfo(SHL, line);
             } else {
                 reportScannerError("Operator < is not supported in j--.");
                 return getNextToken();
