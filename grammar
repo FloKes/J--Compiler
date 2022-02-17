@@ -76,8 +76,11 @@ assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}
 
-bitwiseOr ::= bitwiseAnd // level 9
-                {BITWISE_OR bitwiseAnd}
+bitwiseOr ::= bitwiseXor // level 9
+                {BITWISE_OR bitwiseXor}
+
+bitwiseXor ::= bitwiseAnd // level 8
+                {BITWISE_XOR bitwiseAnd}
                 
 bitwiseAnd ::= equalityExpression // level 7
                 {BITWISE_AND equalityExpression}
@@ -105,6 +108,7 @@ unaryExpression ::= INC unaryExpression  // level 1
                   | simpleUnaryExpression
 
 simpleUnaryExpression ::= LNOT unaryExpression
+                        | UNARY_COMP unaryExpression
                         | LPAREN basicType RPAREN unaryExpression //casted
                         | LPAREN // casted               
                             referenceType

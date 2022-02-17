@@ -48,6 +48,8 @@ STAR        ::= "*"
 DIV         ::= "/"
 MOD 		    ::= "%"
 BITWISE_OR	::= "|"
+BITWISE_XOR	::= "^"
+UNARY_COMP	::= "~"
 SHL			    ::= "<<"
 
 // Separators

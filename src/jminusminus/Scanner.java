@@ -191,6 +191,12 @@ class Scanner {
         case '|':
             nextCh();
             return new TokenInfo(BITWISE_OR, line);
+        case '^':
+            nextCh();
+            return new TokenInfo(BITWISE_XOR, line);
+        case '~':
+            nextCh();
+            return new TokenInfo(UNARY_COMP, line);
         case '>':
             nextCh();
             return new TokenInfo(GT, line);
