@@ -46,9 +46,9 @@ PLUS        ::= "+"
 PLUS_ASSIGN ::= "+="
 STAR        ::= "*"
 DIV         ::= "/"
-MOD 		::= "%"
-SHL			::= "<<"
-BITWISE_AND ::= "&"
+MOD 		    ::= "%"
+BITWISE_OR	::= "|"
+SHL			    ::= "<<"
 
 // Separators
 COMMA       ::= ","

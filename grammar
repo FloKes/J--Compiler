@@ -73,9 +73,12 @@ expression ::= assignmentExpression
 assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
                            [(ASSIGN | PLUS_ASSIGN) assignmentExpression]
 
-conditionalAndExpression ::= bitwiseAnd // level 10
-                               {LAND bitwiseAnd}
-          
+conditionalAndExpression ::= bitwiseOr // level 10
+                               {LAND bitwiseOr}
+
+bitwiseOr ::= bitwiseAnd // level 9
+                {BITWISE_OR bitwiseAnd}
+                
 bitwiseAnd ::= equalityExpression // level 7
                 {BITWISE_AND equalityExpression}
 

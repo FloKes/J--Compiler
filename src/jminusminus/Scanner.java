@@ -188,6 +188,9 @@ class Scanner {
             } else {
                 return new TokenInfo(BITWISE_AND, line);
             }
+        case '|':
+            nextCh();
+            return new TokenInfo(BITWISE_OR, line);
         case '>':
             nextCh();
             return new TokenInfo(GT, line);
