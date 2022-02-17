@@ -76,8 +76,11 @@ assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}
 
-bitwiseOr ::= equalityExpression // level 9
-                {BITWISE_OR equalityExpression}
+bitwiseOr ::= bitwiseAnd // level 9
+                {BITWISE_OR bitwiseAnd}
+                
+bitwiseAnd ::= equalityExpression // level 7
+                {BITWISE_AND equalityExpression}
 
 equalityExpression ::= relationalExpression  // level 6
                          {EQUAL relationalExpression}
@@ -85,6 +88,10 @@ equalityExpression ::= relationalExpression  // level 6
 relationalExpression ::= additiveExpression       // level 5
                            [(GT | LE) additiveExpression
                            | INSTANCEOF referenceType]
+
+bitwiseShiftExpression ::=  additiveExpression       // level 4
+                     {(SHL) additiveExpression}  
+
 
 additiveExpression ::= multiplicativeExpression // level 3
                          {(PLUS | MINUS) multiplicativeExpression}
@@ -94,6 +101,7 @@ multiplicativeExpression ::= unaryExpression       // level 2
 
 unaryExpression ::= INC unaryExpression  // level 1
                   | MINUS unaryExpression
+                  | PLUS unaryExpression
                   | simpleUnaryExpression
 
 simpleUnaryExpression ::= LNOT unaryExpression
