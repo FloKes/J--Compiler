@@ -1185,7 +1185,10 @@ public class Parser {
                 lhs = new JSignedShiftLeft(line, lhs, additiveExpression());
             } else if (have(SHR)) {
                 lhs = new JSignedShiftRight(line, lhs, additiveExpression());
-            } else {
+            } else if (have(USHR)) {
+                lhs = new JUnsignedShiftRight(line, lhs, additiveExpression());
+            }       
+             else {
                 more = false;
             }
         }
