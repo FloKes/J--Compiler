@@ -190,7 +190,15 @@ class Scanner {
             }
         case '|':
             nextCh();
-            return new TokenInfo(BITWISE_OR, line);
+            if (ch == '|') {
+                nextCh();
+                return new TokenInfo(OR, line);
+            } else if (ch == '=') {
+                nextCh();
+                return new TokenInfo(BITWISE_OR_ASSIGN, line);
+            } else {
+                return new TokenInfo(BITWISE_OR, line);
+            }
         case '^':
             nextCh();
             return new TokenInfo(BITWISE_XOR, line);
