@@ -1063,7 +1063,7 @@ public class Parser {
         return lhs;
     }
   
-      /**
+    /**
      * Parse a bitwise xor operation
      * 
      * <pre>
@@ -1113,31 +1113,6 @@ public class Parser {
         return lhs;
     }
 
-
-    /**
-     * Parse a bitwise xor operation
-     * 
-     * <pre>
-     *   bitwiseXor ::= equalityExpression // level 8
-     *           {BITWISE_XOR equalityExpression}
-     * </pre>
-     * 
-     * @return an AST for a bitwise XOR expression.
-     */
-
-    private JExpression bitwiseXorExpression() {
-        int line = scanner.token().line();
-        boolean more = true;
-        JExpression lhs = equalityExpression();
-        while (more) {
-            if (have(BITWISE_XOR)) {
-                lhs = new JBitwiseXorOp(line, lhs, equalityExpression());
-            } else {
-                more = false;
-            }
-        }
-        return lhs;
-    }
     /**
      * Parse an equality expression.
      *
