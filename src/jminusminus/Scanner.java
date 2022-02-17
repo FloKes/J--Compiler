@@ -199,7 +199,16 @@ class Scanner {
             return new TokenInfo(UNARY_COMP, line);
         case '>':
             nextCh();
-            return new TokenInfo(GT, line);
+            if (ch == '=') {
+                reportScannerError("Operator >= is not supported yet.");
+                return getNextToken();
+            } else if (ch == '>') {
+                nextCh();
+                return new TokenInfo(SHR, line);
+            } else {
+                nextCh();
+                return new TokenInfo(GT, line);
+            }
         case '<':
             nextCh();
             if (ch == '=') {

@@ -1193,6 +1193,27 @@ public class Parser {
     }
 
     /**
+     * Parse a bitwise shift expression.
+     *
+     * <pre>
+     *   bitwiseShiftExpression ::= additiveExpression // level 3
+     *                            {MINUS additiveExpression}
+     * </pre>
+     *
+     * @return an AST for an bitwiseShiftExpression.
+     */
+
+    private JExpression bitwiseShiftExpression() {
+        int line = scanner.token().line();
+        JExpression lhs = additiveExpression();
+        if (have(SHR)) {
+            return new JSignedShiftRight(line, lhs, additiveExpression());
+        } else {
+            return lhs;
+        }
+    }
+
+    /**
      * Parse an additive expression.
      *
      * <pre>
