@@ -15,7 +15,7 @@ public class SignedShiftRightTest extends TestCase {
         super.tearDown();
     }
 
-    public void testRemainder() {
+    public void testSignedShiftRight() {
         this.assertEquals(4, signedShiftRight.shiftRight(16, 2));
         this.assertEquals(0, signedShiftRight.shiftRight(5, 10));
         this.assertEquals(0, signedShiftRight.shiftRight(0, 10));

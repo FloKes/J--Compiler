@@ -15,7 +15,7 @@ public class UnaryPlusOpTest extends TestCase {
         super.tearDown();
     }
 
-    public void testRemainder() {
+    public void testUnaryPlusOp() {
         this.assertEquals(42, unaryPlusOp.unaryPlus(42));
         this.assertEquals(97, unaryPlusOp.unaryPlus('a'));
     }

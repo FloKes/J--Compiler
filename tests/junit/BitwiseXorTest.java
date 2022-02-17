@@ -15,7 +15,7 @@ public class BitwiseXorTest extends TestCase {
         super.tearDown();
     }
 
-    public void testBitwiseOr() {
+    public void testBitwiseXor() {
         this.assertEquals(0, bitwiseXor.xor(8, 8));
         this.assertEquals(4, bitwiseXor.xor(0, 4));
         this.assertEquals(5, bitwiseXor.xor(5, 0));
