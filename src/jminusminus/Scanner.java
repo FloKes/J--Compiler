@@ -204,7 +204,12 @@ class Scanner {
             }
         case '^':
             nextCh();
-            return new TokenInfo(BITWISE_XOR, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(BITWISE_XOR_ASSIGN, line);
+            } else {
+                return new TokenInfo(BITWISE_XOR, line);
+            }
         case '~':
             nextCh();
             return new TokenInfo(UNARY_COMP, line);
