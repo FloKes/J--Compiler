@@ -220,7 +220,6 @@ class Scanner {
                     return new TokenInfo(SHR, line);
                 }
             } else {
-                nextCh();
                 return new TokenInfo(GT, line);
             }
         case '<':
@@ -231,10 +230,13 @@ class Scanner {
             }
             else if (ch == '<'){
                 nextCh();
+                if (ch == '=') {
+                    nextCh();
+                    return new TokenInfo(SHL_ASSIGN, line);
+                }
                 return new TokenInfo(SHL, line);
             } else {
-                reportScannerError("Operator < is not supported in j--.");
-                return getNextToken();
+                return new TokenInfo(LESS, line);
             }
         case '\'':
             buffer = new StringBuffer();
