@@ -157,7 +157,12 @@ class Scanner {
             }
         case '!':
             nextCh();
-            return new TokenInfo(LNOT, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(LNOT_ASSIGN, line);
+            } else {
+                return new TokenInfo(LNOT, line);
+            }
         case '*':
             nextCh();
             return new TokenInfo(STAR, line);
