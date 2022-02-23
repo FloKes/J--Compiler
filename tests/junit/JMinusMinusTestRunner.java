@@ -31,6 +31,7 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(SignedShiftRightTest.class);
         suite.addTestSuite(UnsignedShiftRightTest.class);
         suite.addTestSuite(UnaryPlusOpTest.class);
+        suite.addTestSuite(SignedShiftRightAssignTest.class);
         return suite;
     }
 
