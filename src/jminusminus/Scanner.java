@@ -208,13 +208,24 @@ class Scanner {
         case '>':
             nextCh();
             if (ch == '=') {
-                reportScannerError("Operator >= is not supported yet.");
-                return getNextToken();
-            } else if (ch == '>') {
+                nextCh();
+                return new TokenInfo(GTE, line);
+            }
+            else if (ch == '>') {
                 nextCh();
                 if (ch == '>'){
                     nextCh();
-                    return new TokenInfo(USHR, line);
+                    if (ch == '='){
+                        nextCh();
+                        return new TokenInfo(USHR_ASSIGN, line);
+                    }
+                    else {
+                        return new TokenInfo(USHR, line);
+                    }
+                }
+                else if(ch == '='){
+                    nextCh();
+                    return new TokenInfo(SHR_ASSIGN, line);
                 }
                 else{
                     return new TokenInfo(SHR, line);
