@@ -111,6 +111,20 @@ class Scanner {
                     while (ch != '\n' && ch != EOFCH) {
                         nextCh();
                     }
+                } else if (ch == '*') {
+                    while (true) {
+                        nextCh();
+                        if (ch == EOFCH) {
+                            reportScannerError("Unexpected end of file found in Multiline Comment");
+                            break;
+                        } else if (ch == '*') {
+                            nextCh();
+                            if (ch == '/') {
+                                nextCh();
+                                break;
+                            }
+                        }
+                    }
                 } else {
                     return new TokenInfo(DIV, line);
                 }
