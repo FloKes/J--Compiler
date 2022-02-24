@@ -138,6 +138,9 @@ class Scanner {
         case ']':
             nextCh();
             return new TokenInfo(RBRACK, line);
+        case ':':
+            nextCh();
+            return new TokenInfo(COLON, line);
         case ';':
             nextCh();
             return new TokenInfo(SEMI, line);
@@ -157,7 +160,12 @@ class Scanner {
             }
         case '!':
             nextCh();
-            return new TokenInfo(LNOT, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(NOT_EQUAL, line);
+            } else {
+                return new TokenInfo(LNOT, line);
+            }
         case '*':
             nextCh();
             return new TokenInfo(STAR, line);
@@ -212,7 +220,12 @@ class Scanner {
             }
         case '^':
             nextCh();
-            return new TokenInfo(BITWISE_XOR, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(BITWISE_XOR_ASSIGN, line);
+            } else {
+                return new TokenInfo(BITWISE_XOR, line);
+            }
         case '~':
             nextCh();
             return new TokenInfo(UNARY_COMP, line);
