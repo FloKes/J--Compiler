@@ -163,7 +163,12 @@ class Scanner {
             return new TokenInfo(STAR, line);
         case '%':
             nextCh();
-            return new TokenInfo(REM, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(REM_ASSIGN, line);
+            } else {
+                return new TokenInfo(REM, line);
+            }
         case '+':
             nextCh();
             if (ch == '=') {
@@ -188,7 +193,10 @@ class Scanner {
             if (ch == '&') {
                 nextCh();
                 return new TokenInfo(LAND, line);
-            } else {
+            } else if (ch == '=') {
+                return new TokenInfo(BITWISE_AND_ASSIGN, line);
+            } 
+            else {
                 return new TokenInfo(BITWISE_AND, line);
             }
         case '|':
