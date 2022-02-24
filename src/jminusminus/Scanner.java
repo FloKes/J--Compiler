@@ -159,9 +159,9 @@ class Scanner {
             nextCh();
             if (ch == '=') {
                 nextCh();
-                return new TokenInfo(LNOT_ASSIGN, line);
+                return new TokenInfo(NOT_EQUAL, line);
             } else {
-                return new TokenInfo(LNOT, line);
+                return new TokenInfo(NOT, line);
             }
         case '*':
             nextCh();
