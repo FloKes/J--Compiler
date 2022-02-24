@@ -161,7 +161,7 @@ class Scanner {
                 nextCh();
                 return new TokenInfo(NOT_EQUAL, line);
             } else {
-                return new TokenInfo(NOT, line);
+                return new TokenInfo(LNOT, line);
             }
         case '*':
             nextCh();

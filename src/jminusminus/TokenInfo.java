@@ -31,12 +31,12 @@ enum TokenKind {
     VOID("void"), VOLATILE("volatile"), WHILE("while"), 
 
     // Operators
-    CONDITIONAL("?"), ASSIGN("="), EQUAL("=="), NOT("!"), UNARY_COMP("~"),
+    CONDITIONAL("?"), ASSIGN("="), EQUAL("=="), LNOT("!"), UNARY_COMP("~"),
     NOT_EQUAL("!="), DIV("/"), DIV_ASSIGN("/="), PLUS("+"), PLUS_ASSIGN("+="), INC("++"), MINUS("-"),
     MINUS_ASSIGN("-="), DEC("--"),  STAR("*"), STAR_ASSIGN("*="), REM("%"), REM_ASSIGN("%="),
     SHR(">>"), SHR_ASSIGN(">>="), USHR(">>>"), USHR_ASSIGN(">>>="), GTE(">="), GT(">"),
     SHL("<<"), SHL_ASSIGN("<<="), LE("<="), LESS("<"), BITWISE_XOR("^"), BITWISE_XOR_ASSIGN("^="),
-    BITWISE_OR("|"), BITWISE_OR_ASSIGN("|="), OR("||"), BITWISE_AND("&"), BITWISE_AND_ASSIGN("&="), AND("&&"),
+    BITWISE_OR("|"), BITWISE_OR_ASSIGN("|="), OR("||"), BITWISE_AND("&"), BITWISE_AND_ASSIGN("&="), LAND("&&"),
 
     // Separators
     LPAREN("("), RPAREN(")"), LCURLY("{"), RCURLY("}"), LBRACK("["), 
