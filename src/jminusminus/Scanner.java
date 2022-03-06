@@ -138,6 +138,20 @@ class Scanner {
                     while (ch != '\n' && ch != EOFCH) {
                         nextCh();
                     }
+                } else if (ch == '*') {
+                    while (true) {
+                        nextCh();
+                        if (ch == EOFCH) {
+                            reportScannerError("Unexpected end of file found in Multiline Comment");
+                            break;
+                        } else if (ch == '*') {
+                            nextCh();
+                            if (ch == '/') {
+                                nextCh();
+                                break;
+                            }
+                        }
+                    }
                 } else {
                     return new TokenInfo(DIV, line);
                 }
@@ -355,6 +369,7 @@ class Scanner {
             return new TokenInfo(EOF, line);
         case '0':
             // Handle only simple decimal integers for now.
+            // TODO: Handle double that starts with 0, e.g. 0.5234
             nextCh();
             return new TokenInfo(INT_LITERAL, "0", line);
         case '1':
@@ -366,12 +381,25 @@ class Scanner {
         case '7':
         case '8':
         case '9':
+            // TODO: Handle that 0.000 should just return an INT_LITERAL with image 0, but 0.23525 should be double.
             buffer = new StringBuffer();
             while (isDigit(ch)) {
                 buffer.append(ch);
                 nextCh();
             }
-            return new TokenInfo(INT_LITERAL, buffer.toString(), line);
+            if (ch == '.') {
+                buffer.append(ch);
+                while (isDigit(ch)) {
+                    buffer.append(ch);
+                    nextCh();
+                }
+                return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                /*
+                if (ch == '.') {
+                    // scanner error, e.g.: '553.2342.34
+                }
+                */
+            } else return new TokenInfo(INT_LITERAL, buffer.toString(), line);
         default:
             if (isIdentifierStart(ch)) {
                 buffer = new StringBuffer();
