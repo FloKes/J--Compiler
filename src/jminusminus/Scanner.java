@@ -389,6 +389,7 @@ class Scanner {
             }
             if (ch == '.') {
                 buffer.append(ch);
+                nextCh();
                 while (isDigit(ch)) {
                     buffer.append(ch);
                     nextCh();

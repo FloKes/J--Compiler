@@ -14,4 +14,4 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build with Ant
-        run: ant -buildfile build_prod.xml
+        run: ant
