@@ -993,6 +993,10 @@ public class Parser {
      *       conditionalAndExpression // level 13
      *           [( ASSIGN  // conditionalExpression
      *            | PLUS_ASSIGN // must be valid lhs
+     *            | MINUS_ASSIGN
+     *            | STAR_ASSIGN
+     *            | DIV_ASSIGN
+     *            | REM_ASSIGN
      *            )
      *            assignmentExpression]
      * </pre>
@@ -1039,7 +1043,10 @@ public class Parser {
         while (more) {
             if (have(LAND)) {
                 lhs = new JLogicalAndOp(line, lhs, bitwiseOrExpression());
-            } else {
+            } else if (have(OR)){
+                lhs = new JLogicalOrOp(line, lhs, bitwiseOrExpression());
+            } 
+            else {
                 more = false;
             }
         }
