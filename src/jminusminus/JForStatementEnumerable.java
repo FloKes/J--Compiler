@@ -8,16 +8,12 @@ import static jminusminus.CLConstants.GOTO;
  * The AST node for a for-statement.
  */
 
-class JForStatement extends JStatement {
+class JForStatementEnumerable extends JStatement {
 
     /** Declare the variable. */
     private JVariableDeclarator declarator;
 
-    /** Test expression. */
-    private JExpression condition;
-
-    /** Update the variable. */
-    private JStatement statementExpression;
+    private JVariable enumerable;
 
     /** The body. */
     private JStatement body;
@@ -28,18 +24,15 @@ class JForStatement extends JStatement {
      *
      * @param line
      *            line in which the for-statement occurs in the source file.
-     * @param condition
      *            test expression.
      * @param body
      *            the body.
      */
 
-    public JForStatement(int line, JVariableDeclarator declarator, JExpression condition,
-                         JStatement statementExpression, JStatement body) {
+    public JForStatementEnumerable(int line, JVariableDeclarator declarator, JVariable enumerable, JStatement body) {
         super(line);
         this.declarator = declarator;
-        this.condition = condition;
-        this.statementExpression = statementExpression;
+        this.enumerable = enumerable;
         this.body = body;
     }
 
@@ -52,11 +45,9 @@ class JForStatement extends JStatement {
      * @return the analyzed (and possibly rewritten) AST subtree.
      */
 
-    public JForStatement analyze(Context context) {
+    public JForStatementEnumerable analyze(Context context) {
         declarator = declarator.analyze(context);
-        condition = condition.analyze(context);
-        condition.type().mustMatchExpected(line(), Type.BOOLEAN);
-        statementExpression = (JStatement) statementExpression.analyze(context);
+        enumerable = (JVariable) enumerable.analyze(context);
         body = (JStatement) body.analyze(context);
         return this;
     }
@@ -76,8 +67,6 @@ class JForStatement extends JStatement {
 
         // Branch out of the loop on the test condition
         // being false
-        output.addLabel(test);
-        condition.codegen(output, out, false);
 
         // Codegen body
         body.codegen(output);
@@ -94,31 +83,25 @@ class JForStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
-        p.printf("<ForStatement line=\"%d\">\n", line());
+        p.printf("<ForStatementEnumerable line=\"%d\">\n", line());
         p.indentRight();
         p.printf("<DeclaratorExpression>\n");
         p.indentRight();
         declarator.writeToStdOut(p);
         p.indentLeft();
         p.printf("</DeclaratorExpression>\n");
-        p.printf("<TestExpression>\n");
+        p.printf("<Enumerable>\n");
         p.indentRight();
-        condition.writeToStdOut(p);
+        enumerable.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</TestExpression>\n");
-        p.printf("<StatementExpression>\n");
-        p.indentRight();
-        statementExpression.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</StatementExpression>\n");
-        p.indentLeft();
+        p.printf("</Enumerable>\n");
         p.printf("<Body>\n");
         p.indentRight();
         body.writeToStdOut(p);
         p.indentLeft();
         p.printf("</Body>\n");
         p.indentLeft();
-        p.printf("</ForStatement>\n");
+        p.printf("</ForStatementEnumerable>\n");
     }
 
 }
