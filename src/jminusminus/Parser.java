@@ -1002,13 +1002,37 @@ public class Parser {
 
     private JExpression assignmentExpression() {
         int line = scanner.token().line();
-        JExpression lhs = conditionalAndExpression();
+        JExpression lhs = ternaryExpression();
         if (have(ASSIGN)) {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
             return new JPlusAssignOp(line, lhs, assignmentExpression());
         } else {
             return lhs;
+        }
+    }
+
+    /**
+     * Parse a conditional (ternary) expression.
+     *
+     * <pre>
+     * ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
+            *                   [CONDITIONAL conditionalAndExpression
+            *                   COLON ternaryExpression] 
+     * </pre>
+     *
+     * @return an AST for a ternaryExpression.
+     */
+
+    private JExpression ternaryExpression() {
+        int line = scanner.token().line();
+        JExpression condition = conditionalAndExpression();
+        if (have(CONDITIONAL)) {
+            JExpression lhs = conditionalAndExpression();
+            mustBe(COLON);
+            return new JTernaryExpression(line, condition, lhs, ternaryExpression());
+        } else {
+            return condition;
         }
     }
 

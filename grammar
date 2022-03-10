@@ -70,8 +70,12 @@ statementExpression ::= expression // but must have side-effect, eg i++
 
 expression ::= assignmentExpression
 
-assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
+assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
                            [(ASSIGN | PLUS_ASSIGN) assignmentExpression]
+
+ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
+                        [CONDITIONAL conditionalAndExpression
+                        COLON ternaryExpression]
 
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}
