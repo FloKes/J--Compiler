@@ -656,6 +656,18 @@ public class Parser {
             JExpression test = parExpression();
             JStatement statement = statement();
             return new JWhileStatement(line, test, statement);
+        } else if (have(FOR)) {
+            mustBe(LPAREN);
+            Type type = type();
+            JVariableDeclarator declarator = variableDeclarator(type);
+            mustBe(SEMI);
+            JExpression test = expression();
+            mustBe(SEMI);
+            JStatement statementExpression = statementExpression();
+            mustBe(RPAREN);
+            JStatement statement = statement();
+            return new JForStatement(line, declarator, test, statementExpression,statement);
+
         } else if (have(RETURN)) {
             if (have(SEMI)) {
                 return new JReturnStatement(line, null);
