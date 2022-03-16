@@ -35,6 +35,9 @@ statement ::= block
             | RETURN [expression] SEMI
             | SEMI 
             | statementExpression SEMI
+            | TRY statement CATCH parException statement [FINALLY statement] 
+
+parException ::= LPAREN formalParameter RPAREN
 
 formalParameters ::= LPAREN 
                        [formalParameter {COMMA formalParameter}]

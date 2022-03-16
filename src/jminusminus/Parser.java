@@ -629,6 +629,22 @@ public class Parser {
     }
 
     /**
+     * Parse a parenthesized Exception.
+     *
+     * <pre>
+     *   parException ::= LPAREN expression RPAREN  // ( Exception e )
+     * </pre>
+     *
+     * @return an AST for a parExpression.
+     */
+
+
+    /**
+     * JTryStatement
+     */
+
+
+    /**
      * Parse a statement.
      *
      * <pre>
@@ -638,6 +654,7 @@ public class Parser {
      *               | RETURN [expression] SEMI
      *               | SEMI
      *               | statementExpression SEMI
+     *               | TRY statement CATCH parException statement [FINALLY statement] 
      * </pre>
      *
      * @return an AST for a statement.
@@ -666,6 +683,13 @@ public class Parser {
             }
         } else if (have(SEMI)) {
             return new JEmptyStatement(line);
+        } else if (have(TRY)) {
+            JStatement tryStatement = statement();
+            mustBe(CATCH);
+            JFormalParameter exception = formalParameter(); // FIXME: Probably not the one we want. Should match '( Exception e )'
+            JStatement catchStatement = statement(); // catch
+            JStatement finallyStatement = have(FINALLY) ? statement() : null;
+            return new JTryStatement(line, tryStatement, exception, catchStatement, finallyStatement);
         } else { // Must be a statementExpression
             JStatement statement = statementExpression();
             mustBe(SEMI);
