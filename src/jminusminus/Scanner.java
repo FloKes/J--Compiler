@@ -266,7 +266,7 @@ class Scanner {
             nextCh();
             if (ch == '|') {
                 nextCh();
-                return new TokenInfo(OR, line);
+                return new TokenInfo(LOR, line);
             } else if (ch == '=') {
                 nextCh();
                 return new TokenInfo(BITWISE_OR_ASSIGN, line);

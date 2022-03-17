@@ -1006,7 +1006,7 @@ public class Parser {
 
     private JExpression assignmentExpression() {
         int line = scanner.token().line();
-        JExpression lhs = conditionalAndExpression();
+        JExpression lhs = conditionalOrExpression();
         if (have(ASSIGN)) {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
@@ -1022,6 +1022,32 @@ public class Parser {
         } else {
             return lhs;
         }
+    }
+
+        /**
+     * Parse a conditional-and expression.
+     * 
+     * <pre>
+     *   conditionalAndExpression ::= bitwiseOr // level 10
+     *                          {LAND bitwiseOr}
+     * </pre>
+     * 
+     * @return an AST for a conditionalExpression.
+     */
+
+    private JExpression conditionalOrExpression() {
+        int line = scanner.token().line();
+        boolean more = true;
+        JExpression lhs = conditionalAndExpression();
+        while (more) {
+            if (have(LOR)){
+                lhs = new JLogicalOrOp(line, lhs, conditionalAndExpression());
+            } 
+            else {
+                more = false;
+            }
+        }
+        return lhs;
     }
 
 
@@ -1043,9 +1069,7 @@ public class Parser {
         while (more) {
             if (have(LAND)) {
                 lhs = new JLogicalAndOp(line, lhs, bitwiseOrExpression());
-            } else if (have(OR)){
-                lhs = new JLogicalOrOp(line, lhs, bitwiseOrExpression());
-            } 
+            }
             else {
                 more = false;
             }

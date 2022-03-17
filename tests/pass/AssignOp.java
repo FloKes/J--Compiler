@@ -15,5 +15,10 @@ public class AssignOp {
     public int assignRem (int x, int y){
         return x %= y;
     }
+
+    public boolean test(Boolean x, Boolean y){
+
+        return x || y;
+    }
     
 }
