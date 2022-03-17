@@ -81,18 +81,6 @@ class JTryStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-        String catchLabel = output.createLabel();
-        String endLabel = output.createLabel();
-        condition.codegen(output, elseLabel, false);
-        tryStatement.codegen(output);
-        if (elsePart != null) {
-            output.addBranchInstruction(GOTO, endLabel);
-        }
-        output.addLabel(elseLabel);
-        if (elsePart != null) {
-            elsePart.codegen(output);
-            output.addLabel(endLabel);
-        }
     }
 
     /**
@@ -100,27 +88,32 @@ class JTryStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
-        p.printf("<JIfStatement line=\"%d\">\n", line());
+        p.printf("<JTryStatement line=\"%d\">\n", line());
         p.indentRight();
-        p.printf("<TestExpression>\n");
+        p.printf("<TryStatement>\n");
         p.indentRight();
-        condition.writeToStdOut(p);
+        tryStatement.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</TestExpression>\n");
-        p.printf("<ThenClause>\n");
+        p.printf("</TryStatement>\n");
+        p.printf("<CatchStatement>\n");
         p.indentRight();
-        thenPart.writeToStdOut(p);
+        p.printf("<Exception>\n");
+        //p.indentRight();
+        //exception.writeToStdOut(p);
+        //p.indentLeft();
+        p.printf("</Exception>\n");
+        catchStatement.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</ThenClause>\n");
-        if (elsePart != null) {
-            p.printf("<ElseClause>\n");
+        p.printf("</CatchStatement>\n");
+        if (finallyStatement != null) {
+            p.printf("<FinallyStatement>\n");
             p.indentRight();
-            elsePart.writeToStdOut(p);
+            finallyStatement.writeToStdOut(p);
             p.indentLeft();
-            p.printf("</ElseClause>\n");
+            p.printf("</FinallyStatement>\n");
         }
         p.indentLeft();
-        p.printf("</JIfStatement>\n");
+        p.printf("</JTryStatement>\n");
     }
 
 }
