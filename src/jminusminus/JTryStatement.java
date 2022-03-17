@@ -99,9 +99,9 @@ class JTryStatement extends JStatement {
         p.printf("<CatchStatement>\n");
         p.indentRight();
         p.printf("<Exception>\n");
-        //p.indentRight();
-        //exception.writeToStdOut(p);
-        //p.indentLeft();
+        p.indentRight();
+        exception.writeToStdOut(p);
+        p.indentLeft();
         p.printf("</Exception>\n");
         catchStatement.writeToStdOut(p);
         p.indentLeft();
