@@ -686,7 +686,9 @@ public class Parser {
         } else if (have(TRY)) {
             JStatement tryStatement = statement();
             mustBe(CATCH);
-            JFormalParameter exception = formalParameter(); // FIXME: Probably not the one we want. Should match '( Exception e )'
+            mustBe(LPAREN);
+            JFormalParameter exception = formalParameter();
+            mustBe(RPAREN);
             JStatement catchStatement = statement(); // catch
             JStatement finallyStatement = have(FINALLY) ? statement() : null;
             return new JTryStatement(line, tryStatement, exception, catchStatement, finallyStatement);

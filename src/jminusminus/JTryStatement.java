@@ -42,7 +42,8 @@ class JTryStatement extends JStatement {
                          JStatement tryStatement,
                          JFormalParameter exception,
                          JStatement catchStatement,
-                         JStatement finallyStatement) {
+                         JStatement finallyStatement)
+    {
         super(line);
         this.tryStatement = tryStatement;
         this.exception = exception;
