@@ -31,7 +31,9 @@ blockStatement ::= localVariableDeclarationStatement
 
 statement ::= block
             | IF parExpression statement [ELSE statement]
-            | WHILE parExpression statement 
+            | WHILE parExpression statement
+            | FOR LPAREN localVariableDeclarationStatement expression SEMI assignmentExpression RPAREN statement
+            | FOR LPAREN formalParameter COLON IDENTIFIER RPAREN statement
             | RETURN [expression] SEMI
             | SEMI 
             | statementExpression SEMI
@@ -70,6 +72,7 @@ statementExpression ::= expression // but must have side-effect, eg i++
 
 expression ::= assignmentExpression
 
+// Did we change this?
 assignmentExpression ::= conditionalAndExpression  // must be a valid lhs
                            [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
 
