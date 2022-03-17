@@ -152,7 +152,11 @@ class Scanner {
                             }
                         }
                     }
-                } else {
+                } if (ch == '=') {
+                    nextCh();
+                    return new TokenInfo(DIV_ASSIGN, line);
+                }
+                else {
                     return new TokenInfo(DIV, line);
                 }
             } else {
@@ -209,7 +213,13 @@ class Scanner {
             }
         case '*':
             nextCh();
-            return new TokenInfo(STAR, line);
+            if (ch == '=') {
+                nextCh();
+                return new TokenInfo(STAR_ASSIGN, line);
+            }
+            else {
+                return new TokenInfo(STAR, line);
+            }
         case '%':
             nextCh();
             if (ch == '=') {
@@ -234,7 +244,11 @@ class Scanner {
             if (ch == '-') {
                 nextCh();
                 return new TokenInfo(DEC, line);
-            } else {
+            } if (ch == '=') {
+                nextCh();
+                return new TokenInfo(MINUS_ASSIGN, line);
+            } 
+            else {
                 return new TokenInfo(MINUS, line);
             }
         case '&':
@@ -252,7 +266,7 @@ class Scanner {
             nextCh();
             if (ch == '|') {
                 nextCh();
-                return new TokenInfo(OR, line);
+                return new TokenInfo(LOR, line);
             } else if (ch == '=') {
                 nextCh();
                 return new TokenInfo(BITWISE_OR_ASSIGN, line);

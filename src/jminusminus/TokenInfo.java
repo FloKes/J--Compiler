@@ -36,7 +36,7 @@ enum TokenKind {
     MINUS_ASSIGN("-="), DEC("--"),  STAR("*"), STAR_ASSIGN("*="), REM("%"), REM_ASSIGN("%="),
     SHR(">>"), SHR_ASSIGN(">>="), USHR(">>>"), USHR_ASSIGN(">>>="), GTE(">="), GT(">"),
     SHL("<<"), SHL_ASSIGN("<<="), LE("<="), LESS("<"), BITWISE_XOR("^"), BITWISE_XOR_ASSIGN("^="),
-    BITWISE_OR("|"), BITWISE_OR_ASSIGN("|="), OR("||"), BITWISE_AND("&"), BITWISE_AND_ASSIGN("&="), LAND("&&"),
+    BITWISE_OR("|"), BITWISE_OR_ASSIGN("|="), LOR("||"), BITWISE_AND("&"), BITWISE_AND_ASSIGN("&="), LAND("&&"),
 
     // Separators
     LPAREN("("), RPAREN(")"), LCURLY("{"), RCURLY("}"), LBRACK("["), 
