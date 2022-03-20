@@ -16,9 +16,5 @@ public class AssignOp {
         return x %= y;
     }
 
-    public boolean test(Boolean x, Boolean y){
-
-        return x && y || x && y;
-    }
     
 }
