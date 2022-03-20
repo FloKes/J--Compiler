@@ -7,12 +7,25 @@ compilationUnit ::= [PACKAGE qualifiedIdentifier SEMI]
 
 qualifiedIdentifier ::= IDENTIFIER {DOT IDENTIFIER}
 
-typeDeclaration ::= modifiers classDeclaration
+typeDeclaration ::= modifiers classDeclaration |
+                    modifiers interfaceDeclaration
 
 modifiers ::= {PUBLIC | PROTECTED | PRIVATE | STATIC | ABSTRACT}
 
+interfaceDeclaration ::= INTERFACE IDENTIFIER
+                          [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
+                          interfaceBody
+
+interfaceBody ::= LCURLY {modifiers interfaceMemberDecl} RCURLY
+
+interfaceMemberDecl ::= (VOID | type) IDENTIFIER  // method
+                        formalParameters
+                        (block | SEMI)
+                      | type variableDeclarators SEMI // field
+
 classDeclaration ::= CLASS IDENTIFIER 
-                       [EXTENDS qualifiedIdentifier] 
+                       [EXTENDS qualifiedIdentifier]
+                       [IMPLEMENTS qualifiedIdentifier {COMMA qualifiedIdentifier}]
                        classBody
 
 classBody ::= LCURLY {modifiers memberDecl} RCURLY
@@ -31,10 +44,15 @@ blockStatement ::= localVariableDeclarationStatement
 
 statement ::= block
             | IF parExpression statement [ELSE statement]
-            | WHILE parExpression statement 
+            | WHILE parExpression statement
+            | FOR LPAREN localVariableDeclarationStatement expression SEMI assignmentExpression RPAREN statement
+            | FOR LPAREN formalParameter COLON IDENTIFIER RPAREN statement
             | RETURN [expression] SEMI
             | SEMI 
             | statementExpression SEMI
+            | TRY statement CATCH parException statement [FINALLY statement] 
+
+parException ::= LPAREN formalParameter RPAREN
 
 formalParameters ::= LPAREN 
                        [formalParameter {COMMA formalParameter}]
@@ -61,7 +79,7 @@ arguments ::= LPAREN [expression {COMMA expression}] RPAREN
 
 type ::= referenceType | basicType
 
-basicType ::= BOOLEAN | CHAR | INT 
+basicType ::= BOOLEAN | CHAR | INT | DOUBLE
 
 referenceType ::= basicType LBRACK RBRACK {LBRACK RBRACK}
                 | qualifiedIdentifier {LBRACK RBRACK}
@@ -70,8 +88,10 @@ statementExpression ::= expression // but must have side-effect, eg i++
 
 expression ::= assignmentExpression
 
+
 assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
-                           [(ASSIGN | PLUS_ASSIGN) assignmentExpression]
+                           [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
+
 
 ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
                         [CONDITIONAL conditionalAndExpression
@@ -141,5 +161,5 @@ creator ::= (basicType | qualifiedIdentifier)
 newArrayDeclarator ::= LBRACK expression RBRACK 
                          {LBRACK expression RBRACK} {LBRACK RBRACK}
 
-literal ::= INT_LITERAL | CHAR_LITERAL | STRING_LITERAL
+literal ::= INT_LITERAL | DOUBLE_LITERAL | CHAR_LITERAL | STRING_LITERAL
           | TRUE        | FALSE        | NULL

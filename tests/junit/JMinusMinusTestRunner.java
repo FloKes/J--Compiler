@@ -34,6 +34,7 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(SignedShiftRightAssignTest.class);
         suite.addTestSuite(UnsignedShiftRightAssignTest.class);
         suite.addTestSuite(GreaterThanEqTest.class);
+        suite.addTestSuite(DecrementPrefixTest.class);
         return suite;
     }
 
