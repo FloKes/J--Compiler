@@ -404,10 +404,16 @@ public class Parser {
 
     private JAST typeDeclaration() {
         ArrayList<String> mods = modifiers();
+        /**
         if (have(CLASS))
             return classDeclaration(mods);
         else 
             return interfaceDeclaration(mods);
+         */
+        if (have(INTERFACE))
+            return interfaceDeclaration(mods);
+
+        return classDeclaration(mods);
     }
 
     /**
