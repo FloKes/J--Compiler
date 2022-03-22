@@ -1214,6 +1214,7 @@ public class Parser {
         } else {
             return condition;
         }
+    }
 
         /**
      * Parse a conditional-and expression.
