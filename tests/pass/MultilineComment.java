@@ -4,8 +4,8 @@ package pass;
 second line
 third line */
 
-public class A {
-     /*inserted random multiline comment*/ public A(int a){
+public class MultilineComment {
+     /*inserted random multiline comment*/ public int aMethod(int a){
         return a;
     }
 }

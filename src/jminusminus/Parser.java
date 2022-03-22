@@ -404,7 +404,7 @@ public class Parser {
 
     private JAST typeDeclaration() {
         ArrayList<String> mods = modifiers();
-        if (have(CLASS))
+        if (see(CLASS))
             return classDeclaration(mods);
         else 
             return interfaceDeclaration(mods);
@@ -1173,7 +1173,7 @@ public class Parser {
 
     private JExpression assignmentExpression() {
         int line = scanner.token().line();
-        JExpression lhs = conditionalOrExpression();
+        JExpression lhs = ternaryExpression();
         if (have(ASSIGN)) {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
@@ -1188,6 +1188,31 @@ public class Parser {
             return new JRemAssignOp(line, lhs, assignmentExpression());
         } else {
             return lhs;
+        }
+    }
+
+
+    /**
+     * Parse a conditional (ternary) expression.
+     *
+     * <pre>
+     * ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
+            *                   [CONDITIONAL conditionalAndExpression
+            *                   COLON ternaryExpression] 
+     * </pre>
+     *
+     * @return an AST for a ternaryExpression.
+     */
+
+    private JExpression ternaryExpression() {
+        int line = scanner.token().line();
+        JExpression condition = conditionalOrExpression();
+        if (have(CONDITIONAL)) {
+            JExpression lhs = conditionalOrExpression();
+            mustBe(COLON);
+            return new JTernaryExpression(line, condition, lhs, ternaryExpression());
+        } else {
+            return condition;
         }
     }
 
@@ -1215,6 +1240,7 @@ public class Parser {
             }
         }
         return lhs;
+
     }
 
 

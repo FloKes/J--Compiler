@@ -1,22 +1,20 @@
-// Copyright 2013 Bill Campbell, Swami Iyer and Bahar Akbal-Delibas
-
 package pass;
 
 import java.lang.System;
 
-public interface A {
+interface AnInterfaceA {
     int a = 0;
 }
 
-public interface B {
+interface AnInterfaceB {
     int b = 0;
 }
 
-public interface extends A,B {
+interface AnInterfaceC extends AnInterfaceA, AnInterfaceB {
     int c = 0;
 }
 
-public class Classes implements A, B, C {
+public class Interfaces implements AnInterfaceA, AnInterfaceB, AnInterfaceC {
 
     public static String message() {
         return A.a + ", " + (new B()).b;
@@ -28,13 +26,13 @@ public class Classes implements A, B, C {
 
 }
 
-class A {
+class Aa {
 
     public static String a = "Hello";
 
 }
 
-class B extends A {
+class Bb extends Aa {
 
     public String b = "World!";
 
