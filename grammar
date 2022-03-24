@@ -28,7 +28,13 @@ classDeclaration ::= CLASS IDENTIFIER
                        [IMPLEMENTS qualifiedIdentifier {COMMA qualifiedIdentifier}]
                        classBody
 
-classBody ::= LCURLY {modifiers memberDecl} RCURLY
+classBody ::= LCURLY {
+                ;
+                | STATIC block
+                | block
+                | modifiers memberDecl
+                }
+              RCURLY
 
 memberDecl ::= IDENTIFIER            // constructor
                  formalParameters block
@@ -74,11 +80,6 @@ arrayInitializer ::= LCURLY
                        [variableInitializer
                          {COMMA variableInitializer} [COMMA]]
                      RCURLY
-
-staticInitializationBlock := STATIC LCURLY statementExpression RCURLY
-
-instanceInitializationBlock := LCURLY statementExpression RCURLY
-
 
 arguments ::= LPAREN [expression {COMMA expression}] RPAREN
 
