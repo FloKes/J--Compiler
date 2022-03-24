@@ -43,6 +43,7 @@ class JTernaryExpression extends JExpression {
         this.elsePart = elsePart;
     }
 
+    // TO BE IMPLEMENTED
     public JExpression analyze(Context context) {
         condition = (JExpression) condition.analyze(context);
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
