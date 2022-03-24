@@ -6,7 +6,7 @@ import static jminusminus.CLConstants.*;
 
 /**
  * The AST node for a conditional (ternary) expression. The ?: operator has three
- * operands: a condition, lhs, rhs.
+ * operands: a condition, thenPart, elsePart.
  */
 
 class JTernaryExpression extends JExpression {
@@ -15,32 +15,32 @@ class JTernaryExpression extends JExpression {
     /** The conditiona operand. */
     protected JExpression condition;
     
-    /** The lhs operand. */
-    protected JExpression lhs;
+    /** The thenPart operand. */
+    protected JExpression thenPart;
     
-    /** The rhs operand. */
-    protected JExpression rhs;
+    /** The elsePart operand. */
+    protected JExpression elsePart;
 
     /**
-     * Constructs the AST node for a conditional (ternary) expression given the condition, lhs, and
-     * rhs operands.
+     * Constructs the AST node for a conditional (ternary) expression given the condition, thenPart, and
+     * elsePart operands.
      * 
      * @param line
      *            line in which the assignment expression occurs in the source
      *            file.
      * @param condition
      *            condition operand.
-     * @param lhs
-     *            lhs operand.
-     * @param rhs
-     *            rhs operand.
+     * @param thenPart
+     *            thenPart operand.
+     * @param elsePart
+     *            elsePart operand.
      */
 
-    public JTernaryExpression(int line, JExpression condition, JExpression lhs, JExpression rhs) {
+    public JTernaryExpression(int line, JExpression condition, JExpression thenPart, JExpression elsePart) {
         super(line);
         this.condition = condition;
-        this.lhs = lhs;
-        this.rhs = rhs;
+        this.thenPart = thenPart;
+        this.elsePart = elsePart;
     }
 
     // TO BE IMPLEMENTED
@@ -66,17 +66,17 @@ class JTernaryExpression extends JExpression {
         p.indentLeft();
         p.printf("</Cond>\n");
 
-        p.printf("<Lhs>\n");
+        p.printf("<ThenPart>\n");
         p.indentRight();
-        lhs.writeToStdOut(p);
+        thenPart.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</Lhs>\n");
+        p.printf("</ThenPart>\n");
 
-        p.printf("<Rhs>\n");
+        p.printf("<ElsePart>\n");
         p.indentRight();
-        rhs.writeToStdOut(p);
+        elsePart.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</Rhs>\n");
+        p.printf("</ElsePart>\n");
 
         p.indentLeft();
         p.printf("</JTernaryExpression>\n");

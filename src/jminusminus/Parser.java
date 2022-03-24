@@ -1208,9 +1208,9 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression lhs = conditionalOrExpression();
+            JExpression thenPart = conditionalOrExpression();
             mustBe(COLON);
-            return new JTernaryExpression(line, condition, lhs, ternaryExpression());
+            return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {
             return condition;
         }
