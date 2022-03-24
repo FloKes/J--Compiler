@@ -152,11 +152,10 @@ class Scanner {
                             }
                         }
                     }
-                } if (ch == '=') {
+                } else if (ch == '=') {
                     nextCh();
                     return new TokenInfo(DIV_ASSIGN, line);
-                }
-                else {
+                } else {
                     return new TokenInfo(DIV, line);
                 }
             } else {
