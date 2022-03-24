@@ -93,9 +93,12 @@ assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
                            [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
 
 
-ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
-                        [CONDITIONAL conditionalAndExpression
+ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
+                        [CONDITIONAL Expression
                         COLON ternaryExpression]
+
+conditionalOrExpression ::= conditionalAndExpression // level 10
+                               {LOR conditionalAndExpression}
 
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}

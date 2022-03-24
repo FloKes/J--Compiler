@@ -1196,8 +1196,8 @@ public class Parser {
      * Parse a conditional (ternary) expression.
      *
      * <pre>
-     * ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL conditionalAndExpression
+     * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
+            *                   [CONDITIONAL Expression
             *                   COLON ternaryExpression] 
      * </pre>
      *
@@ -1208,7 +1208,7 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression thenPart = conditionalOrExpression();
+            JExpression thenPart = Expression();
             mustBe(COLON);
             return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {
@@ -1220,8 +1220,8 @@ public class Parser {
      * Parse a conditional-and expression.
      * 
      * <pre>
-     *   conditionalAndExpression ::= bitwiseOr // level 10
-     *                          {LAND bitwiseOr}
+     *   conditionalOrExpression ::= conditionalAndExpression // level 10
+     *                          {LOR conditionalAndExpression}
      * </pre>
      * 
      * @return an AST for a conditionalExpression.
