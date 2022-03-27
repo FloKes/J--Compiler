@@ -1363,7 +1363,9 @@ public class Parser {
         while (more) {
             if (have(EQUAL)) {
                 lhs = new JEqualOp(line, lhs, relationalExpression());
-            } else {
+            } else if(have(NOT_EQUAL)){
+                lhs = new JNotEqualOp(line, lhs, relationalExpression());
+            }else {
                 more = false;
             }
         }
@@ -1376,7 +1378,7 @@ public class Parser {
      *
      * <pre>
      *   relationalExpression ::= bitwiseShiftExpression  // level 5
-     *                              [(GT | LE) bitwiseShiftExpression
+     *                              [(GT | LE | LESS | GTE) bitwiseShiftExpression
      *                              | INSTANCEOF referenceType]
      * </pre>
      *
@@ -1390,7 +1392,11 @@ public class Parser {
             return new JGreaterThanOp(line, lhs, bitwiseShiftExpression());
         } else if (have(LE)) {
             return new JLessEqualOp(line, lhs, bitwiseShiftExpression());
-        } else if (have(INSTANCEOF)) {
+        } else if (have(LESS)) {
+            return new JLessThanOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(GTE)) {
+            return new JGreaterEqualOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(INSTANCEOF)) {
             return new JInstanceOfOp(line, lhs, referenceType());
         } else {
             return lhs;

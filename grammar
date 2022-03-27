@@ -116,7 +116,7 @@ equalityExpression ::= relationalExpression  // level 6
                          {EQUAL | NOT EQUAL relationalExpression}
 
 relationalExpression ::= bitwiseShiftExpression       // level 5
-                           [(GT | LE) bitwiseShiftExpression
+                           [(GT | LE | LESS | GTE) bitwiseShiftExpression
                            | INSTANCEOF referenceType]
 
 bitwiseShiftExpression ::=  additiveExpression       // level 4

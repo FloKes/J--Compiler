@@ -144,19 +144,6 @@ class JNotEqualOp extends JBooleanBinaryExpression {
     }
 
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        lhs.codegen(output);
-        rhs.codegen(output);
-        if(lhs.type() == Type.DOUBLE) { //Transform a double comparison in an integer comparison
-            output.addNoArgInstruction(DCMPL); //Compares doubles (1 if lhs > rhs, 0 if equal, -1 otherwise)
-            output.addBranchInstruction(onTrue ? IFNE : IFEQ,
-            targetLabel);
-        } else if(lhs.type() == Type.INT) {
-            output.addBranchInstruction(onTrue ? IF_ICMPNE : IF_ICMPEQ,
-            targetLabel);
-        } else if (lhs.type().isReference()) {
-            output.addBranchInstruction(onTrue ? IF_ACMPNE : IF_ACMPEQ,
-                    targetLabel);
-        }
     }
 }
 /**

@@ -1287,6 +1287,14 @@ private JExpression relationalExpression(): {
             rhs = additiveExpression()
             { lhs = new JLessEqualOp(line, lhs, rhs); } |
 
+            <LESS>
+            rhs = additiveExpression()
+            { lhs = new JLessThanOp(line, lhs, rhs); } |
+
+            <GTE>
+            rhs = additiveExpression()
+            { lhs = new JGreaterEqualOp(line, lhs, rhs); } |
+
             <INSTANCEOF>
             type = referenceType()
             { lhs = new JInstanceOfOp(line, lhs, type); }
