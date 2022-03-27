@@ -554,9 +554,8 @@ public class Parser {
             mustBe(IDENTIFIER);
             String name = scanner.previousToken().image();
             ArrayList<JFormalParameter> params = formalParameters();
-            JBlock body = have(SEMI) ? null : block();
-            memberDecl = new JMethodDeclaration(line, mods, name, type,
-                    params, body);
+            mustBe(SEMI);
+            memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
         } else {
             type = type();
             if (seeIdentLParen()) {
@@ -564,8 +563,8 @@ public class Parser {
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 ArrayList<JFormalParameter> params = formalParameters();
-                JBlock body = have(SEMI) ? null : block();
-                memberDecl = new JMethodDeclaration(line, mods, name, type, params, body);
+                mustBe(SEMI);
+                memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
             } else {
                 // Field
                 memberDecl = new JFieldDeclaration(line, mods, variableDeclarators(type));
@@ -1208,7 +1207,7 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression thenPart = Expression();
+            JExpression thenPart = expression();
             mustBe(COLON);
             return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {
