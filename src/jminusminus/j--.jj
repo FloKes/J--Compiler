@@ -175,14 +175,38 @@ TOKEN: {
 | <ASSIGN: "=">
 | <DEC: "--">
 | <EQUAL: "==">
+| <NOT_EQUAL: "!=">
 | <GT: ">">
+| <LESS: "<">
 | <INC: "++">
 | <LAND: "&&">
+| <BITWISE_AND: "&">
 | <LE: "<=">
+| <GTE: ">=">
 | <LNOT: "!">
 | <MINUS: "-">
-| <PLUS_ASSIGN: "+=">
 | <STAR: "*">
+| <CONDITIONAL: "?">
+| <UNARY_COMP: "~">
+| <DIV: "/">
+| <REM:"%">
+| <SHR: ">>">
+| <SHL: "<<">
+| <USHR: ">>>">
+| <BITWISE_OR: "|">
+| <LOR: "||">
+| <BITWISE_XOR: "^">
+| <PLUS_ASSIGN: "+=">
+| <MINUS_ASSIGN: "-=">
+| <STAR_ASSIGN: "*=">
+| <DIV_ASSIGN: "/=">
+| <REM_ASSIGN: "%=">
+| <BITWISE_AND_ASSIGN: "&=">
+| <BITWISE_OR_ASSIGN: "|=">
+| <BITWISE_XOR_ASSIGN: "^=">
+| <SHR_ASSIGN: ">>=">
+| <USHR_ASSIGN: ">>>=">
+| <SHL_ASSIGN: "<<=">
 }
 
 // Separators (these could be combined with the reserved words)
@@ -1122,7 +1146,7 @@ private JExpression expression(): {
  *   assignmentExpression ::= 
  *       conditionalAndExpression                // level 13
  *           [( ASSIGN       // must be valid lhs
- *            | PLUS_ASSIGN 
+ *            | PLUS_ASSIGN | MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN
  *            )
  *            assignmentExpression]
  * </pre>
@@ -1144,7 +1168,24 @@ private JExpression assignmentExpression(): {
             
             <PLUS_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); }
+            { lhs = new JPlusAssignOp(line, lhs, rhs); } | 
+
+            <MINUS_ASSIGN>
+            rhs = assignmentExpression()
+            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+
+            <STAR_ASSIGN>
+            rhs = assignmentExpression()
+            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+
+            <DIV_ASSIGN>
+            rhs = assignmentExpression()
+            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+
+            <REM_ASSIGN>
+            rhs = assignmentExpression()
+            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            
         ]
     }
     catch (ParseException e) {
