@@ -1245,7 +1245,11 @@ private JExpression equalityExpression(): {
         (
             <EQUAL>
             rhs = relationalExpression()
-            { lhs = new JEqualOp(line, lhs, rhs); }
+            { lhs = new JEqualOp(line, lhs, rhs); } | 
+
+            <NOT_EQUAL>
+            rhs = relationalExpression()
+            { lhs = new JNotEqualOp(line, lhs, rhs); }
         )*
     }
     catch (ParseException e) {
@@ -1393,8 +1397,6 @@ private JExpression unaryExpression(): {
         <PLUS> { line = token.beginLine; }
         unaryExpr = unaryExpression()
         { expr = new JUnaryPlusOp(line, unaryExpr); } |
-
-        
 
         expr = simpleUnaryExpression()
     }

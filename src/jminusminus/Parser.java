@@ -1350,7 +1350,7 @@ public class Parser {
      *
      * <pre>
      *   equalityExpression ::= relationalExpression  // level 6
-     *                            {EQUAL relationalExpression}
+     *                            {EQUAL | NOT EQUAL relationalExpression}
      * </pre>
      *
      * @return an AST for an equalityExpression.

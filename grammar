@@ -113,7 +113,7 @@ bitwiseAnd ::= equalityExpression // level 7
                 {BITWISE_AND equalityExpression}
 
 equalityExpression ::= relationalExpression  // level 6
-                         {EQUAL relationalExpression}
+                         {EQUAL | NOT EQUAL relationalExpression}
 
 relationalExpression ::= bitwiseShiftExpression       // level 5
                            [(GT | LE) bitwiseShiftExpression

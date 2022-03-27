@@ -125,6 +125,41 @@ class JEqualOp extends JBooleanBinaryExpression {
 }
 
 /**
+ * The AST node for an equality (!=) expression. Implements short-circuiting
+ * branching.
+ */
+
+class JNotEqualOp extends JBooleanBinaryExpression {
+
+    public JNotEqualOp(int line, JExpression lhs, JExpression rhs) {
+        super(line, "!=", lhs, rhs);
+    }
+
+    public JExpression analyze(Context context) {
+        lhs = (JExpression) lhs.analyze(context);
+        rhs = (JExpression) rhs.analyze(context);
+        lhs.type().mustMatchExpected(line(), rhs.type());
+        type = Type.BOOLEAN;
+        return this;
+    }
+
+    public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
+        lhs.codegen(output);
+        rhs.codegen(output);
+        if(lhs.type() == Type.DOUBLE) { //Transform a double comparison in an integer comparison
+            output.addNoArgInstruction(DCMPL); //Compares doubles (1 if lhs > rhs, 0 if equal, -1 otherwise)
+            output.addBranchInstruction(onTrue ? IFNE : IFEQ,
+            targetLabel);
+        } else if(lhs.type() == Type.INT) {
+            output.addBranchInstruction(onTrue ? IF_ICMPNE : IF_ICMPEQ,
+            targetLabel);
+        } else if (lhs.type().isReference()) {
+            output.addBranchInstruction(onTrue ? IF_ACMPNE : IF_ACMPEQ,
+                    targetLabel);
+        }
+    }
+}
+/**
  * The AST node for a logical AND (&amp;&amp;) expression. Implements 
  * short-circuiting branching.
  */
