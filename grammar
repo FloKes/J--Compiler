@@ -7,8 +7,7 @@ compilationUnit ::= [PACKAGE qualifiedIdentifier SEMI]
 
 qualifiedIdentifier ::= IDENTIFIER {DOT IDENTIFIER}
 
-typeDeclaration ::= modifiers classDeclaration |
-                    modifiers interfaceDeclaration
+typeDeclaration ::= modifiers (classDeclaration | interfaceDeclaration)
 
 modifiers ::= {PUBLIC | PROTECTED | PRIVATE | STATIC | ABSTRACT}
 
