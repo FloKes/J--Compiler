@@ -314,8 +314,7 @@ class JPostDecrementOp extends JUnaryExpression {
             }else {
                 JAST.compilationUnit.reportSemanticError(line(),
                         "Invalid operand types for post++");
-                //TODO Ask why we can't print Type.ANY
-                type = Type.INT;
+                type = Type.ANY;
             }
         }
         return this;
@@ -406,7 +405,7 @@ class JPostIncrementOp extends JUnaryExpression {
                 JAST.compilationUnit.reportSemanticError(line(),
                         "Invalid operand types for post++");
                 //TODO Ask why we can't print Type.ANY
-                type = Type.INT;
+                type = Type.ANY;
             }
         }
         return this;
@@ -496,7 +495,7 @@ class JPreIncrementOp extends JUnaryExpression {
                 JAST.compilationUnit.reportSemanticError(line(),
                         "Invalid operand types for post++");
                 //TODO Ask why we can't print Type.ANY
-                type = Type.INT;
+                type = Type.ANY;
             }
         }
         return this;
@@ -583,7 +582,7 @@ class JPreDecrementOp extends JUnaryExpression {
                 JAST.compilationUnit.reportSemanticError(line(),
                         "Invalid operand types for post++");
                 //TODO Ask why we can't print Type.ANY
-                type = Type.INT;
+                type = Type.ANY;
             }
         }
         return this;
