@@ -1,7 +1,7 @@
 public class ForStatementEnumerable {
-    public int forStatement(int i, int n, int x, int[] numbers){
+    public int forStatement(int n, int[] numbers){
         for(int item: numbers){
-            n = n -1;
+            n = n + item;
         }
         return n;
     }

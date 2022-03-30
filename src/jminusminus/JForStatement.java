@@ -62,7 +62,7 @@ class JForStatement extends JStatement {
         // Create new local context for the for statement
         localContext = new LocalContext(context);
         // Offset 0 is used to address "this".
-        //localContext.nextOffset();
+        localContext.nextOffset();
 
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         decls.add(declarator);
@@ -77,6 +77,7 @@ class JForStatement extends JStatement {
         // Must be statement with side effect
         // TODO Ask: if this isn't a statement expression, the code is not analyzed any further
         // TODO: Local context has no entries for body, but analyzes correctly
+        // TODO: Ask TA to go over this
         statementExpression = (JStatement) statementExpression.analyze(localContext);
 
         body = (JStatement) body.analyze(localContext);

@@ -2,6 +2,8 @@
 
 package jminusminus;
 
+import java.util.ArrayList;
+
 import static jminusminus.CLConstants.GOTO;
 
 /**
@@ -17,6 +19,10 @@ class JForStatementEnumerable extends JStatement {
 
     /** The body. */
     private JStatement body;
+
+    private LocalContext localContext;
+
+    private JStatement declaration;
 
     /**
      * Constructs an AST node for a for-statement given its line number, the
@@ -46,9 +52,31 @@ class JForStatementEnumerable extends JStatement {
      */
 
     public JForStatementEnumerable analyze(Context context) {
-        declarator = declarator.analyze(context);
-        enumerable = (JVariable) enumerable.analyze(context);
-        body = (JStatement) body.analyze(context);
+        // Create new local context for the for statement
+        localContext = new LocalContext(context);
+        // Offset 0 is used to address "this".
+        localContext.nextOffset();
+
+        declarator = declarator.analyze(localContext);
+
+        // must be enumerable
+        enumerable = (JVariable) enumerable.analyze(localContext);
+        if (!enumerable.type().isArray()) {
+            JAST.compilationUnit.reportSemanticError(line,
+                    "for-each not applicable to expression type " + enumerable.type().toString());
+        }
+
+        declarator.type().mustMatchExpected(line(), enumerable.type().componentType());
+
+        // TODO ask TA: How to handle initialization in this case
+        //declarator.setInitializer(enumerable.analyzeLhs(localContext));
+        ArrayList<JVariableDeclarator> decls = new ArrayList<>();
+        decls.add(declarator);
+        JVariableDeclaration declaration = new JVariableDeclaration(line(),
+                new ArrayList<>(), decls);
+        this.declaration = declaration.analyze(localContext);
+
+        body = (JStatement) body.analyze(localContext);
         return this;
     }
 
@@ -87,7 +115,7 @@ class JForStatementEnumerable extends JStatement {
         p.indentRight();
         p.printf("<DeclaratorExpression>\n");
         p.indentRight();
-        declarator.writeToStdOut(p);
+        declaration.writeToStdOut(p);
         p.indentLeft();
         p.printf("</DeclaratorExpression>\n");
         p.printf("<Enumerable>\n");
