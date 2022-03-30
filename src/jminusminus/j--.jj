@@ -223,6 +223,7 @@ TOKEN: {
 | <SEMI: ";">
 | <COMMA: ",">
 | <DOT: ".">
+| <COLON: ":">
 }
 
 // Identifiers
