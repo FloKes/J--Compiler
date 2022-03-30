@@ -307,8 +307,16 @@ class JPostDecrementOp extends JUnaryExpression {
             type = Type.ANY;
         } else {
             arg = (JExpression) arg.analyze(context);
-            arg.type().mustMatchExpected(line(), Type.INT);
-            type = Type.INT;
+            if (arg.type() == Type.INT) {
+                type = Type.INT;
+            } else if (arg.type() == Type.DOUBLE) {
+                type = Type.DOUBLE;
+            }else {
+                JAST.compilationUnit.reportSemanticError(line(),
+                        "Invalid operand types for post++");
+                //TODO Ask why we can't print Type.ANY
+                type = Type.INT;
+            }
         }
         return this;
     }
@@ -390,8 +398,16 @@ class JPostIncrementOp extends JUnaryExpression {
             type = Type.ANY;
         } else {
             arg = (JExpression) arg.analyze(context);
-            arg.type().mustMatchExpected(line(), Type.INT);
-            type = Type.INT;
+            if (arg.type() == Type.INT) {
+                type = Type.INT;
+            } else if (arg.type() == Type.DOUBLE) {
+                type = Type.DOUBLE;
+            }else {
+                JAST.compilationUnit.reportSemanticError(line(),
+                        "Invalid operand types for post++");
+                //TODO Ask why we can't print Type.ANY
+                type = Type.INT;
+            }
         }
         return this;
     }
@@ -434,7 +450,6 @@ class JPostIncrementOp extends JUnaryExpression {
             ((JLhs) arg).codegenStore(output);
         }
     }
-
 }
 
 /**
@@ -473,8 +488,16 @@ class JPreIncrementOp extends JUnaryExpression {
             type = Type.ANY;
         } else {
             arg = (JExpression) arg.analyze(context);
-            arg.type().mustMatchExpected(line(), Type.INT);
-            type = Type.INT;
+            if (arg.type() == Type.INT) {
+                type = Type.INT;
+            } else if (arg.type() == Type.DOUBLE) {
+                type = Type.DOUBLE;
+            }else {
+                JAST.compilationUnit.reportSemanticError(line(),
+                        "Invalid operand types for post++");
+                //TODO Ask why we can't print Type.ANY
+                type = Type.INT;
+            }
         }
         return this;
     }
@@ -552,8 +575,16 @@ class JPreDecrementOp extends JUnaryExpression {
             type = Type.ANY;
         } else {
             arg = (JExpression) arg.analyze(context);
-            arg.type().mustMatchExpected(line(), Type.INT);
-            type = Type.INT;
+            if (arg.type() == Type.INT) {
+                type = Type.INT;
+            } else if (arg.type() == Type.DOUBLE) {
+                type = Type.DOUBLE;
+            }else {
+                JAST.compilationUnit.reportSemanticError(line(),
+                        "Invalid operand types for post++");
+                //TODO Ask why we can't print Type.ANY
+                type = Type.INT;
+            }
         }
         return this;
     }
