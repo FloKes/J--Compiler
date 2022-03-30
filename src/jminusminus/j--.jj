@@ -1024,7 +1024,7 @@ private Type type(): {
  * Parse a basic type.
  * 
  * <pre>
- *   basicType ::= BOOLEAN | CHAR | INT
+ *   basicType ::= BOOLEAN | CHAR | INT | DOUBL
  * </pre>
  * 
  * @return an instance of Type.
@@ -1037,7 +1037,8 @@ private Type basicType(): {
     try {
         <BOOLEAN> { type = Type.BOOLEAN; } |
         <CHAR> { type = Type.CHAR; } |
-        <INT> { type = Type.INT; }
+        <INT> { type = Type.INT; } |
+        <DOUBLE> { type = Type.DOUBLE; } |
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
@@ -1687,7 +1688,7 @@ private JNewArrayOp newArrayDeclarator(Type type): {
  * Parse a literal.
  * 
  * <pre>
- *   literal ::= INT_LITERAL | CHAR_LITERAL | STRING_LITERAL
+ *   literal ::= INT_LITERAL | DOUBLE_LITERAL | CHAR_LITERAL | STRING_LITERAL 
  *             | TRUE        | FALSE        | NULL
  * </pre>
  * 
@@ -1701,6 +1702,9 @@ private JExpression literal(): {
     try {
         <INT_LITERAL>
         { expr = new JLiteralInt(token.beginLine, token.image); } |
+
+        <DOUBLE_LITERAL>
+        { expr = new JLiteralDouble(token.beginLine, token.image); } |
 
         <CHAR_LITERAL>
         { expr = new JLiteralChar(token.beginLine, token.image); } |
