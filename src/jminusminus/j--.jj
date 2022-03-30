@@ -143,17 +143,35 @@ SKIP: {<SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>}
 
 // Reserved words
 TOKEN: {
-  <ABSTRACT: "abstract">
-| <BOOLEAN: "boolean">
-| <CHAR: "char">
-| <CLASS: "class">
+  <ABSTRACT: "abstract"> 
+| <BOOLEAN: "boolean"> 
+| <BREAK: "break"> 
+| <BYTE: "byte"> 
+| <CASE: "case"> 
+| <CATCH: "catch"> 
+| <CHAR: "char"> 
+| <CLASS: "class"> 
+| <CONST: "const"> 
+| <CONTINUE: "continue"> 
+| <DEFAULT: "default">
+| <DO: "do">
+| <DOUBLE: "double">
 | <ELSE: "else">
 | <EXTENDS: "extends">
 | <FALSE: "false">
+| <FINAL: "final">
+| <FINALLY: "finally">
+| <FLOAT: "float">
+| <FOR: "for">
+| <GOTO: "goto">
 | <IF: "if">
+| <IMPLEMENTS: "implements">
 | <IMPORT: "import">
 | <INSTANCEOF: "instanceof">
 | <INT: "int">
+| <INTERFACE: "interface">
+| <LONG: "long">
+| <NATIVE: "native">
 | <NEW: "new">
 | <NULL: "null">
 | <PACKAGE: "package">
@@ -161,11 +179,20 @@ TOKEN: {
 | <PROTECTED: "protected">
 | <PUBLIC: "public">
 | <RETURN: "return">
+| <SHORT: "short">
 | <STATIC: "static">
+| <STRICTFP: "strictfp">
 | <SUPER: "super">
+| <SWITCH: "switch">
+| <SYNCHRONIZED: "synchronized">
 | <THIS: "this">
+| <THROW: "throw">
+| <THROWS: "throws">
+| <TRANSIENT: "transient">
 | <TRUE: "true">
+| <TRY: "try">
 | <VOID: "void">
+| <VOLATILE: "volatile">
 | <WHILE: "while">
 }
 
@@ -209,6 +236,7 @@ TOKEN: {
 // Literals
 TOKEN: {
   <INT_LITERAL: ("0" | <NON_ZERO_DIGIT> (<DIGIT>)*) >
+| <DOUBLE_LITERAL: ("0" <DOT> (<DIGIT>)* | <NON_ZERO_DIGIT> (<DIGIT>)* <DOT> (<DIGIT>)*) >
 | <CHAR_LITERAL: "'" (<ESC> | ~["'","\\","\n","\r"]) "'" >
 | <STRING_LITERAL: "\"" (<ESC> | ~["\"","\\","\n","\r"])* "\"" >
 | <#ESC: "\\" ["n","t","b","r","f","\\","'","\""] >
