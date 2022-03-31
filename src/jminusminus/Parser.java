@@ -782,15 +782,23 @@ public class Parser {
             return new JWhileStatement(line, test, statement);
         } else if (have(FOR)) {
             mustBe(LPAREN);
+
+            // TODO Might need to look forward to see if we have semi or colon
+            // TODO We don't need to declare variables we can just use statements as well, so check if there is type
             Type type = type();
-            JVariableDeclarator declarator = variableDeclarator(type);
+            ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
             if(have(SEMI)) {
                 JExpression test = expression();
                 mustBe(SEMI);
-                JStatement statementExpression = statementExpression();
+
+                ArrayList<JStatement> forUpdate = new ArrayList<>();
+                do {
+                    forUpdate.add(statementExpression());
+                } while (have(COMMA));
+
                 mustBe(RPAREN);
-                JStatement statement = statement();
-                return new JForStatement(line, declarator, test, statementExpression, statement);
+                JStatement body = statement();
+                return new JForStatement(line, declarators, test, forUpdate, body);
             } else if (have(COLON)){
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();

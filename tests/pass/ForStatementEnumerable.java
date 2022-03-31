@@ -4,5 +4,6 @@ public class ForStatementEnumerable {
             n = n + item;
         }
         return n;
+
     }
 }

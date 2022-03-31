@@ -8,5 +8,6 @@ public class ForStatement {
             i++;
         }
         return i;
+        int i=0, z=5, y=1;
     }
 }

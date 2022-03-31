@@ -13,7 +13,7 @@ import static jminusminus.CLConstants.GOTO;
 class JForStatement extends JStatement {
 
     /** Declare the variable. */
-    private JVariableDeclarator declarator;
+    private ArrayList<JVariableDeclarator> declarators;
 
     private JStatement declaration;
 
@@ -21,7 +21,7 @@ class JForStatement extends JStatement {
     private JExpression condition;
 
     /** Update the variable. */
-    private JStatement statementExpression;
+    private ArrayList<JStatement> forUpdate;
 
     /** The body. */
     private JStatement body;
@@ -40,12 +40,12 @@ class JForStatement extends JStatement {
      *            the body.
      */
 
-    public JForStatement(int line, JVariableDeclarator declarator, JExpression condition,
-                         JStatement statementExpression, JStatement body) {
+    public JForStatement(int line, ArrayList<JVariableDeclarator> declarators, JExpression condition,
+                         ArrayList<JStatement> forUpdate, JStatement body) {
         super(line);
-        this.declarator = declarator;
+        this.declarators = declarators;
         this.condition = condition;
-        this.statementExpression = statementExpression;
+        this.forUpdate = forUpdate;
         this.body = body;
     }
 
@@ -65,7 +65,7 @@ class JForStatement extends JStatement {
         localContext.nextOffset();
 
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
-        decls.add(declarator);
+        decls.add(declarators);
         JVariableDeclaration declaration = new JVariableDeclaration(line(),
                 new ArrayList<>(), decls);
         this.declaration = declaration.analyze(localContext);
@@ -78,7 +78,7 @@ class JForStatement extends JStatement {
         // TODO Ask: if this isn't a statement expression, the code is not analyzed any further
         // TODO: Local context has no entries for body, but analyzes correctly
         // TODO: Ask TA to go over this
-        statementExpression = (JStatement) statementExpression.analyze(localContext);
+        forUpdate = (JStatement) forUpdate.analyze(localContext);
 
         body = (JStatement) body.analyze(localContext);
         return this;
@@ -121,7 +121,7 @@ class JForStatement extends JStatement {
         p.indentRight();
         p.printf("<DeclaratorExpression>\n");
         p.indentRight();
-        declarator.writeToStdOut(p);
+        declarators.writeToStdOut(p);
         p.indentLeft();
         p.printf("</DeclaratorExpression>\n");
         p.printf("<TestExpression>\n");
@@ -131,7 +131,7 @@ class JForStatement extends JStatement {
         p.printf("</TestExpression>\n");
         p.printf("<StatementExpression>\n");
         p.indentRight();
-        statementExpression.writeToStdOut(p);
+        forUpdate.writeToStdOut(p);
         p.indentLeft();
         p.printf("</StatementExpression>\n");
         p.indentLeft();
