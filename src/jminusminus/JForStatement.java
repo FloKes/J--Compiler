@@ -121,7 +121,7 @@ class JForStatement extends JStatement {
         p.indentRight();
         p.printf("<DeclaratorExpression>\n");
         p.indentRight();
-        declaration.writeToStdOut(p);
+        declarator.writeToStdOut(p);
         p.indentLeft();
         p.printf("</DeclaratorExpression>\n");
         p.printf("<TestExpression>\n");

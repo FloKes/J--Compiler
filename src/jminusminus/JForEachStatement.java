@@ -10,19 +10,29 @@ import static jminusminus.CLConstants.GOTO;
  * The AST node for a for-statement.
  */
 
-class JForStatementEnumerable extends JStatement {
+class JForEachStatement extends JStatement {
 
-    /** Declare the variable. */
+    /** Declarator for  the variable. */
     private JVariableDeclarator declarator;
 
-    private JVariable enumerable;
+    /** The initialized variable from the arr. */
+    private JStatement declaration;
+
+    /** The array. */
+    private JVariable array;
+
+    /** Test expression. */
+    private JExpression condition;
+
+    /** Update the variable. */
+    // We need to create this ourselves
+    private JStatement updateStatement;
 
     /** The body. */
     private JStatement body;
 
+    /** The Local context. */
     private LocalContext localContext;
-
-    private JStatement declaration;
 
     /**
      * Constructs an AST node for a for-statement given its line number, the
@@ -35,10 +45,10 @@ class JForStatementEnumerable extends JStatement {
      *            the body.
      */
 
-    public JForStatementEnumerable(int line, JVariableDeclarator declarator, JVariable enumerable, JStatement body) {
+    public JForEachStatement(int line, JVariableDeclarator declarator, JVariable array, JStatement body) {
         super(line);
         this.declarator = declarator;
-        this.enumerable = enumerable;
+        this.array = array;
         this.body = body;
     }
 
@@ -51,31 +61,44 @@ class JForStatementEnumerable extends JStatement {
      * @return the analyzed (and possibly rewritten) AST subtree.
      */
 
-    public JForStatementEnumerable analyze(Context context) {
+    public JForEachStatement analyze(Context context) {
         // Create new local context for the for statement
-        localContext = new LocalContext(context);
         // Offset 0 is used to address "this".
+        localContext = new LocalContext(context);
         localContext.nextOffset();
 
-        declarator = declarator.analyze(localContext);
-
-        // must be enumerable
-        enumerable = (JVariable) enumerable.analyze(localContext);
-        if (!enumerable.type().isArray()) {
+        // must be an array, and variable must be of the type of the aray
+        array = (JVariable) array.analyze(localContext);
+        if (!array.type().isArray()) {
             JAST.compilationUnit.reportSemanticError(line,
-                    "for-each not applicable to expression type " + enumerable.type().toString());
+                    "for-each not applicable to expression type " + array.type().toString());
         }
+        declarator.type().mustMatchExpected(line(), array.type().componentType());
 
-        declarator.type().mustMatchExpected(line(), enumerable.type().componentType());
+        // Retrieve the first element of the array and set the initializer for the variable
+        JExpression theArray = array.analyze(localContext);
+        JLiteralInt index = new JLiteralInt(line(), "0");
+        JArrayExpression arrayExpression = new JArrayExpression(line(), theArray, index);
+        declarator.setInitializer(arrayExpression);
 
-        // TODO ask TA: How to handle initialization in this case
-        //declarator.setInitializer(enumerable.analyzeLhs(localContext));
+        // Analyze the declaration and add it to the local context
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         decls.add(declarator);
         JVariableDeclaration declaration = new JVariableDeclaration(line(),
                 new ArrayList<>(), decls);
         this.declaration = declaration.analyze(localContext);
 
+        //TODO Create a condition to check when the increment of the index should stop
+
+        // Create the expression for updating the variable
+        JPlusAssignOp updateExpression = new JPlusAssignOp(line(), null,new JLiteralInt(line(), "1"));
+        this.updateStatement = updateExpression;
+
+/**
+        for(int item: numbers)
+        for(int index = 0, item = numbers[index]; index < numbers.length; index++, item = numbers[index])
+*/
+        //
         body = (JStatement) body.analyze(localContext);
         return this;
     }
@@ -120,7 +143,7 @@ class JForStatementEnumerable extends JStatement {
         p.printf("</DeclaratorExpression>\n");
         p.printf("<Enumerable>\n");
         p.indentRight();
-        enumerable.writeToStdOut(p);
+        array.writeToStdOut(p);
         p.indentLeft();
         p.printf("</Enumerable>\n");
         p.printf("<Body>\n");

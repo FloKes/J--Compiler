@@ -787,11 +787,6 @@ public class Parser {
             if(have(SEMI)) {
                 JExpression test = expression();
                 mustBe(SEMI);
-                // Implement custom type of statement expression, as the current one allows stuff that
-                // shouldn't be allowed
-                // Or maybe not, as they don't really care for the while expression
-                // e.g. for the "test expression" you can write x + 2 and it still parses, however in the analyzation
-                // part, this would be caught. Guess this is type checking.
                 JStatement statementExpression = statementExpression();
                 mustBe(RPAREN);
                 JStatement statement = statement();
@@ -802,7 +797,7 @@ public class Parser {
                 JVariable variable = new JVariable(line, name);
                 mustBe(RPAREN);
                 JStatement statement = statement();
-                return new JForStatementEnumerable(line, declarator, variable, statement);
+                return new JForEachStatement(line, declarator, variable, statement);
             }
             else {
                 // Dunno what should return here
