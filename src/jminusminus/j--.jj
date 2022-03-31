@@ -153,7 +153,7 @@ TOKEN: {
 | <CLASS: "class"> 
 | <CONST: "const"> 
 | <CONTINUE: "continue"> 
-| <DEFAULT: "default">
+| <_DEFAULT: "default">
 | <DO: "do">
 | <DOUBLE: "double">
 | <ELSE: "else">
@@ -479,7 +479,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JClassDeclaration(line, mods, name, superClass, classBody);
+        return new JClassDeclaration(line, mods, name, superClass,null, classBody);
     }
 }
 
@@ -1038,7 +1038,7 @@ private Type basicType(): {
         <BOOLEAN> { type = Type.BOOLEAN; } |
         <CHAR> { type = Type.CHAR; } |
         <INT> { type = Type.INT; } |
-        <DOUBLE> { type = Type.DOUBLE; } |
+        <DOUBLE> { type = Type.DOUBLE; }
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);

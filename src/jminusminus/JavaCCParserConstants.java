@@ -7,58 +7,87 @@ public interface JavaCCParserConstants {
   int SINGLE_LINE_COMMENT = 6;
   int ABSTRACT = 7;
   int BOOLEAN = 8;
-  int CHAR = 9;
-  int CLASS = 10;
-  int ELSE = 11;
-  int EXTENDS = 12;
-  int FALSE = 13;
-  int IF = 14;
-  int IMPORT = 15;
-  int INSTANCEOF = 16;
-  int INT = 17;
-  int NEW = 18;
-  int NULL = 19;
-  int PACKAGE = 20;
-  int PRIVATE = 21;
-  int PROTECTED = 22;
-  int PUBLIC = 23;
-  int RETURN = 24;
-  int STATIC = 25;
-  int SUPER = 26;
-  int THIS = 27;
-  int TRUE = 28;
-  int VOID = 29;
-  int WHILE = 30;
-  int PLUS = 31;
-  int ASSIGN = 32;
-  int DEC = 33;
-  int EQUAL = 34;
-  int GT = 35;
-  int INC = 36;
-  int LAND = 37;
-  int LE = 38;
-  int LNOT = 39;
-  int MINUS = 40;
-  int PLUS_ASSIGN = 41;
-  int STAR = 42;
-  int LPAREN = 43;
-  int RPAREN = 44;
-  int LCURLY = 45;
-  int RCURLY = 46;
-  int LBRACK = 47;
-  int RBRACK = 48;
-  int SEMI = 49;
-  int COMMA = 50;
-  int DOT = 51;
-  int IDENTIFIER = 52;
-  int LETTER = 53;
-  int DIGIT = 54;
-  int NON_ZERO_DIGIT = 55;
-  int INT_LITERAL = 56;
-  int CHAR_LITERAL = 57;
-  int STRING_LITERAL = 58;
-  int ESC = 59;
-  int ERROR = 60;
+  int BREAK = 9;
+  int BYTE = 10;
+  int CASE = 11;
+  int CATCH = 12;
+  int CHAR = 13;
+  int CLASS = 14;
+  int CONST = 15;
+  int CONTINUE = 16;
+  int _DEFAULT = 17;
+  int DO = 18;
+  int DOUBLE = 19;
+  int ELSE = 20;
+  int EXTENDS = 21;
+  int FALSE = 22;
+  int FINAL = 23;
+  int FINALLY = 24;
+  int FLOAT = 25;
+  int FOR = 26;
+  int GOTO = 27;
+  int IF = 28;
+  int IMPLEMENTS = 29;
+  int IMPORT = 30;
+  int INSTANCEOF = 31;
+  int INT = 32;
+  int INTERFACE = 33;
+  int LONG = 34;
+  int NATIVE = 35;
+  int NEW = 36;
+  int NULL = 37;
+  int PACKAGE = 38;
+  int PRIVATE = 39;
+  int PROTECTED = 40;
+  int PUBLIC = 41;
+  int RETURN = 42;
+  int SHORT = 43;
+  int STATIC = 44;
+  int STRICTFP = 45;
+  int SUPER = 46;
+  int SWITCH = 47;
+  int SYNCHRONIZED = 48;
+  int THIS = 49;
+  int THROW = 50;
+  int THROWS = 51;
+  int TRANSIENT = 52;
+  int TRUE = 53;
+  int TRY = 54;
+  int VOID = 55;
+  int VOLATILE = 56;
+  int WHILE = 57;
+  int PLUS = 58;
+  int ASSIGN = 59;
+  int DEC = 60;
+  int EQUAL = 61;
+  int GT = 62;
+  int INC = 63;
+  int LAND = 64;
+  int LE = 65;
+  int LNOT = 66;
+  int MINUS = 67;
+  int PLUS_ASSIGN = 68;
+  int STAR = 69;
+  int LPAREN = 70;
+  int RPAREN = 71;
+  int LCURLY = 72;
+  int RCURLY = 73;
+  int LBRACK = 74;
+  int RBRACK = 75;
+  int SEMI = 76;
+  int COMMA = 77;
+  int DOT = 78;
+  int COLON = 79;
+  int IDENTIFIER = 80;
+  int LETTER = 81;
+  int DIGIT = 82;
+  int NON_ZERO_DIGIT = 83;
+  int INT_LITERAL = 84;
+  int DOUBLE_LITERAL = 85;
+  int CHAR_LITERAL = 86;
+  int STRING_LITERAL = 87;
+  int ESC = 88;
+  int ERROR = 89;
 
   int DEFAULT = 0;
 
@@ -72,15 +101,33 @@ public interface JavaCCParserConstants {
     "<SINGLE_LINE_COMMENT>",
     "\"abstract\"",
     "\"boolean\"",
+    "\"break\"",
+    "\"byte\"",
+    "\"case\"",
+    "\"catch\"",
     "\"char\"",
     "\"class\"",
+    "\"const\"",
+    "\"continue\"",
+    "\"default\"",
+    "\"do\"",
+    "\"double\"",
     "\"else\"",
     "\"extends\"",
     "\"false\"",
+    "\"final\"",
+    "\"finally\"",
+    "\"float\"",
+    "\"for\"",
+    "\"goto\"",
     "\"if\"",
+    "\"implements\"",
     "\"import\"",
     "\"instanceof\"",
     "\"int\"",
+    "\"interface\"",
+    "\"long\"",
+    "\"native\"",
     "\"new\"",
     "\"null\"",
     "\"package\"",
@@ -88,11 +135,20 @@ public interface JavaCCParserConstants {
     "\"protected\"",
     "\"public\"",
     "\"return\"",
+    "\"short\"",
     "\"static\"",
+    "\"strictfp\"",
     "\"super\"",
+    "\"switch\"",
+    "\"synchronized\"",
     "\"this\"",
+    "\"throw\"",
+    "\"throws\"",
+    "\"transient\"",
     "\"true\"",
+    "\"try\"",
     "\"void\"",
+    "\"volatile\"",
     "\"while\"",
     "\"+\"",
     "\"=\"",
@@ -115,11 +171,13 @@ public interface JavaCCParserConstants {
     "\";\"",
     "\",\"",
     "\".\"",
+    "\":\"",
     "<IDENTIFIER>",
     "<LETTER>",
     "<DIGIT>",
     "<NON_ZERO_DIGIT>",
     "<INT_LITERAL>",
+    "<DOUBLE_LITERAL>",
     "<CHAR_LITERAL>",
     "<STRING_LITERAL>",
     "<ESC>",
