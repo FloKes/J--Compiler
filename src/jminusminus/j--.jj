@@ -474,7 +474,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JClassDeclaration(line, mods, name, superClass, classBody);
+        return new JClassDeclaration(line, mods, name, superClass,null, classBody);
     }
 }
 
@@ -1184,7 +1184,7 @@ private JExpression assignmentExpression(): {
 
             <REM_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JPlusAssignOp(line, lhs, rhs); }
             
         ]
     }
