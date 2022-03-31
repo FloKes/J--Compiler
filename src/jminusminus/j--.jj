@@ -489,6 +489,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
     String name = "";
     Type superClass = Type.OBJECT;
     ArrayList<JMember> classBody = null;
+    ArrayList<Type> implementedInterfaces = new ArrayList<Type>();
 }
 {
     try {
@@ -503,7 +504,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JClassDeclaration(line, mods, name, superClass,null, classBody);
+        return new JClassDeclaration(line, mods, name, superClass,implementedInterfaces, classBody);
     }
 }
 
