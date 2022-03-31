@@ -112,10 +112,10 @@ bitwiseAnd ::= equalityExpression // level 7
                 {BITWISE_AND equalityExpression}
 
 equalityExpression ::= relationalExpression  // level 6
-                         {EQUAL relationalExpression}
+                         {EQUAL | NOT EQUAL relationalExpression}
 
 relationalExpression ::= bitwiseShiftExpression       // level 5
-                           [(GT | LE) bitwiseShiftExpression
+                           [(GT | LE | LESS | GTE) bitwiseShiftExpression
                            | INSTANCEOF referenceType]
 
 bitwiseShiftExpression ::=  additiveExpression       // level 4
@@ -128,6 +128,7 @@ multiplicativeExpression ::= unaryExpression       // level 2
                                {(STAR | DIV | MOD) unaryExpression}
 
 unaryExpression ::= INC unaryExpression  // level 1
+                  | DEC unaryExpression
                   | MINUS unaryExpression
                   | PLUS unaryExpression
                   | simpleUnaryExpression
