@@ -7,8 +7,7 @@ compilationUnit ::= [PACKAGE qualifiedIdentifier SEMI]
 
 qualifiedIdentifier ::= IDENTIFIER {DOT IDENTIFIER}
 
-typeDeclaration ::= modifiers classDeclaration |
-                    modifiers interfaceDeclaration
+typeDeclaration ::= modifiers (classDeclaration | interfaceDeclaration)
 
 modifiers ::= {PUBLIC | PROTECTED | PRIVATE | STATIC | ABSTRACT}
 
@@ -20,7 +19,7 @@ interfaceBody ::= LCURLY {modifiers interfaceMemberDecl} RCURLY
 
 interfaceMemberDecl ::= (VOID | type) IDENTIFIER  // method
                         formalParameters
-                        (block | SEMI)
+                        SEMI
                       | type variableDeclarators SEMI // field
 
 classDeclaration ::= CLASS IDENTIFIER
@@ -99,9 +98,12 @@ assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
                            [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
 
 
-ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
-                        [CONDITIONAL conditionalAndExpression
+ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
+                        [CONDITIONAL Expression
                         COLON ternaryExpression]
+
+conditionalOrExpression ::= conditionalAndExpression // level 10
+                               {LOR conditionalAndExpression}
 
 conditionalAndExpression ::= bitwiseOr // level 10
                                {LAND bitwiseOr}
@@ -116,10 +118,10 @@ bitwiseAnd ::= equalityExpression // level 7
                 {BITWISE_AND equalityExpression}
 
 equalityExpression ::= relationalExpression  // level 6
-                         {EQUAL relationalExpression}
+                         {EQUAL | NOT EQUAL relationalExpression}
 
 relationalExpression ::= bitwiseShiftExpression       // level 5
-                           [(GT | LE) bitwiseShiftExpression
+                           [(GT | LE | LESS | GTE) bitwiseShiftExpression
                            | INSTANCEOF referenceType]
 
 bitwiseShiftExpression ::=  additiveExpression       // level 4
@@ -132,6 +134,7 @@ multiplicativeExpression ::= unaryExpression       // level 2
                                {(STAR | DIV | MOD) unaryExpression}
 
 unaryExpression ::= INC unaryExpression  // level 1
+                  | DEC unaryExpression
                   | MINUS unaryExpression
                   | PLUS unaryExpression
                   | simpleUnaryExpression

@@ -554,9 +554,8 @@ public class Parser {
             mustBe(IDENTIFIER);
             String name = scanner.previousToken().image();
             ArrayList<JFormalParameter> params = formalParameters();
-            JBlock body = have(SEMI) ? null : block();
-            memberDecl = new JMethodDeclaration(line, mods, name, type,
-                    params, body);
+            mustBe(SEMI);
+            memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
         } else {
             type = type();
             if (seeIdentLParen()) {
@@ -564,8 +563,8 @@ public class Parser {
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 ArrayList<JFormalParameter> params = formalParameters();
-                JBlock body = have(SEMI) ? null : block();
-                memberDecl = new JMethodDeclaration(line, mods, name, type, params, body);
+                mustBe(SEMI);
+                memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
             } else {
                 // Field
                 memberDecl = new JFieldDeclaration(line, mods, variableDeclarators(type));
@@ -1211,8 +1210,8 @@ public class Parser {
      * Parse a conditional (ternary) expression.
      *
      * <pre>
-     * ternaryExpression ::= conditionalAndExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL conditionalAndExpression
+     * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
+            *                   [CONDITIONAL Expression
             *                   COLON ternaryExpression]
      * </pre>
      *
@@ -1223,9 +1222,9 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression lhs = conditionalOrExpression();
+            JExpression thenPart = expression();
             mustBe(COLON);
-            return new JTernaryExpression(line, condition, lhs, ternaryExpression());
+            return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {
             return condition;
         }
@@ -1235,8 +1234,8 @@ public class Parser {
      * Parse a conditional-and expression.
      *
      * <pre>
-     *   conditionalAndExpression ::= bitwiseOr // level 10
-     *                          {LAND bitwiseOr}
+     *   conditionalOrExpression ::= conditionalAndExpression // level 10
+     *                          {LOR conditionalAndExpression}
      * </pre>
      *
      * @return an AST for a conditionalExpression.
@@ -1365,7 +1364,7 @@ public class Parser {
      *
      * <pre>
      *   equalityExpression ::= relationalExpression  // level 6
-     *                            {EQUAL relationalExpression}
+     *                            {EQUAL | NOT EQUAL relationalExpression}
      * </pre>
      *
      * @return an AST for an equalityExpression.
@@ -1378,7 +1377,9 @@ public class Parser {
         while (more) {
             if (have(EQUAL)) {
                 lhs = new JEqualOp(line, lhs, relationalExpression());
-            } else {
+            } else if(have(NOT_EQUAL)){
+                lhs = new JNotEqualOp(line, lhs, relationalExpression());
+            }else {
                 more = false;
             }
         }
@@ -1391,7 +1392,7 @@ public class Parser {
      *
      * <pre>
      *   relationalExpression ::= bitwiseShiftExpression  // level 5
-     *                              [(GT | LE) bitwiseShiftExpression
+     *                              [(GT | LE | LESS | GTE) bitwiseShiftExpression
      *                              | INSTANCEOF referenceType]
      * </pre>
      *
@@ -1405,7 +1406,11 @@ public class Parser {
             return new JGreaterThanOp(line, lhs, bitwiseShiftExpression());
         } else if (have(LE)) {
             return new JLessEqualOp(line, lhs, bitwiseShiftExpression());
-        } else if (have(INSTANCEOF)) {
+        } else if (have(LESS)) {
+            return new JLessThanOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(GTE)) {
+            return new JGreaterEqualOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(INSTANCEOF)) {
             return new JInstanceOfOp(line, lhs, referenceType());
         } else {
             return lhs;
