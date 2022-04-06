@@ -782,12 +782,18 @@ public class Parser {
             return new JWhileStatement(line, test, statement);
         } else if (have(FOR)) {
             mustBe(LPAREN);
+            scanner.recordPosition();
+            while (scanner.token().kind() != SEMI && scanner.token().kind() != COLON){
+                scanner.next();
+            }
 
-            // TODO Might need to look forward to see if we have semi or colon
-            // TODO We don't need to declare variables we can just use statements as well, so check if there is type
-            Type type = type();
-            ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
-            if(have(SEMI)) {
+            if (scanner.token().kind() == SEMI) {
+                scanner.returnToPosition();
+                // TODO We don't need to declare variables we can just use statements as well, so check if there is type
+                Type type = type();
+                ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
+
+                mustBe(SEMI);
                 JExpression test = expression();
                 mustBe(SEMI);
 
@@ -799,13 +805,18 @@ public class Parser {
                 mustBe(RPAREN);
                 JStatement body = statement();
                 return new JForStatement(line, declarators, test, forUpdate, body);
-            } else if (have(COLON)){
+
+            } else if (scanner.token().kind() == COLON){
+                scanner.returnToPosition();
+                Type type = type();
+                JVariableDeclarator declarator = variableDeclarator(type);
+                mustBe(COLON);
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 JVariable variable = new JVariable(line, name);
                 mustBe(RPAREN);
-                JStatement statement = statement();
-                return new JForEachStatement(line, null, variable, statement);
+                JStatement body = statement();
+                return new JForEachStatement(line, declarator, variable, body);
             }
             else {
                 // Dunno what should return here
