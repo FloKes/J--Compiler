@@ -805,7 +805,7 @@ public class Parser {
                 JVariable variable = new JVariable(line, name);
                 mustBe(RPAREN);
                 JStatement statement = statement();
-                return new JForEachStatement(line, declarator, variable, statement);
+                return new JForEachStatement(line, null, variable, statement);
             }
             else {
                 // Dunno what should return here

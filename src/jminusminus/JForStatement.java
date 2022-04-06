@@ -15,7 +15,7 @@ class JForStatement extends JStatement {
     /** Declare the variable. */
     private ArrayList<JVariableDeclarator> declarators;
 
-    private JStatement declaration;
+    private JVariableDeclaration declaration;
 
     /** Test expression. */
     private JExpression condition;
@@ -64,22 +64,22 @@ class JForStatement extends JStatement {
         // Offset 0 is used to address "this".
         localContext.nextOffset();
 
-        ArrayList<JVariableDeclarator> decls = new ArrayList<>();
-        decls.add(declarators);
-        JVariableDeclaration declaration = new JVariableDeclaration(line(),
-                new ArrayList<>(), decls);
-        this.declaration = declaration.analyze(localContext);
+
+        ArrayList<String> mods = new ArrayList<>();
+        declaration = new JVariableDeclaration(line(), mods, declarators);
+
+        declaration.analyze(localContext);
 
         // second expression must be boolean
         condition = condition.analyze(localContext);
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
 
         // Must be statement with side effect
-        // TODO Ask: if this isn't a statement expression, the code is not analyzed any further
-        // TODO: Local context has no entries for body, but analyzes correctly
-        // TODO: Ask TA to go over this
-        forUpdate = (JStatement) forUpdate.analyze(localContext);
+        for (JStatement statement : forUpdate) {
+            statement.analyze(localContext);
+        }
 
+        //body
         body = (JStatement) body.analyze(localContext);
         return this;
     }
@@ -119,11 +119,18 @@ class JForStatement extends JStatement {
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<ForStatement line=\"%d\">\n", line());
         p.indentRight();
-        p.printf("<DeclaratorExpression>\n");
+//        p.printf("<DeclaratorExpression>\n");
         p.indentRight();
-        declarators.writeToStdOut(p);
+//        for (JVariableDeclarator declarator : declarators) {
+//            declarator.writeToStdOut(p);
+//        }
+
+
+        if (declaration != null) {
+            declaration.writeToStdOut(p);
+        }
         p.indentLeft();
-        p.printf("</DeclaratorExpression>\n");
+//        p.printf("</DeclaratorExpression>\n");
         p.printf("<TestExpression>\n");
         p.indentRight();
         condition.writeToStdOut(p);
@@ -131,7 +138,9 @@ class JForStatement extends JStatement {
         p.printf("</TestExpression>\n");
         p.printf("<StatementExpression>\n");
         p.indentRight();
-        forUpdate.writeToStdOut(p);
+        for (JStatement statement : forUpdate) {
+            statement.writeToStdOut(p);
+        }
         p.indentLeft();
         p.printf("</StatementExpression>\n");
         p.indentLeft();
