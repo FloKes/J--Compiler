@@ -786,26 +786,45 @@ public class Parser {
             while (scanner.token().kind() != SEMI && scanner.token().kind() != COLON){
                 scanner.next();
             }
-
             if (scanner.token().kind() == SEMI) {
                 scanner.returnToPosition();
                 // TODO We don't need to declare variables we can just use statements as well, so check if there is type
-                Type type = type();
-                ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
 
-                mustBe(SEMI);
-                JExpression test = expression();
-                mustBe(SEMI);
+                if (see(IDENTIFIER)) {
+                    ArrayList<JStatement> forInit = new ArrayList<>();
+                    do {
+                        forInit.add(statementExpression());
+                    } while (have(COMMA));
 
-                ArrayList<JStatement> forUpdate = new ArrayList<>();
-                do {
-                    forUpdate.add(statementExpression());
-                } while (have(COMMA));
+                    mustBe(SEMI);
+                    JExpression test = expression();
+                    mustBe(SEMI);
 
-                mustBe(RPAREN);
-                JStatement body = statement();
-                return new JForStatement(line, declarators, test, forUpdate, body);
+                    ArrayList<JStatement> forUpdate = new ArrayList<>();
+                    do {
+                        forUpdate.add(statementExpression());
+                    } while (have(COMMA));
 
+                    mustBe(RPAREN);
+                    JStatement body = statement();
+                    return new JForStatement(line, forInit, test, forUpdate, body, true);
+                } else {
+                    Type type = type();
+                    ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
+
+                    mustBe(SEMI);
+                    JExpression test = expression();
+                    mustBe(SEMI);
+
+                    ArrayList<JStatement> forUpdate = new ArrayList<>();
+                    do {
+                        forUpdate.add(statementExpression());
+                    } while (have(COMMA));
+
+                    mustBe(RPAREN);
+                    JStatement body = statement();
+                    return new JForStatement(line, declarators, test, forUpdate, body);
+                }
             } else if (scanner.token().kind() == COLON){
                 scanner.returnToPosition();
                 Type type = type();
