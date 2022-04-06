@@ -1156,7 +1156,7 @@ public class Parser {
      *
      * <pre>
      *   assignmentExpression ::=
-     *       conditionalAndExpression // level 13
+     *       ternaryExpression // level 13
      *           [( ASSIGN  // conditionalExpression
      *            | PLUS_ASSIGN // must be valid lhs
      *            | MINUS_ASSIGN
