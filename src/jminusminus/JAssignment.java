@@ -314,6 +314,9 @@ class JStarAssignOp extends JAssignment {
         if (lhs.type().equals(Type.INT)) {
             rhs.type().mustMatchExpected(line(), Type.INT);
             type = Type.INT;
+        }else if (lhs.type().equals(Type.DOUBLE)) {
+            rhs.type().mustMatchExpected(line(), Type.DOUBLE);
+            type = Type.DOUBLE;
         } else {
             JAST.compilationUnit.reportSemanticError(line(),
                     "Invalid lhs type for *=: " + lhs.type());
