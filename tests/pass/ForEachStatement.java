@@ -1,9 +1,10 @@
 public class ForEachStatement {
-    public int forStatement(int n, int[] numbers){
+    public int forStatement(int n){
+        int[] numbers = {1,2,3};
         for(int item: numbers){
-            n = n + item;
+           // n = n + item;
         }
-        int z=0, b = numbers[z];
+
         return n;
     }
 }
