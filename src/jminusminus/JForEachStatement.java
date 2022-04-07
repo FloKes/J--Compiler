@@ -64,6 +64,8 @@ class JForEachStatement extends JStatement {
      */
 
     public JForEachStatement analyze(Context context) {
+
+        // TODO consult JAVA spec to confirm its good
         // Create new local context for the for statement
         // Offset 0 is used to address "this".
         localContext = new LocalContext(context);
@@ -91,7 +93,7 @@ class JForEachStatement extends JStatement {
          */
         JExpression theArray = array.analyze(localContext);
 
-        String indexName = "index";
+        String indexName = "#index";
         JVariable indexVariable = new JVariable(line(), indexName);
         JArrayExpression arrayExpression = new JArrayExpression(line(), theArray, indexVariable);
 
@@ -112,14 +114,12 @@ class JForEachStatement extends JStatement {
          *
          */
 
-        var a = (JArrayExpression) arrayExpression;
-        var b = a.analyzeLhs(localContext);
-        this.condition = new JLessEqualOp(line(), indexVariable, b);
-
+        var lengthField = new JFieldSelection(line(), theArray, "length");
+        this.condition = new JLessEqualOp(line(), indexVariable, lengthField);
 
         //TODO Create the expression for updating the variable
         JVariable itemVariable =  new JVariable(line(), declarator.name());
-        JPlusAssignOp updateIndex = new JPlusAssignOp(line(), indexVariable,new JLiteralInt(line(), "1"));
+        JPostIncrementOp updateIndex = new JPostIncrementOp(line(), indexVariable);
         JAssignOp updateItem = new JAssignOp(line(), itemVariable, arrayExpression);
         forUpdate.add(updateIndex);
         forUpdate.add(updateItem);
