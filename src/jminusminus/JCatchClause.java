@@ -2,13 +2,11 @@
 
 package jminusminus;
 
-import static jminusminus.CLConstants.GOTO;
-
 /**
  * The AST node for a catch-statement.
  */
 
-class JTryClause extends JStatement {
+class JCatchClause extends JStatement {
 
     /** Catch exception */
     private JFormalParameter exception;
@@ -30,7 +28,7 @@ class JTryClause extends JStatement {
      *
      */
 
-    public JTryClause(int line, JFormalParameter exception, JBlock block) {
+    public JCatchClause(int line, JFormalParameter exception, JBlock block) {
         super(line);
         this.exception = exception;
         this.block = block;
@@ -45,10 +43,12 @@ class JTryClause extends JStatement {
      * @return the analyzed (and possibly rewritten) AST subtree.
      */
 
-    public JTryClause analyze(Context context) {
+    public JCatchClause analyze(Context context) {
         block = block.analyze(context);
         exception = (JFormalParameter) exception.analyze(context);
-        // exception.type().mustMatchExpected(line(), Type.EXCEPTION); something..
+        if (!Throwable.class.isAssignableFrom(exception.type().classRep())) {
+            JAST.compilationUnit.reportSemanticError(line, "Exception not sublcass of  throwable", exception.type().getClass().getName());
+        }
         return this;
     }
 

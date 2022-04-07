@@ -776,7 +776,9 @@ public class Parser {
      *               | RETURN [expression] SEMI
      *               | SEMI
      *               | statementExpression SEMI
-     *               | TRY block { CATCH ( formalParameter ) block } [FINALLY block]
+     *               | TRY block 
+     *                  { CATCH LPAREN formalParameter RPAREN block }  zero or more
+     *                      [FINALLY block] //  must be present if no catches 
      * </pre>
      *
      * @return an AST for a statement.
@@ -835,14 +837,26 @@ public class Parser {
         } else if (have(SEMI)) {
             return new JEmptyStatement(line);
         } else if (have(TRY)) {
-            JStatement tryStatement = statement();
-            mustBe(CATCH);
-            mustBe(LPAREN);
-            JFormalParameter exception = formalParameter();
-            mustBe(RPAREN);
-            JStatement catchStatement = statement(); // catch
-            JStatement finallyStatement = have(FINALLY) ? statement() : null;
-            return new JTryStatement(line, tryStatement, exception, catchStatement, finallyStatement);
+            boolean hasCatch = false;
+            JBlock finallyBlock = null;
+            JBlock tryBlock = block();
+            ArrayList<JCatchClause> catchClauses = new ArrayList<JCatchClause>();
+            if (see(CATCH)) {
+                hasCatch = true;
+                while (see(CATCH)) {
+                    catchClauses.add(catchClause());
+                }
+            }
+            if (hasCatch) {
+                if (have(FINALLY)) {
+                    finallyBlock = block();
+                }
+            }
+            else {
+                mustBe(FINALLY);
+                finallyBlock = block();
+            }
+            return new JTryStatement(line, tryBlock, catchClauses, finallyBlock);
         } else { // Must be a statementExpression
             JStatement statement = statementExpression();
             mustBe(SEMI);
@@ -891,6 +905,16 @@ public class Parser {
         mustBe(IDENTIFIER);
         String name = scanner.previousToken().image();
         return new JFormalParameter(line, name, type);
+    }
+
+    private JCatchClause catchClause() {
+        int line = scanner.token().line();
+        mustBe(CATCH);
+        mustBe(LPAREN);
+        JFormalParameter exception = formalParameter();
+        mustBe(RPAREN);
+        JBlock catchBlock = block();
+        return new JCatchClause(line, exception, catchBlock);
     }
 
     /**
