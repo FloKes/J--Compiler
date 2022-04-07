@@ -788,9 +788,26 @@ public class Parser {
             }
             if (scanner.token().kind() == SEMI) {
                 scanner.returnToPosition();
-                // TODO We don't need to declare variables we can just use statements as well, so check if there is type
 
-                if (see(IDENTIFIER)) {
+                // Needs to be replaced with sth
+                if (seeVariableDeclarators()) {
+                    // TODO we can't handle final keyword
+                    Type type = type();
+                    ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
+
+                    mustBe(SEMI);
+                    JExpression test = expression();
+                    mustBe(SEMI);
+
+                    ArrayList<JStatement> forUpdate = new ArrayList<>();
+                    do {
+                        forUpdate.add(statementExpression());
+                    } while (have(COMMA));
+
+                    mustBe(RPAREN);
+                    JStatement body = statement();
+                    return new JForStatement(line, declarators, test, forUpdate, body);
+                } else {
                     ArrayList<JStatement> forInit = new ArrayList<>();
                     do {
                         forInit.add(statementExpression());
@@ -808,22 +825,6 @@ public class Parser {
                     mustBe(RPAREN);
                     JStatement body = statement();
                     return new JForStatement(line, forInit, test, forUpdate, body, true);
-                } else {
-                    Type type = type();
-                    ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
-
-                    mustBe(SEMI);
-                    JExpression test = expression();
-                    mustBe(SEMI);
-
-                    ArrayList<JStatement> forUpdate = new ArrayList<>();
-                    do {
-                        forUpdate.add(statementExpression());
-                    } while (have(COMMA));
-
-                    mustBe(RPAREN);
-                    JStatement body = statement();
-                    return new JForStatement(line, declarators, test, forUpdate, body);
                 }
             } else if (scanner.token().kind() == COLON){
                 scanner.returnToPosition();
@@ -868,6 +869,18 @@ public class Parser {
         }
     }
 
+
+    public boolean seeVariableDeclarators(){
+        scanner.recordPosition();
+        Type type = type();
+        if (see(IDENTIFIER)) {
+            scanner.returnToPosition();
+            return true;
+        } else {
+            scanner.returnToPosition();
+            return false;
+        }
+    }
     /**
      * Parse formal parameters.
      *
