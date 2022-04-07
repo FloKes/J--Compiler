@@ -3,7 +3,7 @@ public class ForEachStatement {
         for(int item: numbers){
             n = n + item;
         }
+        int z=0, b = numbers[z];
         return n;
-
     }
 }

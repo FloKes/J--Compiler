@@ -67,7 +67,7 @@ class JForEachStatement extends JStatement {
         localContext = new LocalContext(context);
         localContext.nextOffset();
 
-        // must be an array, and variable must be of the type of the aray
+        /** must be an array, and variable must be of the type of the array */
         array = (JVariable) array.analyze(localContext);
         if (!array.type().isArray()) {
             JAST.compilationUnit.reportSemanticError(line,
@@ -76,17 +76,34 @@ class JForEachStatement extends JStatement {
         declarator.type().mustMatchExpected(line(), array.type().componentType());
 
         // Retrieve the first element of the array and set the initializer for the variable
+
+        /**
+         for(int item: numbers)
+         for(int index = 0, item = numbers[index]; index < numbers.length; index++, item = numbers[index])
+         */
+
         JExpression theArray = array.analyze(localContext);
-        JLiteralInt index = new JLiteralInt(line(), "0");
-        JArrayExpression arrayExpression = new JArrayExpression(line(), theArray, index);
-        declarator.setInitializer(arrayExpression);
+
 
         // Analyze the declaration and add it to the local context
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
+        JVariableDeclarator index = new JVariableDeclarator(line(), "index", Type.INT, new JLiteralInt(line(), "0"));
+        decls.add(index);
+
+        JVariable indexVariable = new JVariable(line(), "index");
+        //JExpression indexExpr = indexVariable.analyze(localContext);
+
+        JArrayExpression arrayExpression = new JArrayExpression(line(), theArray, indexVariable);
+        declarator.setInitializer(arrayExpression);
         decls.add(declarator);
+
         JVariableDeclaration declaration = new JVariableDeclaration(line(),
                 new ArrayList<>(), decls);
+
         this.declaration = declaration.analyze(localContext);
+
+
+
 
         //TODO Create a condition to check when the increment of the index should stop
 
@@ -94,11 +111,8 @@ class JForEachStatement extends JStatement {
         JPlusAssignOp updateExpression = new JPlusAssignOp(line(), null,new JLiteralInt(line(), "1"));
         this.updateStatement = updateExpression;
 
-/**
-        for(int item: numbers)
-        for(int index = 0, item = numbers[index]; index < numbers.length; index++, item = numbers[index])
-*/
-        //
+
+        // The body of the statement
         body = (JStatement) body.analyze(localContext);
         return this;
     }
