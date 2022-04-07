@@ -776,7 +776,7 @@ public class Parser {
      *               | RETURN [expression] SEMI
      *               | SEMI
      *               | statementExpression SEMI
-     *               | TRY statement CATCH parException statement [FINALLY statement]
+     *               | TRY block { CATCH ( formalParameter ) block } [FINALLY block]
      * </pre>
      *
      * @return an AST for a statement.
