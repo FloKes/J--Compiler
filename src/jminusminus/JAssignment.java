@@ -152,7 +152,10 @@ class JPlusAssignOp extends JAssignment {
         if (lhs.type().equals(Type.INT)) {
             rhs.type().mustMatchExpected(line(), Type.INT);
             type = Type.INT;
-        } else if (lhs.type().equals(Type.STRING)) {
+        } else if (lhs.type().equals(Type.DOUBLE)){
+            rhs.type().mustMatchExpected(line(), Type.DOUBLE);
+            type = Type.DOUBLE;
+        }else if (lhs.type().equals(Type.STRING)) {
             rhs = (new JStringConcatenationOp(line, lhs, rhs)).analyze(context);
             type = Type.STRING;
         } else {
