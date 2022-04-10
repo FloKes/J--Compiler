@@ -67,6 +67,7 @@ class JForEachStatement extends JStatement {
      */
 
     public JForEachStatement analyze(Context context) {
+        // Add the declaration of the hidden array before the for loop
         JExpression arrayExpression = array.analyze(context);
         String hiddenArrayName = "#array";
         JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
@@ -74,7 +75,7 @@ class JForEachStatement extends JStatement {
         prevDecls.add(hiddenArray);
         JVariableDeclaration prevDecl = new JVariableDeclaration(line(), new ArrayList<>(), prevDecls);
         hiddenArrayDeclaration = prevDecl.analyze(context);
-        // TODO consult JAVA spec to confirm its good
+
         // Create new local context for the for statement
         // Offset 0 is used to address "this".
         localContext = new LocalContext(context);
@@ -102,8 +103,6 @@ class JForEachStatement extends JStatement {
                 new ArrayList<>(), decls);
         this.declaration = declaration.analyze(localContext);
 
-//        decls.add(hiddenArray);
-
 
         //Condition which checks when we should stop incrementing
         JVariable hiddenArrayVariable = new JVariable(line(), hiddenArrayName);
@@ -123,7 +122,6 @@ class JForEachStatement extends JStatement {
         ArrayList<JVariableDeclarator> vdecls = new ArrayList<>();
         vdecls.add(declarator);
         JVariableDeclaration newBodyVarDeclaration = new JVariableDeclaration(line(), new ArrayList<>(), vdecls);
-
 
         JBlock bodyBlock = (JBlock) body;
         bodyBlock.statements().add(0, newBodyVarDeclaration);
