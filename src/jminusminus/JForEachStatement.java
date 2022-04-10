@@ -5,6 +5,7 @@ package jminusminus;
 import java.util.ArrayList;
 
 import static jminusminus.CLConstants.GOTO;
+import static jminusminus.TokenKind.SEMI;
 
 /**
  * The AST node for a for-statement.
@@ -13,10 +14,12 @@ import static jminusminus.CLConstants.GOTO;
 class JForEachStatement extends JStatement {
 
     /** Declarator for  the variable. */
-    private JVariableDeclarator declarator;
+//    private JVariableDeclarator declarator;
 
     /** The initialized variable from the arr. */
     private JStatement declaration;
+
+    private JFormalParameter formalParameter;
 
     /** The array. */
     private JVariable array;
@@ -46,9 +49,9 @@ class JForEachStatement extends JStatement {
      *            the body.
      */
 
-    public JForEachStatement(int line, JVariableDeclarator declarator, JVariable array, JStatement body) {
+    public JForEachStatement(int line, JFormalParameter formalParameter, JVariable array, JStatement body) {
         super(line);
-        this.declarator = declarator;
+        this.formalParameter = formalParameter;
         this.array = array;
         this.body = body;
         this.forUpdate = new ArrayList<>();
@@ -77,55 +80,53 @@ class JForEachStatement extends JStatement {
             JAST.compilationUnit.reportSemanticError(line,
                     "for-each not applicable to expression type " + array.type().toString());
         }
-        declarator.type().mustMatchExpected(line(), array.type().componentType());
+        formalParameter.type().mustMatchExpected(line(), array.type().componentType());
 
-        // Retrieve the first element of the array and set the initializer for the variable
-
-        /**
-         for(int item: numbers)
-         for(int index = 0, item = numbers[index]; index < numbers.length; index++, item = numbers[index])
-         */
 
         /**
          * A certain amount of AST tree rewriting, usually to make implicit constructs more
          * explicit.
          * TODO are we supposed to the stuff below in this step?
          */
-        JExpression theArray = array.analyze(localContext);
-
+        JExpression arrayExpression = array.analyze(localContext);
         String indexName = "#index";
-        JVariable indexVariable = new JVariable(line(), indexName);
-        JArrayExpression arrayExpression = new JArrayExpression(line(), theArray, indexVariable);
-
+        String hiddenArrayName = "#array";
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         JVariableDeclarator index = new JVariableDeclarator(line(), indexName, Type.INT, new JLiteralInt(line(), "0"));
+        JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
+
         decls.add(index);
-        this.declarator.setInitializer(arrayExpression);
-        decls.add(this.declarator);
+        decls.add(hiddenArray);
 
         JVariableDeclaration declaration = new JVariableDeclaration(line(),
                 new ArrayList<>(), decls);
         this.declaration = declaration.analyze(localContext);
 
 
-        //TODO Create a condition to check when the increment of the index should stop
-        /** Condition should be index < array.length
-         * Not sure how to find array length from the array name
-         *
-         */
-
-        var lengthField = new JFieldSelection(line(), theArray, "length");
+        //Condition which checks when we should stop incrementing
+        JVariable hiddenArrayVariable = new JVariable(line(), hiddenArrayName);
+        JExpression hiddenArrayExpression = hiddenArrayVariable.analyze(localContext);
+        var lengthField = new JFieldSelection(line(), hiddenArrayExpression, "length");
+        // TODO change to less than when it is implemented
+        JVariable indexVariable = new JVariable(line(), indexName);
         this.condition = new JLessEqualOp(line(), indexVariable, lengthField);
 
-        //TODO Create the expression for updating the variable
-        JVariable itemVariable =  new JVariable(line(), declarator.name());
+        // Updating the #index variable
         JPostIncrementOp updateIndex = new JPostIncrementOp(line(), indexVariable);
-        JAssignOp updateItem = new JAssignOp(line(), itemVariable, arrayExpression);
         forUpdate.add(updateIndex);
-        forUpdate.add(updateItem);
 
         // The body of the statement
-        body = (JStatement) body.analyze(localContext);
+        JArrayExpression hiddenArrayAccessExpression = new JArrayExpression(line(), hiddenArrayExpression, indexVariable);
+        JVariableDeclarator declarator = new JVariableDeclarator(line(), formalParameter.name(), formalParameter.type(), hiddenArrayAccessExpression);
+        ArrayList<JVariableDeclarator> vdecls = new ArrayList<>();
+        vdecls.add(declarator);
+        JVariableDeclaration newBodyVarDeclaration = new JVariableDeclaration(line(), new ArrayList<>(), vdecls);
+
+        ArrayList<JStatement> newBodyStatements = new ArrayList<>();
+        newBodyStatements.add(newBodyVarDeclaration);
+        newBodyStatements.add(body);
+        JStatement newBody = new JBlock(line(),newBodyStatements);
+        this.body = (JStatement) newBody.analyze(localContext);
         return this;
     }
 
@@ -160,7 +161,7 @@ class JForEachStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
-        p.printf("<ForStatementEnumerable line=\"%d\">\n", line());
+        p.printf("<ForEachStatement line=\"%d\">\n", line());
         p.indentRight();
         p.printf("<ForInit>\n");
         p.indentRight();
@@ -173,11 +174,6 @@ class JForEachStatement extends JStatement {
         condition.writeToStdOut(p);
         p.indentLeft();
         p.printf("</Condition>\n");
-//        p.printf("<Array>\n");
-//        p.indentRight();
-//        array.writeToStdOut(p);
-//        p.indentLeft();
-//        p.printf("</Array>\n");
         p.printf("<ForUpdate>\n");
         p.indentRight();
         for (JStatement statement : forUpdate) {
@@ -191,7 +187,7 @@ class JForEachStatement extends JStatement {
         p.indentLeft();
         p.printf("</Body>\n");
         p.indentLeft();
-        p.printf("</ForStatementEnumerable>\n");
+        p.printf("</ForEachStatement>\n");
     }
 
 }

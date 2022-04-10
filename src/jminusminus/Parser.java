@@ -828,15 +828,16 @@ public class Parser {
                 }
             } else if (scanner.token().kind() == COLON){
                 scanner.returnToPosition();
-                Type type = type();
-                JVariableDeclarator declarator = variableDeclarator(type);
+                JFormalParameter formalParameter = formalParameter();
+//                Type type = type();
+//                JVariableDeclarator declarator = variableDeclarator(type);
                 mustBe(COLON);
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 JVariable variable = new JVariable(line, name);
                 mustBe(RPAREN);
                 JStatement body = statement();
-                return new JForEachStatement(line, declarator, variable, body);
+                return new JForEachStatement(line, formalParameter, variable, body);
             }
             else {
                 // Dunno what should return here
