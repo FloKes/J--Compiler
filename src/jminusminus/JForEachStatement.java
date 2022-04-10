@@ -13,17 +13,17 @@ import static jminusminus.TokenKind.SEMI;
 
 class JForEachStatement extends JStatement {
 
-    /** Declarator for  the variable. */
-//    private JVariableDeclarator declarator;
+    /** Declarator for hidden array. */
+    private JStatement hiddenArrayDeclaration;
 
-    /** The initialized variable from the arr. */
+    /** The for loop declarations. */
     private JStatement declaration;
 
+    /** The formal parameter of the for statement*/
     private JFormalParameter formalParameter;
 
     /** The array. */
     private JVariable array;
-    private JArrayInitializer arrayInitializer;
 
     /** Test expression. */
     private JExpression condition;
@@ -67,7 +67,13 @@ class JForEachStatement extends JStatement {
      */
 
     public JForEachStatement analyze(Context context) {
-
+        JExpression arrayExpression = array.analyze(context);
+        String hiddenArrayName = "#array";
+        JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
+        ArrayList<JVariableDeclarator> prevDecls = new ArrayList<>();
+        prevDecls.add(hiddenArray);
+        JVariableDeclaration prevDecl = new JVariableDeclaration(line(), new ArrayList<>(), prevDecls);
+        hiddenArrayDeclaration = prevDecl.analyze(context);
         // TODO consult JAVA spec to confirm its good
         // Create new local context for the for statement
         // Offset 0 is used to address "this".
@@ -88,19 +94,15 @@ class JForEachStatement extends JStatement {
          * explicit.
          * TODO are we supposed to the stuff below in this step?
          */
-        JExpression arrayExpression = array.analyze(localContext);
         String indexName = "#index";
-        String hiddenArrayName = "#array";
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         JVariableDeclarator index = new JVariableDeclarator(line(), indexName, Type.INT, new JLiteralInt(line(), "0"));
-        JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
-
         decls.add(index);
-        decls.add(hiddenArray);
-
         JVariableDeclaration declaration = new JVariableDeclaration(line(),
                 new ArrayList<>(), decls);
         this.declaration = declaration.analyze(localContext);
+
+//        decls.add(hiddenArray);
 
 
         //Condition which checks when we should stop incrementing
@@ -122,11 +124,10 @@ class JForEachStatement extends JStatement {
         vdecls.add(declarator);
         JVariableDeclaration newBodyVarDeclaration = new JVariableDeclaration(line(), new ArrayList<>(), vdecls);
 
-        ArrayList<JStatement> newBodyStatements = new ArrayList<>();
-        newBodyStatements.add(newBodyVarDeclaration);
-        newBodyStatements.add(body);
-        JStatement newBody = new JBlock(line(),newBodyStatements);
-        this.body = (JStatement) newBody.analyze(localContext);
+
+        JBlock bodyBlock = (JBlock) body;
+        bodyBlock.statements().add(0, newBodyVarDeclaration);
+        this.body = bodyBlock.analyze(localContext);
         return this;
     }
 
@@ -161,6 +162,12 @@ class JForEachStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
+        p.printf("<HiddenArray>\n");
+        p.indentRight();
+        hiddenArrayDeclaration.writeToStdOut(p);
+        p.indentLeft();
+        p.printf("</HiddenArray>\n");
+        p.indentLeft();
         p.printf("<ForEachStatement line=\"%d\">\n", line());
         p.indentRight();
         p.printf("<ForInit>\n");
