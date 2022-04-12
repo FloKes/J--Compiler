@@ -123,7 +123,6 @@ class JForStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-
         if (declaration != null) {
             // Declaration codegen
             declaration.codegen(output);

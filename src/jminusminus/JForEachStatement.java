@@ -16,7 +16,7 @@ class JForEachStatement extends JStatement {
     /** Declarator for hidden array. */
     private JStatement hiddenArrayDeclaration;
 
-    /** The for loop declarations. */
+    /** The for loop declarations. Contains #index */
     private JStatement declaration;
 
     /** The formal parameter of the for statement*/
@@ -67,6 +67,7 @@ class JForEachStatement extends JStatement {
      */
 
     public JForEachStatement analyze(Context context) {
+        // TODO Ask TA or teacher when we should do the #array = array part as in javaspec link
         // Add the declaration of the hidden array before the for loop
         JExpression arrayExpression = array.analyze(context);
         String hiddenArrayName = "#array";
@@ -110,10 +111,13 @@ class JForEachStatement extends JStatement {
         var lengthField = new JFieldSelection(line(), hiddenArrayExpression, "length");
         // TODO change to less than when it is implemented
         JVariable indexVariable = new JVariable(line(), indexName);
-        this.condition = new JLessEqualOp(line(), indexVariable, lengthField);
+        condition = new JLessOp(line(), indexVariable, lengthField);
+        condition = condition.analyze(localContext);
 
         // Updating the #index variable
-        JPostIncrementOp updateIndex = new JPostIncrementOp(line(), indexVariable);
+        JExpression updateIndex = new JPostIncrementOp(line(), indexVariable);
+        // So as not to save to stack
+        updateIndex.isStatementExpression = true;
         forUpdate.add(updateIndex);
 
         // The body of the statement
@@ -125,7 +129,7 @@ class JForEachStatement extends JStatement {
 
         JBlock bodyBlock = (JBlock) body;
         bodyBlock.statements().add(0, newBodyVarDeclaration);
-        this.body = bodyBlock.analyze(localContext);
+        body = bodyBlock.analyze(localContext);
         return this;
     }
 
@@ -138,17 +142,33 @@ class JForEachStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+//        T[] #a = Expression;
+//        L1: L2: ... Lm:
+//        for (int #i = 0; #i < #a.length; #i++) {
+//            VariableModifiersopt TargetType Identifier = #a[#i];
+//            Statement
+//        }
+//
+        hiddenArrayDeclaration.codegen(output);
+        declaration.codegen(output);
+
         // Need two labels
         String test = output.createLabel();
         String out = output.createLabel();
 
         // Branch out of the loop on the test condition
         // being false
+        output.addLabel(test);
+        condition.codegen(output, out, false);
 
         // Codegen body
         body.codegen(output);
 
-        // Unconditional jump back up to test
+        for (JStatement statement : forUpdate) {
+            statement.codegen(output);
+        }
+
+//         Unconditional jump back up to test
         output.addBranchInstruction(GOTO, test);
 
         // The label below and outside the loop

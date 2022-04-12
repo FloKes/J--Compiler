@@ -33,6 +33,7 @@ public class JMinusMinusTestRunner {
 //        suite.addTestSuite(UnaryPlusOpTest.class);
         suite.addTestSuite(WhileStatementTest.class);
         suite.addTestSuite(ForStatementTest.class);
+        suite.addTestSuite(ForEachStatementTest.class);
         return suite;
     }
 

@@ -423,7 +423,7 @@ class JPostIncrementOp extends JUnaryExpression {
                 // Loading its original rvalue
                 arg.codegen(output);
             }
-            output.addIINCInstruction(offset, -1);
+            output.addIINCInstruction(offset, 1);
         } else {
             ((JLhs) arg).codegenLoadLhsLvalue(output);
             ((JLhs) arg).codegenLoadLhsRvalue(output);
@@ -581,7 +581,7 @@ class JPreDecrementOp extends JUnaryExpression {
             // have replaced it with an explicit field selection.
             int offset = ((LocalVariableDefn) ((JVariable) arg).iDefn())
                     .offset();
-            output.addIINCInstruction(offset, 1);
+            output.addIINCInstruction(offset, -1);
             if (!isStatementExpression) {
                 // Loading its original rvalue
                 arg.codegen(output);
