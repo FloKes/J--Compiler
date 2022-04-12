@@ -19,12 +19,16 @@ class JForStatement extends JStatement {
 
     /** Init expressions */
     private ArrayList<JStatement> forInit;
+    /** Init expressions */
+    private ArrayList<JStatement> forInitFinal;
 
     /** Test expression. */
     private JExpression condition;
 
     /** Update the variable. */
     private ArrayList<JStatement> forUpdate;
+    /** Update the variable. */
+    private ArrayList<JStatement> forUpdateFinal;
 
     /** The body. */
     private JStatement body;
@@ -85,12 +89,13 @@ class JForStatement extends JStatement {
         if (declarators != null) {
             ArrayList<String> mods = new ArrayList<>();
             declaration = new JVariableDeclaration(line(), mods, declarators);
-            declaration.analyze(localContext);
+            declaration = (JVariableDeclaration) declaration.analyze(localContext);
         }
 
         else if (forInit != null){
+            forInitFinal = new ArrayList<>();
             for (JStatement statement : forInit) {
-                statement.analyze(localContext);
+                forInitFinal.add((JStatement) statement.analyze(localContext));
             }
         }
 
@@ -99,8 +104,9 @@ class JForStatement extends JStatement {
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
 
         // Must be statement with side effect
+        forUpdateFinal = new ArrayList<>();
         for (JStatement statement : forUpdate) {
-            statement.analyze(localContext);
+            forUpdateFinal.add((JStatement) statement.analyze(localContext));
         }
 
         //body
@@ -117,6 +123,16 @@ class JForStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+
+        if (declaration != null) {
+            // Declaration codegen
+            declaration.codegen(output);
+        } else {
+            for (JStatement statement : forInitFinal) {
+                statement.codegen(output);
+            }
+        }
+
         // Need two labels
         String test = output.createLabel();
         String out = output.createLabel();
@@ -128,6 +144,10 @@ class JForStatement extends JStatement {
 
         // Codegen body
         body.codegen(output);
+
+        for (JStatement statement : forUpdateFinal) {
+            statement.codegen(output);
+        }
 
         // Unconditional jump back up to test
         output.addBranchInstruction(GOTO, test);
