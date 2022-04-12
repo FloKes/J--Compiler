@@ -140,7 +140,7 @@ class JLessEqualOp extends JComparison {
 
 }
 
-class JLessOp extends JComparison {
+class JLessThanOp extends JComparison {
 
     /**
      * Constructs an AST node for a less-than-or-equal-to expression given its
@@ -155,7 +155,7 @@ class JLessOp extends JComparison {
      *            rhs operand.
      */
 
-    public JLessOp(int line, JExpression lhs, JExpression rhs) {
+    public JLessThanOp(int line, JExpression lhs, JExpression rhs) {
         super(line, "<", lhs, rhs);
     }
 

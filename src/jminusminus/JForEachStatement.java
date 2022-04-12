@@ -5,7 +5,6 @@ package jminusminus;
 import java.util.ArrayList;
 
 import static jminusminus.CLConstants.GOTO;
-import static jminusminus.TokenKind.SEMI;
 
 /**
  * The AST node for a for-statement.
@@ -111,7 +110,7 @@ class JForEachStatement extends JStatement {
         var lengthField = new JFieldSelection(line(), hiddenArrayExpression, "length");
         // TODO change to less than when it is implemented
         JVariable indexVariable = new JVariable(line(), indexName);
-        condition = new JLessOp(line(), indexVariable, lengthField);
+        condition = new JLessThanOp(line(), indexVariable, lengthField);
         condition = condition.analyze(localContext);
 
         // Updating the #index variable
