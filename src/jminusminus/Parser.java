@@ -483,8 +483,8 @@ public class Parser {
      *
      * <pre>
      *   interfaceDeclaration ::= INTERFACE IDENTIFIER
-     *                           [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
-     *                           interfaceBody
+     *                              [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
+     *                              interfaceBody
      * </pre>
      *
      *
@@ -498,13 +498,13 @@ public class Parser {
         mustBe(INTERFACE);
         mustBe(IDENTIFIER);
         String name = scanner.previousToken().image();
-        ArrayList<Type> extendedInterfaces = new ArrayList<Type>();
+        ArrayList<Type> superInterfaces = new ArrayList<Type>();
         if (have(EXTENDS)) {
             do {
-                extendedInterfaces.add(qualifiedIdentifier());
+              superInterfaces.add(qualifiedIdentifier());
             } while (have(COMMA));
         }
-        return new JInterfaceDeclaration(line, mods, name, extendedInterfaces, interfaceBody());
+        return new JInterfaceDeclaration(line, mods, name, superInterfaces, interfaceBody());
     }
 
     /**
@@ -512,8 +512,11 @@ public class Parser {
      *
      * <pre>
      *   interfaceBody ::= LCURLY
-        *                   {modifiers interfaceMemberDecl}
-        *                 RCURLY
+     *                      {
+     *                       ;
+     *                       | modifiers interfaceMemberDecl
+     *                      }
+     *                      RCURLY
      * </pre>
      *
      * @return list of members in the interface body.
@@ -523,6 +526,7 @@ public class Parser {
         ArrayList<JMember> members = new ArrayList<JMember>();
         mustBe(LCURLY);
         while (!see(RCURLY) && !see(EOF)) {
+          if (have(SEMI) == false)
             members.add(interfaceMemberDecl(modifiers()));
         }
         mustBe(RCURLY);
@@ -535,8 +539,8 @@ public class Parser {
      * <pre>
      *   memberDecl ::= (VOID | type) IDENTIFIER  // method
      *                    formalParameters
-     *                    (block | SEMI)
-     *                | type variableDeclarators SEMI
+     *                    SEMI
+     *                  | type variableDeclarators SEMI
      * </pre>
      *
      * @param mods
@@ -598,7 +602,7 @@ public class Parser {
         mustBe(IDENTIFIER);
         String name = scanner.previousToken().image();
         Type superClass;
-        ArrayList<Type> implementedInterfaces = new ArrayList<Type>();
+        ArrayList<Type> superInterfaces = new ArrayList<Type>();
         if (have(EXTENDS)) {
             superClass = qualifiedIdentifier();
         } else {
@@ -606,10 +610,10 @@ public class Parser {
         }
         if (have(IMPLEMENTS)) {
             do {
-                implementedInterfaces.add(qualifiedIdentifier());
+              superInterfaces.add(qualifiedIdentifier());
             } while (have(COMMA));
         }
-        return new JClassDeclaration(line, mods, name, superClass, implementedInterfaces, classBody());
+        return new JClassDeclaration(line, mods, name, superClass, superInterfaces, classBody());
     }
 
     /**

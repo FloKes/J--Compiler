@@ -29,7 +29,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
     private Type superType;
 
     /** Implemented interface types. */
-    private ArrayList<Type> implementedInterfaces;
+    private ArrayList<Type> superInterfaces;
 
     /** This class type. */
     private Type thisType;
@@ -59,17 +59,19 @@ class JClassDeclaration extends JAST implements JTypeDecl {
      *            class name.
      * @param superType
      *            super class type.
+     * @param superInterfaces
+     *            implemented interface types.  
      * @param classBlock
      *            class block.
      */
 
     public JClassDeclaration(int line, ArrayList<String> mods, String name,
-            Type superType, ArrayList<Type> implementedInterfaces, ArrayList<JMember> classBlock) {
+            Type superType, ArrayList<Type> superInterfaces, ArrayList<JMember> classBlock) {
         super(line);
         this.mods = mods;
         this.name = name;
         this.superType = superType;
-        this.implementedInterfaces = implementedInterfaces;
+        this.superInterfaces = superInterfaces;
         this.classBlock = classBlock;
         hasExplicitConstructor = false;
         instanceFieldInitializations = new ArrayList<JFieldDeclaration>();
@@ -270,7 +272,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JClassDeclaration line=\"%d\" name=\"%s\""
-                + " super=\"%s\" implementedInterfaces=%s>\n", line(), name, superType.toString(), implementedInterfaces.toString());
+                + " super=\"%s\" superInterfaces=%s>\n", line(), name, superType.toString(), superInterfaces.toString());
         p.indentRight();
         if (context != null) {
             context.writeToStdOut(p);

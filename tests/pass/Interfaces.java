@@ -7,6 +7,8 @@ interface AnInterfaceA {
 }
 
 interface AnInterfaceB {
+    ;
+    ;
     int b = 0;
 }
 
@@ -23,17 +25,5 @@ public class Interfaces implements AnInterfaceA, AnInterfaceB, AnInterfaceC {
     public static void main(String[] args) {
         System.out.println(Classes.message());
     }
-
-}
-
-class Aa {
-
-    public static String a = "Hello";
-
-}
-
-class Bb extends Aa {
-
-    public String b = "World!";
 
 }

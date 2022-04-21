@@ -7,9 +7,7 @@ import static jminusminus.CLConstants.*;
 
 /**
  * An interface declaration has a list of modifiers, a name, a list of extended interfaces and an
- * interface block; it distinguishes between interface fields and static (class)
- * fields for initialization, and it defines a type. It also introduces its own
- * (interface) context.
+ * interface block;
  *  This class is not final and in progress.
  */
 
@@ -25,7 +23,7 @@ class JInterfaceDeclaration extends JAST {
     private ArrayList<JMember> interfaceBlock;
 
     /** Extended interface types. */
-    private ArrayList<Type> extendedInterfaces;
+    private ArrayList<Type> superInterfaces;
 
     /** This interface type. */
     private Type thisType;
@@ -33,15 +31,12 @@ class JInterfaceDeclaration extends JAST {
     /** Context for this interface. */
     private ClassContext context;
 
-    /** Interface fields of this interface. */
-    private ArrayList<JFieldDeclaration> interfaceFieldInitializations;
-
-    /** Static fields of this interface. */
+    /** Static (class) fields of this class. */
     private ArrayList<JFieldDeclaration> staticFieldInitializations;
 
     /**
      * Constructs an AST node for an interface declaration given the line number, list
-     * of interface modifiers, name of the interface, extended interfaces, and the
+     * of interface modifiers, name of the interface, super interfaces, and the
      * interface block.
      * 
      * @param line
@@ -50,25 +45,24 @@ class JInterfaceDeclaration extends JAST {
      *            interface modifiers.
      * @param name
      *            interface name.
-     * @param extendedInterfaces
+     * @param superInterfaces
      *             interfaces extended by this interface.
      * @param interfaceBlock
      *            interface block.
      */
 
-    public JInterfaceDeclaration(int line, ArrayList<String> mods, String name, ArrayList<Type> extendedInterfaces, ArrayList<JMember> interfaceBlock) {
+    public JInterfaceDeclaration(int line, ArrayList<String> mods, String name, ArrayList<Type> superInterfaces, ArrayList<JMember> interfaceBlock) {
         super(line);
         this.mods = mods;
         this.name = name;
-        this.extendedInterfaces = extendedInterfaces;
+        this.superInterfaces = superInterfaces;
         this.interfaceBlock = interfaceBlock;
-        interfaceFieldInitializations = new ArrayList<JFieldDeclaration>();
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
     }
 
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JInterfaceDeclaration line=\"%d\" name=\"%s\""
-                + " extendedInterfaces=%s>\n", line(), name, extendedInterfaces.toString());
+                + " superInterfaces=%s>\n", line(), name, superInterfaces.toString());
         p.indentRight();
         if (context != null) {
             context.writeToStdOut(p);
