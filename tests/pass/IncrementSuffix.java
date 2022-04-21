@@ -1,5 +1,5 @@
 public class IncrementSuffix {
-    public int incrementSuffix(int x){
+    public int incrementSuffix(String x){
         return x++;
     }
 }
