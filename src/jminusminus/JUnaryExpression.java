@@ -9,6 +9,8 @@ import static jminusminus.CLConstants.*;
  * A unary expression has a single operand.
  */
 
+
+// TODO char is promoted to an int
 abstract class JUnaryExpression extends JExpression {
 
     /** The operator. */
