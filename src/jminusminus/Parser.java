@@ -406,7 +406,7 @@ public class Parser {
         ArrayList<String> mods = modifiers();
         if (see(CLASS))
             return classDeclaration(mods);
-        else 
+        else
             return interfaceDeclaration(mods);
     }
 
@@ -554,9 +554,8 @@ public class Parser {
             mustBe(IDENTIFIER);
             String name = scanner.previousToken().image();
             ArrayList<JFormalParameter> params = formalParameters();
-            JBlock body = have(SEMI) ? null : block();
-            memberDecl = new JMethodDeclaration(line, mods, name, type,
-                    params, body);
+            mustBe(SEMI);
+            memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
         } else {
             type = type();
             if (seeIdentLParen()) {
@@ -564,8 +563,8 @@ public class Parser {
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 ArrayList<JFormalParameter> params = formalParameters();
-                JBlock body = have(SEMI) ? null : block();
-                memberDecl = new JMethodDeclaration(line, mods, name, type, params, body);
+                mustBe(SEMI);
+                memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
             } else {
                 // Field
                 memberDecl = new JFieldDeclaration(line, mods, variableDeclarators(type));
@@ -617,9 +616,14 @@ public class Parser {
      * Parse a class body.
      *
      * <pre>
-     *   classBody ::= LCURLY
-     *                   {modifiers memberDecl}
-     *                 RCURLY
+     *   classBody ::= LCURLY {
+     *                 ;
+     *                 | STATIC block
+     *                 | block
+     *                 | modifiers memberDecl
+     *                 }
+     *               RCURLY
+     *
      * </pre>
      *
      * @return list of members in the class body.
@@ -627,9 +631,19 @@ public class Parser {
 
     private ArrayList<JMember> classBody() {
         ArrayList<JMember> members = new ArrayList<JMember>();
+
         mustBe(LCURLY);
         while (!see(RCURLY) && !see(EOF)) {
-            members.add(memberDecl(modifiers()));
+            if (have(STATIC)) {
+                JStaticInitBlock staticInitBlock = new JStaticInitBlock(block());
+                members.add(staticInitBlock);
+            } else if (see(LCURLY)) {
+                JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(block());
+                members.add(instanceInitBlock);
+            }
+            else {
+                members.add(memberDecl(modifiers()));
+            }
         }
         mustBe(RCURLY);
         return members;
@@ -762,7 +776,7 @@ public class Parser {
      *               | RETURN [expression] SEMI
      *               | SEMI
      *               | statementExpression SEMI
-     *               | TRY statement CATCH parException statement [FINALLY statement] 
+     *               | TRY statement CATCH parException statement [FINALLY statement]
      * </pre>
      *
      * @return an AST for a statement.
@@ -1157,7 +1171,7 @@ public class Parser {
      *
      * <pre>
      *   assignmentExpression ::=
-     *       conditionalAndExpression // level 13
+     *       ternaryExpression // level 13
      *           [( ASSIGN  // conditionalExpression
      *            | PLUS_ASSIGN // must be valid lhs
      *            | MINUS_ASSIGN
@@ -1218,12 +1232,12 @@ public class Parser {
 
         /**
      * Parse a conditional-and expression.
-     * 
+     *
      * <pre>
      *   conditionalOrExpression ::= conditionalAndExpression // level 10
      *                          {LOR conditionalAndExpression}
      * </pre>
-     * 
+     *
      * @return an AST for a conditionalExpression.
      */
 
@@ -1234,7 +1248,7 @@ public class Parser {
         while (more) {
             if (have(LOR)){
                 lhs = new JLogicalOrOp(line, lhs, conditionalAndExpression());
-            } 
+            }
             else {
                 more = false;
             }
@@ -1246,12 +1260,12 @@ public class Parser {
 
     /**
      * Parse a conditional-and expression.
-     * 
+     *
      * <pre>
      *   conditionalAndExpression ::= bitwiseOr // level 10
      *                          {LAND bitwiseOr}
      * </pre>
-     * 
+     *
      * @return an AST for a conditionalExpression.
      */
 
@@ -1269,15 +1283,15 @@ public class Parser {
         }
         return lhs;
     }
-  
+
     /**
      * Parse a bitwise or operation
-     * 
+     *
      * <pre>
      *   bitwiseOr ::= bitwiseXor // level 9
      *           {BITWISE_OR bitwiseXor}
      * </pre>
-     * 
+     *
      * @return an AST for a bitwise OR expression.
      */
 
@@ -1294,15 +1308,15 @@ public class Parser {
         }
         return lhs;
     }
-  
+
     /**
      * Parse a bitwise xor operation
-     * 
+     *
      * <pre>
      *   bitwiseXor ::= bitwiseAnd // level 8
      *           {BITWISE_XOR bitwiseAnd}
      * </pre>
-     * 
+     *
      * @return an AST for a bitwise XOR expression.
      */
 
@@ -1319,15 +1333,15 @@ public class Parser {
         }
         return lhs;
     }
-  
+
     /**
      * Parse a bitwise and
-     * 
+     *
      * <pre>
      *   bitwiseAnd ::= equalityExpression // level 7
      *           {BITWISE_AND equalityExpression}
      * </pre>
-     * 
+     *
      * @return an AST for a bitwise AND expression
      */
 
@@ -1350,7 +1364,7 @@ public class Parser {
      *
      * <pre>
      *   equalityExpression ::= relationalExpression  // level 6
-     *                            {EQUAL relationalExpression}
+     *                            {EQUAL | NOT EQUAL relationalExpression}
      * </pre>
      *
      * @return an AST for an equalityExpression.
@@ -1363,20 +1377,22 @@ public class Parser {
         while (more) {
             if (have(EQUAL)) {
                 lhs = new JEqualOp(line, lhs, relationalExpression());
-            } else {
+            } else if(have(NOT_EQUAL)){
+                lhs = new JNotEqualOp(line, lhs, relationalExpression());
+            }else {
                 more = false;
             }
         }
         return lhs;
     }
 
- 
+
     /**
      * Parse a relational expression.
      *
      * <pre>
      *   relationalExpression ::= bitwiseShiftExpression  // level 5
-     *                              [(GT | LE) bitwiseShiftExpression
+     *                              [(GT | LE | LESS | GTE) bitwiseShiftExpression
      *                              | INSTANCEOF referenceType]
      * </pre>
      *
@@ -1390,7 +1406,11 @@ public class Parser {
             return new JGreaterThanOp(line, lhs, bitwiseShiftExpression());
         } else if (have(LE)) {
             return new JLessEqualOp(line, lhs, bitwiseShiftExpression());
-        } else if (have(INSTANCEOF)) {
+        } else if (have(LESS)) {
+            return new JLessThanOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(GTE)) {
+            return new JGreaterEqualOp(line, lhs, bitwiseShiftExpression());
+        }else if (have(INSTANCEOF)) {
             return new JInstanceOfOp(line, lhs, referenceType());
         } else {
             return lhs;
@@ -1399,12 +1419,12 @@ public class Parser {
 
     /**
      * Parse an bitwise shift expression.
-     * 
+     *
      * <pre>
      *   bitwiseShiftExpression ::=  additiveExpression       // level 4
-     *                {(SHL | SHR) additiveExpression}  
+     *                {(SHL | SHR) additiveExpression}
      * </pre>
-     * 
+     *
      * @return an AST for an additiveExpression.
      */
 
@@ -1419,7 +1439,7 @@ public class Parser {
                 lhs = new JSignedShiftRight(line, lhs, additiveExpression());
             } else if (have(USHR)) {
                 lhs = new JUnsignedShiftRight(line, lhs, additiveExpression());
-            }       
+            }
              else {
                 more = false;
             }
@@ -1533,7 +1553,7 @@ public class Parser {
         if (have(LNOT)) {
             return new JLogicalNotOp(line, unaryExpression());
         } else if (have(UNARY_COMP)) {
-            return new JBitwiseComplementOp(line, unaryExpression()); 
+            return new JBitwiseComplementOp(line, unaryExpression());
         } else if (seeCast()) {
             mustBe(LPAREN);
             boolean isBasicType = seeBasicType();

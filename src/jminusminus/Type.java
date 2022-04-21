@@ -407,7 +407,12 @@ class Type {
      */
 
     public String toString() {
-        return toJava(this.classRep);
+        if (this.classRep != null){
+            return toJava(this.classRep);
+        }
+        else {
+            return "(ANY)";
+        }
     }
 
     /**
