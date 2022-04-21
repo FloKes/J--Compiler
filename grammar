@@ -89,13 +89,13 @@ statementExpression ::= expression // but must have side-effect, eg i++
 expression ::= assignmentExpression
 
 
-assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
+assignmentExpression ::= conditionalExpression  // must be a valid lhs, level 13
                            [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
 
 
-ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
-                        [CONDITIONAL Expression
-                        COLON ternaryExpression]
+conditionalExpression ::= conditionalOrExpression // level 12, right-to-left associative
+                            [CONDITIONAL assignmentExpression
+                            COLON conditionalExpression]
 
 conditionalOrExpression ::= conditionalAndExpression // level 10
                                {LOR conditionalAndExpression}
