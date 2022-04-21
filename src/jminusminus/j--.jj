@@ -380,7 +380,11 @@ private JAST typeDeclaration(): {
 {
     try {
         mods = modifiers()
-        classDeclaration = classDeclaration(mods)
+        (LOOKAHEAD(<CLASS>)
+            classDeclaration = classDeclaration(mods) 
+        |
+            classDeclaration = interfaceDeclaration(mods)
+        )   
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
@@ -491,7 +495,7 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
 }
 {
     try {
-        <CLASS> { line = token.beginLine; }
+        <INTERFACE> { line = token.beginLine; }
         <IDENTIFIER> { name = token.image; }
         [
             <EXTENDS> extended = qualifiedIdentifier() { extendedInterfaces.add(extended); }
