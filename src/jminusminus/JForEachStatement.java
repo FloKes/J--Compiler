@@ -34,6 +34,9 @@ class JForEachStatement extends JStatement {
     /** The body. */
     private JStatement body;
 
+    /** The stateement as a For statement */
+    private JForStatement forStatement;
+
     /** The Local context. */
     private LocalContext localContext;
 
@@ -99,9 +102,9 @@ class JForEachStatement extends JStatement {
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         JVariableDeclarator index = new JVariableDeclarator(line(), indexName, Type.INT, new JLiteralInt(line(), "0"));
         decls.add(index);
-        JVariableDeclaration declaration = new JVariableDeclaration(line(),
-                new ArrayList<>(), decls);
-        this.declaration = declaration.analyze(localContext);
+//        JVariableDeclaration declaration = new JVariableDeclaration(line(),
+//                new ArrayList<>(), decls);
+//        this.declaration = declaration.analyze(localContext);
 
 
         //Condition which checks when we should stop incrementing
@@ -111,7 +114,7 @@ class JForEachStatement extends JStatement {
         // TODO change to less than when it is implemented
         JVariable indexVariable = new JVariable(line(), indexName);
         condition = new JLessThanOp(line(), indexVariable, lengthField);
-        condition = condition.analyze(localContext);
+//        condition = condition.analyze(localContext);
 
         // Updating the #index variable
         JExpression updateIndex = new JPostIncrementOp(line(), indexVariable);
@@ -128,7 +131,13 @@ class JForEachStatement extends JStatement {
 
         JBlock bodyBlock = (JBlock) body;
         bodyBlock.statements().add(0, newBodyVarDeclaration);
-        body = bodyBlock.analyze(localContext);
+//        body = bodyBlock.analyze(localContext);
+
+
+        // Rewriting to normal For statement
+        forStatement = new JForStatement(line, decls, condition, forUpdate, bodyBlock);
+        forStatement.analyze(localContext);
+
         return this;
     }
 
@@ -141,7 +150,7 @@ class JForEachStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-//        T[] #a = Expression;
+        //        T[] #a = Expression;
 //        L1: L2: ... Lm:
 //        for (int #i = 0; #i < #a.length; #i++) {
 //            VariableModifiersopt TargetType Identifier = #a[#i];
@@ -149,29 +158,38 @@ class JForEachStatement extends JStatement {
 //        }
 //
         hiddenArrayDeclaration.codegen(output);
-        declaration.codegen(output);
-
-        // Need two labels
-        String test = output.createLabel();
-        String out = output.createLabel();
-
-        // Branch out of the loop on the test condition
-        // being false
-        output.addLabel(test);
-        condition.codegen(output, out, false);
-
-        // Codegen body
-        body.codegen(output);
-
-        for (JStatement statement : forUpdate) {
-            statement.codegen(output);
-        }
-
-//         Unconditional jump back up to test
-        output.addBranchInstruction(GOTO, test);
-
-        // The label below and outside the loop
-        output.addLabel(out);
+        forStatement.codegen(output);
+////        T[] #a = Expression;
+////        L1: L2: ... Lm:
+////        for (int #i = 0; #i < #a.length; #i++) {
+////            VariableModifiersopt TargetType Identifier = #a[#i];
+////            Statement
+////        }
+////
+//        hiddenArrayDeclaration.codegen(output);
+//        declaration.codegen(output);
+//
+//        // Need two labels
+//        String test = output.createLabel();
+//        String out = output.createLabel();
+//
+//        // Branch out of the loop on the test condition
+//        // being false
+//        output.addLabel(test);
+//        condition.codegen(output, out, false);
+//
+//        // Codegen body
+//        body.codegen(output);
+//
+//        for (JStatement statement : forUpdate) {
+//            statement.codegen(output);
+//        }
+//
+////         Unconditional jump back up to test
+//        output.addBranchInstruction(GOTO, test);
+//
+//        // The label below and outside the loop
+//        output.addLabel(out);
     }
 
     /**
@@ -179,39 +197,57 @@ class JForEachStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
-        p.printf("<HiddenArray>\n");
-        p.indentRight();
-        hiddenArrayDeclaration.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</HiddenArray>\n");
-        p.indentLeft();
-        p.printf("<ForEachStatement line=\"%d\">\n", line());
-        p.indentRight();
-        p.printf("<ForInit>\n");
-        p.indentRight();
-        declaration.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</ForInit>\n");
-
-        p.printf("<Condition>\n");
-        p.indentRight();
-        condition.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</Condition>\n");
-        p.printf("<ForUpdate>\n");
-        p.indentRight();
-        for (JStatement statement : forUpdate) {
-            statement.writeToStdOut(p);
+        if (forStatement == null) {
+            p.printf("<ForEachStatement line=\"%d\">\n", line());
+            p.indentRight();
+            formalParameter.writeToStdOut(p);
+            array.writeToStdOut(p);
+        } else {
+            p.printf("<HiddenArray>\n");
+            p.indentRight();
+            hiddenArrayDeclaration.writeToStdOut(p);
+            p.indentLeft();
+            p.printf("</HiddenArray>\n");
+            p.printf("<ForEachStatement line=\"%d\">\n", line());
+            p.indentRight();
+            forStatement.writeToStdOut(p);
         }
-        p.indentLeft();
-        p.printf("</ForUpdate>\n");
-        p.printf("<Body>\n");
-        p.indentRight();
-        body.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</Body>\n");
+
         p.indentLeft();
         p.printf("</ForEachStatement>\n");
+//        p.printf("<HiddenArray>\n");
+//        p.indentRight();
+//        hiddenArrayDeclaration.writeToStdOut(p);
+//        p.indentLeft();
+//        p.printf("</HiddenArray>\n");
+//        p.indentLeft();
+//        p.printf("<ForEachStatement line=\"%d\">\n", line());
+//        p.indentRight();
+//        p.printf("<ForInit>\n");
+//        p.indentRight();
+//        declaration.writeToStdOut(p);
+//        p.indentLeft();
+//        p.printf("</ForInit>\n");
+//
+//        p.printf("<Condition>\n");
+//        p.indentRight();
+//        condition.writeToStdOut(p);
+//        p.indentLeft();
+//        p.printf("</Condition>\n");
+//        p.printf("<ForUpdate>\n");
+//        p.indentRight();
+//        for (JStatement statement : forUpdate) {
+//            statement.writeToStdOut(p);
+//        }
+//        p.indentLeft();
+//        p.printf("</ForUpdate>\n");
+//        p.printf("<Body>\n");
+//        p.indentRight();
+//        body.writeToStdOut(p);
+//        p.indentLeft();
+//        p.printf("</Body>\n");
+//        p.indentLeft();
+//        p.printf("</ForEachStatement>\n");
     }
 
 }
