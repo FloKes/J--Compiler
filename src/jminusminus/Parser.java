@@ -631,14 +631,15 @@ public class Parser {
 
     private ArrayList<JMember> classBody() {
         ArrayList<JMember> members = new ArrayList<JMember>();
+        int line = scanner.token().line();
 
         mustBe(LCURLY);
         while (!see(RCURLY) && !see(EOF)) {
             if (have(STATIC)) {
-                JStaticInitBlock staticInitBlock = new JStaticInitBlock(block());
+                JStaticInitBlock staticInitBlock = new JStaticInitBlock(line, block());
                 members.add(staticInitBlock);
             } else if (see(LCURLY)) {
-                JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(block());
+                JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(line, block());
                 members.add(instanceInitBlock);
             }
             else {
