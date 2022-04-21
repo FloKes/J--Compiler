@@ -1218,9 +1218,9 @@ public class Parser {
      *
      * <pre>
      *   assignmentExpression ::=
-     *       ternaryExpression // level 13
-     *           [( ASSIGN  // conditionalExpression
-     *            | PLUS_ASSIGN // must be valid lhs
+     *       ternaryExpression // level 13 must be a valid lhs
+     *           [( ASSIGN
+     *            | PLUS_ASSIGN
      *            | MINUS_ASSIGN
      *            | STAR_ASSIGN
      *            | DIV_ASSIGN
@@ -1258,8 +1258,8 @@ public class Parser {
      *
      * <pre>
      * conditionalExpression ::= conditionalOrExpression // level 12, right-to-left associative
-                *                   [CONDITIONAL assignmentExpression
-                *                   COLON conditionalExpression] 
+     *                             [CONDITIONAL assignmentExpression
+     *                             COLON conditionalExpression] 
      * </pre>
      *
      * @return an AST for a conditionalExpression.
@@ -1277,15 +1277,15 @@ public class Parser {
         }
     }
 
-        /**
-     * Parse a conditional-and expression.
+    /**
+     * Parse a conditional-or expression.
      *
      * <pre>
      *   conditionalOrExpression ::= conditionalAndExpression // level 10
      *                          {LOR conditionalAndExpression}
      * </pre>
      *
-     * @return an AST for a conditionalExpression.
+     * @return an AST for a conditionalOrExpression.
      */
 
     private JExpression conditionalOrExpression() {
@@ -1313,7 +1313,7 @@ public class Parser {
      *                          {LAND bitwiseOr}
      * </pre>
      *
-     * @return an AST for a conditionalExpression.
+     * @return an AST for a conditionalAndExpression.
      */
 
     private JExpression conditionalAndExpression() {

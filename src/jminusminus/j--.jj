@@ -1318,9 +1318,9 @@ private JExpression expression(): {
     *
     * <pre>
     *   assignmentExpression ::=
-    *       conditionalExpression // level 13
-    *           [( ASSIGN  // conditionalExpression
-    *            | PLUS_ASSIGN // must be valid lhs
+    *       conditionalExpression // level 13 must be a valid lhs
+    *           [( ASSIGN
+    *            | PLUS_ASSIGN
     *            | MINUS_ASSIGN
     *            | STAR_ASSIGN
     *            | DIV_ASSIGN
@@ -1377,8 +1377,8 @@ private JExpression assignmentExpression(): {
   *
   * <pre>
   * conditionalExpression ::= conditionalOrExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL assignmentExpression
-            *                   COLON conditionalExpression]
+  *                             [CONDITIONAL assignmentExpression
+  *                             COLON conditionalExpression]
   * </pre>
   *
   * @return an AST for a conditionalExpression.
