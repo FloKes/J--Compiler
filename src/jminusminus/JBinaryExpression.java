@@ -9,6 +9,7 @@ import static jminusminus.CLConstants.*;
  * A binary expression has an operator and two operands: a lhs and a rhs.
  */
 
+// TODO char is promoted to an int
 abstract class JBinaryExpression extends JExpression {
 
     /** The binary operator. */

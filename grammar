@@ -97,7 +97,6 @@ expression ::= assignmentExpression
 assignmentExpression ::= conditionalExpression  // must be a valid lhs, level 13
                            [(ASSIGN | PLUS_ASSIGN| MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN) assignmentExpression]
 
-
 conditionalExpression ::= conditionalOrExpression // level 12, right-to-left associative
                             [CONDITIONAL assignmentExpression
                             COLON conditionalExpression]
