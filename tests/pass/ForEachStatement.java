@@ -5,6 +5,9 @@ public class ForEachStatement {
         for(int item: numbers){
             n = n + item;
         }
+        for(int item: numbers){
+            n = n + item;
+        }
         return n;
     }
 }

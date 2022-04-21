@@ -70,6 +70,8 @@ class JForEachStatement extends JStatement {
 
     public JForEachStatement analyze(Context context) {
         // TODO Ask TA or teacher when we should do the #array = array part as in javaspec link
+        // TODO Find a hidden array name that is not already in the scope. If we have two
+        // two ForEach statements we will get a shadowing error on #array
         // Add the declaration of the hidden array before the for loop
         JExpression arrayExpression = array.analyze(context);
         String hiddenArrayName = "#array";
