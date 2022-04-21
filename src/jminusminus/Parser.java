@@ -799,27 +799,62 @@ public class Parser {
             return new JWhileStatement(line, test, statement);
         } else if (have(FOR)) {
             mustBe(LPAREN);
-            Type type = type();
-            JVariableDeclarator declarator = variableDeclarator(type);
-            if(have(SEMI)) {
-                JExpression test = expression();
-                mustBe(SEMI);
-                // Implement custom type of statement expression, as the current one allows stuff that
-                // shouldn't be allowed
-                // Or maybe not, as they don't really care for the while expression
-                // e.g. for the "test expression" you can write x + 2 and it still parses, however in the analyzation
-                // part, this would be caught. Guess this is type checking.
-                JStatement statementExpression = statementExpression();
-                mustBe(RPAREN);
-                JStatement statement = statement();
-                return new JForStatement(line, declarator, test, statementExpression, statement);
-            } else if (have(COLON)){
+            scanner.recordPosition();
+            while (scanner.token().kind() != SEMI && scanner.token().kind() != COLON){
+                scanner.next();
+            }
+            if (scanner.token().kind() == SEMI) {
+                scanner.returnToPosition();
+
+                // Needs to be replaced with sth
+                if (seeVariableDeclarators()) {
+                    // TODO we can't handle final keyword
+                    Type type = type();
+                    ArrayList<JVariableDeclarator> declarators = variableDeclarators(type);
+
+                    mustBe(SEMI);
+                    JExpression test = expression();
+                    mustBe(SEMI);
+
+                    ArrayList<JStatement> forUpdate = new ArrayList<>();
+                    do {
+                        forUpdate.add(statementExpression());
+                    } while (have(COMMA));
+
+                    mustBe(RPAREN);
+                    JStatement body = statement();
+                    return new JForStatement(line, declarators, test, forUpdate, body);
+                } else {
+                    ArrayList<JStatement> forInit = new ArrayList<>();
+                    do {
+                        forInit.add(statementExpression());
+                    } while (have(COMMA));
+
+                    mustBe(SEMI);
+                    JExpression test = expression();
+                    mustBe(SEMI);
+
+                    ArrayList<JStatement> forUpdate = new ArrayList<>();
+                    do {
+                        forUpdate.add(statementExpression());
+                    } while (have(COMMA));
+
+                    mustBe(RPAREN);
+                    JStatement body = statement();
+                    return new JForStatement(line, forInit, test, forUpdate, body, true);
+                }
+            } else if (scanner.token().kind() == COLON){
+                scanner.returnToPosition();
+                JFormalParameter formalParameter = formalParameter();
+//                Type type = type();
+//                JVariableDeclarator declarator = variableDeclarator(type);
+                mustBe(COLON);
                 mustBe(IDENTIFIER);
                 String name = scanner.previousToken().image();
                 JVariable variable = new JVariable(line, name);
                 mustBe(RPAREN);
-                JStatement statement = statement();
-                return new JForStatementEnumerable(line, declarator, variable, statement);
+                JStatement body = statement();
+                return new JForEachStatement(line, formalParameter, variable, body);
             }
             else {
                 // Dunno what should return here
@@ -864,6 +899,18 @@ public class Parser {
         }
     }
 
+
+    public boolean seeVariableDeclarators(){
+        scanner.recordPosition();
+        Type type = type();
+        if (see(IDENTIFIER)) {
+            scanner.returnToPosition();
+            return true;
+        } else {
+            scanner.returnToPosition();
+            return false;
+        }
+    }
     /**
      * Parse formal parameters.
      *
@@ -1235,7 +1282,7 @@ public class Parser {
      *
      * <pre>
      * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL Expression
+            *                   [CONDITIONAL conditionalOrExpression
             *                   COLON ternaryExpression]
      * </pre>
      *
@@ -1246,7 +1293,7 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression thenPart = expression();
+            JExpression thenPart = conditionalOrExpression();
             mustBe(COLON);
             return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {

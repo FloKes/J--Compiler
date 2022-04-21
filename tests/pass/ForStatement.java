@@ -1,12 +1,15 @@
 package pass;
 
 public class ForStatement {
-    public int forStatement(int i, int n, int x, int[] numbers){
-        for(int z=1; x>0; z--){
+    public int forStatement(){
+        for(int n = 0, i=5; i > 0; --i, n++){
             n = n + 1;
+            i++;
         }
-        for(int item: numbers){
-            n = n -1;
-        }
+//        for(n = 0, i=5; i > 0; --i, n++){
+//            n = n + 1;
+//            i++;
+//        }
+        return i;
     }
 }

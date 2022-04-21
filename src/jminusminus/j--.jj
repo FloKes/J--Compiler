@@ -141,6 +141,9 @@ SKIP: {" "|"\t"|"\n"|"\r"|"\f"}
 // Single line comment -- ignored
 SKIP: {<SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>}
 
+// Multi line comment -- ignored
+SKIP: {<MULTI_LINE_COMMENT: "/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/">}
+
 // Reserved words
 TOKEN: {
   <ABSTRACT: "abstract"> 
@@ -1170,20 +1173,24 @@ private JExpression expression(): {
     { return expr; }
 }
 
-/**
- * Parse an assignment expression.
- * 
- * <pre>
- *   assignmentExpression ::= 
- *       conditionalAndExpression                // level 13
- *           [( ASSIGN       // must be valid lhs
- *            | PLUS_ASSIGN | MINUS_ASSIGN | STAR_ASSIGN | DIV_ASSIGN | REM_ASSIGN
- *            )
- *            assignmentExpression]
- * </pre>
- * 
- * @return an AST for an assignmentExpression.
- */
+  /**
+    * Parse an assignment expression.
+    *
+    * <pre>
+    *   assignmentExpression ::=
+    *       ternaryExpression // level 13
+    *           [( ASSIGN  // conditionalExpression
+    *            | PLUS_ASSIGN // must be valid lhs
+    *            | MINUS_ASSIGN
+    *            | STAR_ASSIGN
+    *            | DIV_ASSIGN
+    *            | REM_ASSIGN
+    *            )
+    *            assignmentExpression]
+    * </pre>
+    *
+    * @return an AST for an assignmentExpression.
+    */
 
 private JExpression assignmentExpression(): {
     int line = 0;
@@ -1191,7 +1198,7 @@ private JExpression assignmentExpression(): {
 }
 {
     try {
-        lhs = conditionalOrExpression() { line = lhs.line(); }
+        lhs = ternaryExpression() { line = lhs.line(); }
         [
             <ASSIGN>
             rhs = assignmentExpression()
@@ -1223,6 +1230,39 @@ private JExpression assignmentExpression(): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     { return lhs; }
+}
+
+/**
+  * Parse a conditional (ternary) expression.
+  *
+  * <pre>
+  * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
+        *                   [CONDITIONAL conditionalOrExpression
+        *                   COLON ternaryExpression]
+  * </pre>
+  *
+  * @return an AST for a ternaryExpression.
+  */
+
+private JExpression ternaryExpression(): {
+    int line = 0;
+    JExpression condition = null, thenPart = null, elsePart = null;
+}
+{
+    try {
+        condition = conditionalOrExpression() { line = condition.line(); }
+        [
+            <CONDITIONAL>
+            thenPart = conditionalOrExpression()
+            <COLON>
+            elsePart = ternaryExpression()
+            { condition = new JTernaryExpression(line, condition, thenPart, elsePart); }  
+        ]
+    }
+    catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return condition; }
 }
 
 
@@ -1535,7 +1575,10 @@ private JExpression postfixExpression(): {
         )*
         (
             <DEC>
-            { primaryExpr = new JPostDecrementOp(line, primaryExpr); }
+            { primaryExpr = new JPostDecrementOp(line, primaryExpr); } |
+
+            <INC>
+            { primaryExpr = new JPostIncrementOp(line, primaryExpr); }
         )*
     }
     catch (ParseException e) {

@@ -45,6 +45,16 @@ class JTernaryExpression extends JExpression {
 
     // TO BE IMPLEMENTED
     public JExpression analyze(Context context) {
+        condition = (JExpression) condition.analyze(context);
+        condition.type().mustMatchExpected(line(), Type.BOOLEAN);
+        thenPart = (JExpression) thenPart.analyze(context);
+        elsePart = (JExpression) elsePart.analyze(context);
+        if (thenPart.type() == elsePart.type()) {
+            type = thenPart.type();
+        } else {
+            type = Type.ANY;
+            JAST.compilationUnit.reportSemanticError(line(), "ThenPart and ElsePart operand types must match in ternary expression");
+        }
         return this;
     }
 

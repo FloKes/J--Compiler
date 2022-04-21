@@ -2,6 +2,8 @@
 
 package jminusminus;
 
+import java.util.ArrayList;
+
 import static jminusminus.CLConstants.GOTO;
 
 /**
@@ -11,16 +13,23 @@ import static jminusminus.CLConstants.GOTO;
 class JForStatement extends JStatement {
 
     /** Declare the variable. */
-    private JVariableDeclarator declarator;
+    private ArrayList<JVariableDeclarator> declarators;
+
+    private JVariableDeclaration declaration;
+
+    /** Init expressions */
+    private ArrayList<JStatement> forInit;
 
     /** Test expression. */
     private JExpression condition;
 
     /** Update the variable. */
-    private JStatement statementExpression;
+    private ArrayList<JStatement> forUpdate;
 
     /** The body. */
     private JStatement body;
+
+    private LocalContext localContext;
 
     /**
      * Constructs an AST node for a for-statement given its line number, the
@@ -34,12 +43,27 @@ class JForStatement extends JStatement {
      *            the body.
      */
 
-    public JForStatement(int line, JVariableDeclarator declarator, JExpression condition,
-                         JStatement statementExpression, JStatement body) {
+    public JForStatement(int line, ArrayList<JVariableDeclarator> declarators, JExpression condition,
+                         ArrayList<JStatement> forUpdate, JStatement body) {
         super(line);
-        this.declarator = declarator;
+        this.declarators = declarators;
         this.condition = condition;
-        this.statementExpression = statementExpression;
+        this.forUpdate = forUpdate;
+        this.body = body;
+    }
+
+
+    /** Where we have expression for init
+     *
+     * boolean expressions is added because otherwise the compiler complains about erasure
+     * cause ArrayList<JStatement> is evaluated the same as ArrayList<JVariableDeclarator>
+     * */
+    public JForStatement(int line, ArrayList<JStatement> forInit, JExpression condition,
+                         ArrayList<JStatement> forUpdate, JStatement body, boolean expressions) {
+        super(line);
+        this.forInit = forInit;
+        this.condition = condition;
+        this.forUpdate = forUpdate;
         this.body = body;
     }
 
@@ -53,11 +77,34 @@ class JForStatement extends JStatement {
      */
 
     public JForStatement analyze(Context context) {
-        declarator = declarator.analyze(context);
-        condition = condition.analyze(context);
+        // Create new local context for the for statement
+        localContext = new LocalContext(context);
+        // Offset 0 is used to address "this".
+        localContext.nextOffset();
+
+        if (declarators != null) {
+            ArrayList<String> mods = new ArrayList<>();
+            declaration = new JVariableDeclaration(line(), mods, declarators);
+            declaration.analyze(localContext);
+        }
+
+        else if (forInit != null){
+            for (JStatement statement : forInit) {
+                statement.analyze(localContext);
+            }
+        }
+
+        // second expression must be boolean
+        condition = condition.analyze(localContext);
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
-        statementExpression = (JStatement) statementExpression.analyze(context);
-        body = (JStatement) body.analyze(context);
+
+        // Must be statement with side effect
+        for (JStatement statement : forUpdate) {
+            statement.analyze(localContext);
+        }
+
+        //body
+        body = (JStatement) body.analyze(localContext);
         return this;
     }
 
@@ -96,21 +143,31 @@ class JForStatement extends JStatement {
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<ForStatement line=\"%d\">\n", line());
         p.indentRight();
-        p.printf("<DeclaratorExpression>\n");
+
+        p.printf("<ForInit>\n");
         p.indentRight();
-        declarator.writeToStdOut(p);
+        if (declaration != null) {
+            declaration.writeToStdOut(p);
+        } else if (forInit != null) {
+            for (JStatement statement : forInit) {
+                statement.writeToStdOut(p);
+            }
+        }
         p.indentLeft();
-        p.printf("</DeclaratorExpression>\n");
+        p.printf("</ForInit>\n");
+        p.indentLeft();
         p.printf("<TestExpression>\n");
         p.indentRight();
         condition.writeToStdOut(p);
         p.indentLeft();
         p.printf("</TestExpression>\n");
-        p.printf("<StatementExpression>\n");
+        p.printf("<ForUpdate>\n");
         p.indentRight();
-        statementExpression.writeToStdOut(p);
+        for (JStatement statement : forUpdate) {
+            statement.writeToStdOut(p);
+        }
         p.indentLeft();
-        p.printf("</StatementExpression>\n");
+        p.printf("</ForUpdate>\n");
         p.indentLeft();
         p.printf("<Body>\n");
         p.indentRight();

@@ -99,7 +99,7 @@ assignmentExpression ::= ternaryExpression  // must be a valid lhs, level 13
 
 
 ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
-                        [CONDITIONAL Expression
+                        [CONDITIONAL conditionalOrExpression
                         COLON ternaryExpression]
 
 conditionalOrExpression ::= conditionalAndExpression // level 10
