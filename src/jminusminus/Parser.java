@@ -1211,7 +1211,7 @@ public class Parser {
      *
      * <pre>
      * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL Expression
+            *                   [CONDITIONAL conditionalOrExpression
             *                   COLON ternaryExpression]
      * </pre>
      *
@@ -1222,7 +1222,7 @@ public class Parser {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression thenPart = expression();
+            JExpression thenPart = conditionalOrExpression();
             mustBe(COLON);
             return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
         } else {
