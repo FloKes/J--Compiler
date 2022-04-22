@@ -68,23 +68,24 @@ class JForEachStatement extends JStatement {
      * @return the analyzed (and possibly rewritten) AST subtree.
      */
 
-    public JForEachStatement analyze(Context context) {
+    public JAST analyze(Context context) {
+        // Create new local context for the for statement
+        // Offset 0 is used to address "this".
+        localContext = new LocalContext(context);
+        localContext.nextOffset();
+
         // TODO Ask TA or teacher when we should do the #array = array part as in javaspec link
         // TODO Find a hidden array name that is not already in the scope. If we have two
         // two ForEach statements we will get a shadowing error on #array
         // Add the declaration of the hidden array before the for loop
-        JExpression arrayExpression = array.analyze(context);
+        JExpression arrayExpression = array.analyze(localContext);
         String hiddenArrayName = "#array";
         JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
         ArrayList<JVariableDeclarator> prevDecls = new ArrayList<>();
         prevDecls.add(hiddenArray);
         JVariableDeclaration prevDecl = new JVariableDeclaration(line(), new ArrayList<>(), prevDecls);
-        hiddenArrayDeclaration = prevDecl.analyze(context);
+        hiddenArrayDeclaration = prevDecl.analyze(localContext);
 
-        // Create new local context for the for statement
-        // Offset 0 is used to address "this".
-        localContext = new LocalContext(context);
-        localContext.nextOffset();
 
         /** must be an array, and variable must be of the type of the array */
         array = (JVariable) array.analyze(localContext);
@@ -101,8 +102,8 @@ class JForEachStatement extends JStatement {
          * TODO are we supposed to the stuff below in this step?
          */
         String indexName = "#index";
-        ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         JVariableDeclarator index = new JVariableDeclarator(line(), indexName, Type.INT, new JLiteralInt(line(), "0"));
+        ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         decls.add(index);
 //        JVariableDeclaration declaration = new JVariableDeclaration(line(),
 //                new ArrayList<>(), decls);
@@ -138,7 +139,7 @@ class JForEachStatement extends JStatement {
 
         // Rewriting to normal For statement
         forStatement = new JForStatement(line, decls, condition, forUpdate, bodyBlock);
-        forStatement.analyze(localContext);
+        forStatement = forStatement.analyze(localContext);
 
         return this;
     }
@@ -204,19 +205,17 @@ class JForEachStatement extends JStatement {
             p.indentRight();
             formalParameter.writeToStdOut(p);
             array.writeToStdOut(p);
+            p.indentLeft();
+            p.printf("</ForEachStatement>\n");
         } else {
             p.printf("<HiddenArray>\n");
             p.indentRight();
             hiddenArrayDeclaration.writeToStdOut(p);
             p.indentLeft();
             p.printf("</HiddenArray>\n");
-            p.printf("<ForEachStatement line=\"%d\">\n", line());
             p.indentRight();
             forStatement.writeToStdOut(p);
         }
-
-        p.indentLeft();
-        p.printf("</ForEachStatement>\n");
 //        p.printf("<HiddenArray>\n");
 //        p.indentRight();
 //        hiddenArrayDeclaration.writeToStdOut(p);
