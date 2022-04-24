@@ -9,7 +9,7 @@ import static jminusminus.CLConstants.*;
  * operands: a condition, thenPart, elsePart.
  */
 
-class JTernaryExpression extends JExpression {
+class JConditionalExpression extends JExpression {
 
     
     /** The conditiona operand. */
@@ -36,7 +36,7 @@ class JTernaryExpression extends JExpression {
      *            elsePart operand.
      */
 
-    public JTernaryExpression(int line, JExpression condition, JExpression thenPart, JExpression elsePart) {
+    public JConditionalExpression(int line, JExpression condition, JExpression thenPart, JExpression elsePart) {
         super(line);
         this.condition = condition;
         this.thenPart = thenPart;
@@ -53,7 +53,7 @@ class JTernaryExpression extends JExpression {
             type = thenPart.type();
         } else {
             type = Type.ANY;
-            JAST.compilationUnit.reportSemanticError(line(), "ThenPart and ElsePart operand types must match in ternary expression");
+            JAST.compilationUnit.reportSemanticError(line(), "ThenPart and ElsePart operand types must match in a conditionalExpression");
         }
         return this;
     }
@@ -67,14 +67,14 @@ class JTernaryExpression extends JExpression {
      * {@inheritDoc}
      */
     public void writeToStdOut(PrettyPrinter p) {
-        p.printf("<JTernaryExpression line=\"%d\" type=\"%s\" \n", line(), ((type == null) ? "" : type.toString()));
+        p.printf("<JConditionalExpression line=\"%d\" type=\"%s\" \n", line(), ((type == null) ? "" : type.toString()));
         p.indentRight();
 
-        p.printf("<Cond>\n");
+        p.printf("<Condition>\n");
         p.indentRight();
         condition.writeToStdOut(p);
         p.indentLeft();
-        p.printf("</Cond>\n");
+        p.printf("</Condition>\n");
 
         p.printf("<ThenPart>\n");
         p.indentRight();
@@ -89,7 +89,7 @@ class JTernaryExpression extends JExpression {
         p.printf("</ElsePart>\n");
 
         p.indentLeft();
-        p.printf("</JTernaryExpression>\n");
+        p.printf("</JConditionalExpression>\n");
     }
 
 }
