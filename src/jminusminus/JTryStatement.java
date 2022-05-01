@@ -57,9 +57,11 @@ class JTryStatement extends JStatement {
      */
 
     public JStatement analyze(Context context) {
+        /*
         for (int i = 0; i < this.catchClauses.size(); i++) {
             this.catchClauses.get(i).analyze(context);
         }
+        */
         return this;
     }
 
@@ -81,33 +83,5 @@ class JTryStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
-        /**
-        p.printf("<JTryStatement line=\"%d\">\n", line());
-        p.indentRight();
-        p.printf("<TryStatement>\n");
-        p.indentRight();
-        tryStatement.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</TryStatement>\n");
-        p.printf("<CatchStatement>\n");
-        p.indentRight();
-        p.printf("<Exception>\n");
-        p.indentRight();
-        exception.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</Exception>\n");
-        catchStatement.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</CatchStatement>\n");
-        if (finallyStatement != null) {
-            p.printf("<FinallyStatement>\n");
-            p.indentRight();
-            finallyStatement.writeToStdOut(p);
-            p.indentLeft();
-            p.printf("</FinallyStatement>\n");
-        }
-        p.indentLeft();
-        p.printf("</JTryStatement>\n");
-    */
     }
 }

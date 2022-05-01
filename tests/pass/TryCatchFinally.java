@@ -1,10 +1,11 @@
 package pass;
+import java.lang.Throwable;
 
 public class TryCatchFinally {
     public void tryCatchFinally () {
         try {
             int x = 5;
-        } catch (int e) {
+        } catch (Throwable e) {
             int x = 10;
         } finally {
             int y = 20;
