@@ -28,8 +28,9 @@ public class JInstanceInitBlock extends JAST implements JMember {
 
     @Override
     public void writeToStdOut(PrettyPrinter p) {
-        // TODO Auto-generated method stub
-
-    }
+        p.printf("<JInstanceInitBlock line=\"%d\">\n", line());
+        blockBody.writeToStdOut(p);
+        p.printf("</JInstanceInitBlock>\n");
+      }
 
 }

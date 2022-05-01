@@ -636,8 +636,10 @@ public class Parser {
         mustBe(LCURLY);
         while (!see(RCURLY) && !see(EOF)) {
             if (have(STATIC)) {
-                JStaticInitBlock staticInitBlock = new JStaticInitBlock(line, block());
-                members.add(staticInitBlock);
+                if (have(LCURLY)) {
+                    JStaticInitBlock staticInitBlock = new JStaticInitBlock(line, block());
+                    members.add(staticInitBlock);
+                }
             } else if (see(LCURLY)) {
                 JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(line, block());
                 members.add(instanceInitBlock);
