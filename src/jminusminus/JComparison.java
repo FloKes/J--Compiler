@@ -72,6 +72,18 @@ class JGreaterThanOp extends JComparison {
         super(line, ">", lhs, rhs);
     }
 
+
+    // If we change this with the super method then doubles will work with every comparison op
+    public JExpression analyze(Context context) {
+        lhs = (JExpression) lhs.analyze(context);
+        rhs = (JExpression) rhs.analyze(context);
+        // Slightly modified to support doubles so that we can test double
+        lhs.type().mustMatchOneOf(line(), Type.INT, Type.DOUBLE);
+        rhs.type().mustMatchExpected(line(), lhs.type());
+        type = Type.BOOLEAN;
+        return this;
+    }
+
     /**
      * Branching code generation for &gt; operation.
      * 
@@ -85,11 +97,19 @@ class JGreaterThanOp extends JComparison {
      */
 
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        lhs.codegen(output);
-        rhs.codegen(output);
-        
-        output.addBranchInstruction(onTrue ? IF_ICMPGT : IF_ICMPLE,
-                        targetLabel);
+        if(lhs.type() == Type.INT) {
+            lhs.codegen(output);
+            rhs.codegen(output);
+            output.addBranchInstruction(onTrue ? IF_ICMPGT : IF_ICMPLE,
+            targetLabel);
+        }else if(lhs.type() == Type.DOUBLE) {
+            lhs.codegen(output);
+            rhs.codegen(output);
+            // put onto stack the res of double comparison
+            output.addNoArgInstruction(onTrue ? DCMPG : DCMPL); 
+            // check result
+            output.addBranchInstruction(onTrue ? IFGT : IFLE, targetLabel);
+        }
     }
 
 }

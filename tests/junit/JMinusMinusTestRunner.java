@@ -45,6 +45,7 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(AssignRemTest.class);
         suite.addTestSuite(AssignStarTest.class);
         suite.addTestSuite(LogicalOrTest.class);
+        suite.addTestSuite(DoubleTypeTest.class);
         return suite;
     }
 
