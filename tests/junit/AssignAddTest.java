@@ -17,6 +17,6 @@ public class AssignAddTest extends TestCase {;
     }
 
     public void testAssignAdd() {
-        this.assertEquals(10 , assignAdd.assignAdd(5, 5));
+        this.assertEquals(10 , assignAdd.assignadd(5, 5));
     }
 }
