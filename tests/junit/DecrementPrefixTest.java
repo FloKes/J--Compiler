@@ -1,3 +1,5 @@
+package junit;
+
 import junit.framework.TestCase;
 import pass.DecrementPrefix;
 
@@ -13,7 +15,7 @@ public class DecrementPrefixTest extends TestCase {
         super.tearDown();
     }
 
-    public void testMinusMinusPrefix() {
+    public void testDecrementPrefix() {
         this.assertEquals(4, decrementPrefix.decrementPrefix(5));
         this.assertEquals(3, decrementPrefix.decrementPrefix(4));
         this.assertEquals(-4, decrementPrefix.decrementPrefix(-3));

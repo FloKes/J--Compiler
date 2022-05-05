@@ -631,14 +631,17 @@ public class Parser {
 
     private ArrayList<JMember> classBody() {
         ArrayList<JMember> members = new ArrayList<JMember>();
+        int line = scanner.token().line();
 
         mustBe(LCURLY);
         while (!see(RCURLY) && !see(EOF)) {
             if (have(STATIC)) {
-                JStaticInitBlock staticInitBlock = new JStaticInitBlock(block());
-                members.add(staticInitBlock);
+                if (see(LCURLY)) {
+                    JStaticInitBlock staticInitBlock = new JStaticInitBlock(line, block());
+                    members.add(staticInitBlock);
+                }
             } else if (see(LCURLY)) {
-                JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(block());
+                JInstanceInitBlock instanceInitBlock = new JInstanceInitBlock(line, block());
                 members.add(instanceInitBlock);
             }
             else {
@@ -1242,9 +1245,9 @@ public class Parser {
      *
      * <pre>
      *   assignmentExpression ::=
-     *       ternaryExpression // level 13
-     *           [( ASSIGN  // conditionalExpression
-     *            | PLUS_ASSIGN // must be valid lhs
+     *       ternaryExpression // level 13 must be a valid lhs
+     *           [( ASSIGN
+     *            | PLUS_ASSIGN
      *            | MINUS_ASSIGN
      *            | STAR_ASSIGN
      *            | DIV_ASSIGN
@@ -1258,7 +1261,7 @@ public class Parser {
 
     private JExpression assignmentExpression() {
         int line = scanner.token().line();
-        JExpression lhs = ternaryExpression();
+        JExpression lhs = conditionalExpression();
         if (have(ASSIGN)) {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
@@ -1281,35 +1284,35 @@ public class Parser {
      * Parse a conditional (ternary) expression.
      *
      * <pre>
-     * ternaryExpression ::= conditionalOrExpression // level 12, right-to-left associative
-            *                   [CONDITIONAL conditionalOrExpression
-            *                   COLON ternaryExpression]
+     * conditionalExpression ::= conditionalOrExpression // level 12, right-to-left associative
+     *                             [CONDITIONAL assignmentExpression
+     *                             COLON conditionalExpression] 
      * </pre>
      *
-     * @return an AST for a ternaryExpression.
+     * @return an AST for a conditionalExpression.
      */
 
-    private JExpression ternaryExpression() {
+    private JExpression conditionalExpression() {
         int line = scanner.token().line();
         JExpression condition = conditionalOrExpression();
         if (have(CONDITIONAL)) {
-            JExpression thenPart = conditionalOrExpression();
+            JExpression thenPart = assignmentExpression();
             mustBe(COLON);
-            return new JTernaryExpression(line, condition, thenPart, ternaryExpression());
+            return new JConditionalExpression(line, condition, thenPart, conditionalExpression());
         } else {
             return condition;
         }
     }
 
-        /**
-     * Parse a conditional-and expression.
+    /**
+     * Parse a conditional-or expression.
      *
      * <pre>
      *   conditionalOrExpression ::= conditionalAndExpression // level 10
      *                          {LOR conditionalAndExpression}
      * </pre>
      *
-     * @return an AST for a conditionalExpression.
+     * @return an AST for a conditionalOrExpression.
      */
 
     private JExpression conditionalOrExpression() {
@@ -1337,7 +1340,7 @@ public class Parser {
      *                          {LAND bitwiseOr}
      * </pre>
      *
-     * @return an AST for a conditionalExpression.
+     * @return an AST for a conditionalAndExpression.
      */
 
     private JExpression conditionalAndExpression() {
