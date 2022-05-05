@@ -3,6 +3,9 @@
 package junit;
 
 import java.io.File;
+
+import junit.DecrementPrefixTest;
+import junit.IncrementSuffixTest;
 import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -31,6 +34,8 @@ public class JMinusMinusTestRunner {
 //        suite.addTestSuite(SignedShiftRightTest.class);
 //        suite.addTestSuite(UnsignedShiftRightTest.class);
 //        suite.addTestSuite(UnaryPlusOpTest.class);
+        suite.addTestSuite(DecrementPrefixTest.class);
+        suite.addTestSuite(IncrementSuffixTest.class);
         suite.addTestSuite(WhileStatementTest.class);
         suite.addTestSuite(ForStatementTest.class);
         suite.addTestSuite(ForEachStatementTest.class);

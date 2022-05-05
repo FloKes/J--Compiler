@@ -315,7 +315,7 @@ class JPostDecrementOp extends JUnaryExpression {
                 type = Type.DOUBLE;
             }else {
                 JAST.compilationUnit.reportSemanticError(line(),
-                        "Invalid operand types for post++");
+                        "Invalid operand types for post--");
                 type = Type.ANY;
             }
         }
@@ -360,17 +360,16 @@ class JPostDecrementOp extends JUnaryExpression {
             ((JLhs) arg).codegenStore(output);
         }
     }
-
 }
 
-
 /**
- * The AST node for an expr++.
+ * The AST node for an expr--.
  */
+
 class JPostIncrementOp extends JUnaryExpression {
 
     /**
-     * Constructs an AST node for an expr++ expression given its line number, and
+     * Constructs an AST node for an expr-- expression given its line number, and
      * the operand.
      *
      * @param line
@@ -406,7 +405,6 @@ class JPostIncrementOp extends JUnaryExpression {
             }else {
                 JAST.compilationUnit.reportSemanticError(line(),
                         "Invalid operand types for post++");
-                //TODO Ask why we can't print Type.ANY
                 type = Type.ANY;
             }
         }
@@ -453,6 +451,96 @@ class JPostIncrementOp extends JUnaryExpression {
     }
 }
 
+//
+///**
+// * The AST node for an expr++.
+// */
+//class JPostIncrementOp extends JUnaryExpression {
+//
+//    /**
+//     * Constructs an AST node for an expr++ expression given its line number, and
+//     * the operand.
+//     *
+//     * @param line
+//     *            line in which the expression occurs in the source file.
+//     * @param arg
+//     *            the operand.
+//     */
+//
+//    public JPostIncrementOp(int line, JExpression arg) {
+//        super(line, "post++", arg);
+//    }
+//
+//    /**
+//     * Analyzes the operand as a lhs (since there is a side effect), checks types
+//     * and determines the type of the result.
+//     *
+//     * @param context
+//     *            context in which names are resolved.
+//     * @return the analyzed (and possibly rewritten) AST subtree.
+//     */
+//
+//    public JExpression analyze(Context context) {
+//        if (!(arg instanceof JLhs)) {
+//            JAST.compilationUnit.reportSemanticError(line,
+//                    "Operand to expr++ must have an LValue.");
+//            type = Type.ANY;
+//        } else {
+//            arg = (JExpression) arg.analyze(context);
+//            if (arg.type() == Type.INT) {
+//                type = Type.INT;
+//            } else if (arg.type() == Type.DOUBLE) {
+//                type = Type.DOUBLE;
+//            }else {
+//                JAST.compilationUnit.reportSemanticError(line(),
+//                        "Invalid operand types for post++");
+//                //TODO Ask why we can't print Type.ANY
+//                type = Type.ANY;
+//            }
+//        }
+//        return this;
+//    }
+//
+//    /**
+//     * In generating code for a post-decrement operation, we treat simple
+//     * variable ({@link JVariable}) operands specially since the JVM has an
+//     * increment instruction.
+//     * Otherwise, we rely on the {@link JLhs} code generation support for
+//     * generating the proper code. Notice that we distinguish between
+//     * expressions that are statement expressions and those that are not; we
+//     * insure the proper value (before the decrement) is left atop the stack in
+//     * the latter case.
+//     *
+//     * @param output
+//     *            the code emitter (basically an abstraction for producing the
+//     *            .class file).
+//     */
+//
+//    public void codegen(CLEmitter output) {
+//        if (arg instanceof JVariable) {
+//            // A local variable; otherwise analyze() would
+//            // have replaced it with an explicit field selection.
+//            int offset = ((LocalVariableDefn) ((JVariable) arg).iDefn())
+//                    .offset();
+//            if (!isStatementExpression) {
+//                // Loading its original rvalue
+//                arg.codegen(output);
+//            }
+//            output.addIINCInstruction(offset, 1);
+//        } else {
+//            ((JLhs) arg).codegenLoadLhsLvalue(output);
+//            ((JLhs) arg).codegenLoadLhsRvalue(output);
+//            if (!isStatementExpression) {
+//                // Loading its original rvalue
+//                ((JLhs) arg).codegenDuplicateRvalue(output);
+//            }
+//            output.addNoArgInstruction(ICONST_1);
+//            output.addNoArgInstruction(IADD);
+//            ((JLhs) arg).codegenStore(output);
+//        }
+//    }
+//}
+
 /**
  * The AST node for a ++expr expression.
  */
@@ -495,7 +583,7 @@ class JPreIncrementOp extends JUnaryExpression {
                 type = Type.DOUBLE;
             }else {
                 JAST.compilationUnit.reportSemanticError(line(),
-                        "Invalid operand types for post++");
+                        "Invalid operand types for ++pre");
                 //TODO Ask why we can't print Type.ANY
                 type = Type.ANY;
             }
