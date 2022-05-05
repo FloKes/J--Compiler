@@ -17,6 +17,6 @@ public class AssignStarTest extends TestCase {;
     }
 
     public void testAssignStar() {
-        this.assertEquals(25 , assignStar.assignStar(5, 5));
+        this.assertEquals(25 , assignStar.assignstar(5, 5));
     }
 }

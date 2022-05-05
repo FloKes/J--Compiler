@@ -17,6 +17,6 @@ public class AssignMinusTest extends TestCase {;
     }
 
     public void testAssignMinus() {
-        this.assertEquals(0 , assignMinus.assignMinus(5, 5));
+        this.assertEquals(0 , assignMinus.assignminus(5, 5));
     }
 }

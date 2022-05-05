@@ -17,6 +17,6 @@ public class AssignDivTest extends TestCase {;
     }
 
     public void testAssignDiv() {
-        this.assertEquals(1 , assignDiv.assignDiv(5, 5));
+        this.assertEquals(1 , assignDiv.assigndiv(5, 5));
     }
 }

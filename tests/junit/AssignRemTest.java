@@ -17,6 +17,6 @@ public class AssignRemTest extends TestCase {;
     }
 
     public void testAssignRem() {
-        this.assertEquals(0 , assignRem.assignRem(5, 5));
+        this.assertEquals(0 , assignRem.assignrem(5, 5));
     }
 }
