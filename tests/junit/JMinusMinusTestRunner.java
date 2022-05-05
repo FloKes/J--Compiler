@@ -3,6 +3,9 @@
 package junit;
 
 import java.io.File;
+
+import junit.DecrementPrefixTest;
+import junit.IncrementSuffixTest;
 import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -17,24 +20,25 @@ public class JMinusMinusTestRunner {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(HelloWorldTest.class);
-        suite.addTestSuite(FactorialTest.class);
-        suite.addTestSuite(GCDTest.class);
-        suite.addTestSuite(SeriesTest.class);
-        suite.addTestSuite(ClassesTest.class);
-        suite.addTestSuite(DivisionTest.class);
-        suite.addTestSuite(RemainderTest.class);
-        suite.addTestSuite(BitwiseOrTest.class);
-        suite.addTestSuite(BitwiseXorTest.class);
-        suite.addTestSuite(BitwiseAndTest.class);
-        suite.addTestSuite(BitwiseUnaryCompTest.class);
-        suite.addTestSuite(SignedShiftLeftTest.class);
-        suite.addTestSuite(SignedShiftRightTest.class);
-        suite.addTestSuite(UnsignedShiftRightTest.class);
-        suite.addTestSuite(UnaryPlusOpTest.class);
-        suite.addTestSuite(SignedShiftRightAssignTest.class);
-        suite.addTestSuite(UnsignedShiftRightAssignTest.class);
-        suite.addTestSuite(GreaterThanEqTest.class);
+//        suite.addTestSuite(FactorialTest.class);
+//        suite.addTestSuite(GCDTest.class);
+//        suite.addTestSuite(SeriesTest.class);
+//        suite.addTestSuite(ClassesTest.class);
+       suite.addTestSuite(DivisionTest.class);
+//        suite.addTestSuite(RemainderTest.class);
+//        suite.addTestSuite(BitwiseOrTest.class);
+//        suite.addTestSuite(BitwiseXorTest.class);
+//        suite.addTestSuite(BitwiseAndTest.class);
+//        suite.addTestSuite(BitwiseUnaryCompTest.class);
+//        suite.addTestSuite(SignedShiftLeftTest.class);
+//        suite.addTestSuite(SignedShiftRightTest.class);
+//        suite.addTestSuite(UnsignedShiftRightTest.class);
+//        suite.addTestSuite(UnaryPlusOpTest.class);
         suite.addTestSuite(DecrementPrefixTest.class);
+        suite.addTestSuite(IncrementSuffixTest.class);
+        suite.addTestSuite(WhileStatementTest.class);
+        suite.addTestSuite(ForStatementTest.class);
+        suite.addTestSuite(ForEachStatementTest.class);
         return suite;
     }
 
