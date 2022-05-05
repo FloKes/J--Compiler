@@ -1,4 +1,9 @@
-public class TestStaticInitBlock {
+package pass;
+
+import java.lang.System;
+
+
+public class StaticInitializationBlock {
     public static int x;
 
     static {
@@ -6,7 +11,7 @@ public class TestStaticInitBlock {
     }
 
     public static void main(String[] args) {
-        TestStaticInitBlock statInit = new TestStaticInitBlock();
+        StaticInitializationBlock statInit = new StaticInitializationBlock();
 
         System.out.println("x = " + statInit.x);
     }

@@ -46,6 +46,12 @@ class JClassDeclaration extends JAST implements JTypeDecl {
     /** Static (class) fields of this class. */
     private ArrayList<JFieldDeclaration> staticFieldInitializations;
 
+    /** Instance initialization blocks of this class.  */
+    private ArrayList<JMember> instanceInitializationBlocks;
+
+    /** Static initialization blocks of this class */
+    private ArrayList<JMember> staticInitializationBlocks;
+
     /**
      * Constructs an AST node for a class declaration given the line number, list
      * of class modifiers, name of the class, its super class type, and the
@@ -74,6 +80,8 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         hasExplicitConstructor = false;
         instanceFieldInitializations = new ArrayList<JFieldDeclaration>();
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
+        instanceInitializationBlocks = new ArrayList<JMember>();
+        staticInitializationBlocks = new ArrayList<JMember>();
     }
 
     /**
@@ -115,6 +123,10 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
     public ArrayList<JFieldDeclaration> instanceFieldInitializations() {
         return instanceFieldInitializations;
+    }
+
+    public ArrayList<JMember> instanceInitializationBlocks() {
+        return instanceInitializationBlocks;
     }
 
     /**
@@ -217,6 +229,14 @@ class JClassDeclaration extends JAST implements JTypeDecl {
                     instanceFieldInitializations.add(fieldDecl);
                 }
             }
+
+            if (member instanceof JInstanceInitBlock) {
+                JInstanceInitBlock instanceInitBlock = (JInstanceInitBlock) member;
+                instanceInitializationBlocks.add(instanceInitBlock);
+            } else if (member instanceof JStaticInitBlock) {
+                JStaticInitBlock staticInitBlock = (JStaticInitBlock) member;
+                staticInitializationBlocks.add(staticInitBlock);
+            }
         }
 
         // Finally, ensure that a non-abstract class has
@@ -259,7 +279,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         }
 
         // Generate a class initialization method?
-        if (staticFieldInitializations.size() > 0) {
+        if (staticFieldInitializations.size() > 0 || staticInitializationBlocks.size() > 0) {
             codegenClassInit(output);
         }
     }
@@ -342,6 +362,12 @@ class JClassDeclaration extends JAST implements JTypeDecl {
             instanceField.codegenInitializations(output);
         }
 
+        // If there are instance block initializations, generate code for them
+        for (JMember member : instanceInitializationBlocks) {
+            JInstanceInitBlock instanceInitBlock = (JInstanceInitBlock) member;
+            instanceInitBlock.codegen(output);
+        }
+
         // Return
         output.addNoArgInstruction(RETURN);
     }
@@ -365,6 +391,13 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         // for them
         for (JFieldDeclaration staticField : staticFieldInitializations) {
             staticField.codegenInitializations(output);
+        }
+
+
+        // if there are static block initializers, gen code
+        for (JMember member : staticInitializationBlocks) {
+            JStaticInitBlock staticInitBlock = (JStaticInitBlock) member;
+            staticInitBlock.codegen(output);
         }
 
         // Return

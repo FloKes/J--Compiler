@@ -16,13 +16,12 @@ public class JInstanceInitBlock extends JAST implements JMember {
 
     @Override
     public JAST analyze(Context context) {
-        // TODO Auto-generated method stub
-        return null;
+        return this.blockBody.analyze(context);
     }
 
     @Override
     public void codegen(CLEmitter output) {
-        // TODO Auto-generated method stub
+        this.blockBody.codegen(output);
 
     }
 
