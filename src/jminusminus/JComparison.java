@@ -72,6 +72,22 @@ class JGreaterThanOp extends JComparison {
         super(line, ">", lhs, rhs);
     }
 
+    public JExpression analyze(Context context) {
+
+        lhs = (JExpression) lhs.analyze(context);
+        rhs = (JExpression) rhs.analyze(context);
+
+        if (lhs.type().equals(Type.INT)) {
+            rhs.type().mustMatchExpected(line(), Type.INT);
+            type = Type.INT;
+        }else if (lhs.type().equals(Type.DOUBLE)) {
+            rhs.type().mustMatchExpected(line(), Type.DOUBLE);
+            type = Type.DOUBLE;
+        }
+        type = Type.BOOLEAN;
+        return this;
+    }
+
     /**
      * Branching code generation for &gt; operation.
      * 
