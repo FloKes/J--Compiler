@@ -24,7 +24,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
      * Constructs an AST node for a constructor declaration given the line
      * number, modifiers, constructor name, formal parameters, and the
      * constructor body.
-     * 
+     *
      * @param line
      *            line in which the constructor declaration occurs in the source
      *            file.
@@ -47,7 +47,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
 
     /**
      * Declares this constructor in the parent (class) context.
-     * 
+     *
      * @param context
      *            the parent (class) context.
      * @param partial
@@ -81,7 +81,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
     /**
      * Analysis for a constructor declaration is very much like that for a
      * method declaration.
-     * 
+     *
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
@@ -101,7 +101,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
         }
 
         // Declare the parameters. We consider a formal parameter
-        // to be always initialized, via a function call. 
+        // to be always initialized, via a function call.
         for (JFormalParameter param : params) {
             LocalVariableDefn defn = new LocalVariableDefn(param.type(),
                                              this.context.nextOffset());
@@ -117,7 +117,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
 
     /**
      * Adds this constructor declaration to the partial class.
-     * 
+     *
      * @param context
      *            the parent (class) context.
      * @param partial
@@ -138,7 +138,7 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
 
     /**
      * Generates code for the constructor declaration.
-     * 
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
@@ -157,6 +157,13 @@ class JConstructorDeclaration extends JMethodDeclaration implements JMember {
                 .instanceFieldInitializations()) {
             field.codegenInitializations(output);
         }
+
+        for (JMember member : definingClass
+                .instanceInitializationBlocks()) {
+            JInstanceInitBlock instanceInitBlock = (JInstanceInitBlock) member;
+            instanceInitBlock.codegen(output);
+        }
+
         // And then the body
         body.codegen(output);
         output.addNoArgInstruction(RETURN);
