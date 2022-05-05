@@ -11,7 +11,7 @@ import static jminusminus.CLConstants.*;
  *  This class is not final and in progress.
  */
 
-class JInterfaceDeclaration extends JAST {
+class JInterfaceDeclaration extends JAST implements JTypeDecl {
 
     /** interface modifiers. */
     private ArrayList<String> mods;
@@ -60,6 +60,123 @@ class JInterfaceDeclaration extends JAST {
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
     }
 
+    public String name() {
+        return name;
+    }
+
+    public Type superType() {
+        return Type.OBJECT;
+    }
+
+    public Type thisType() {
+        return thisType;
+    }
+
+    /**
+     * Declares this interface in the parent (compilation unit) context.
+     * 
+     * @param context
+     *            the parent (compilation unit) context.
+     */
+
+    public void declareThisType(Context context) {
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
+        CLEmitter partial = new CLEmitter(false);
+
+        for (String mod: mods) {
+          if (mod != "public" && mod != "abstract")
+            JAST.compilationUnit.reportSemanticError(line, "Non-nested interfaces cannot have %s modifier", mod);
+        }
+        if (!mods.contains("abstract")) mods.add("abstract");
+        mods.add("interface");
+
+        partial.addClass(mods, qualifiedName, Type.OBJECT.jvmName(), null, false);
+        thisType = Type.typeFor(partial.toClass());
+        context.addType(line, thisType);
+    }
+
+    /**
+     * Pre-analyzes the members of this declaration in the parent context.
+     * Pre-analysis extends to the member headers (including method headers) but
+     * not into the bodies.
+     * 
+     * @param context
+     *            the parent (compilation unit) context.
+     */
+
+    public void preAnalyze(Context context) {
+        // Construct a class context
+        this.context = new ClassContext(this, context);
+
+        ArrayList<String> superInterfaceNames = new ArrayList<String>();
+        for (int i = 0; i < superInterfaces.size(); ++i) {
+          superInterfaces.set(i, superInterfaces.get(i).resolve(this.context));
+          thisType.checkAccess(line, superInterfaces.get(i));
+          superInterfaceNames.add(superInterfaces.get(i).jvmName());
+        }
+
+        // Create the (partial) class
+        CLEmitter partial = new CLEmitter(false);
+
+        // Add the class header to the partial class
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
+        partial.addClass(mods, qualifiedName, Type.OBJECT.jvmName(), superInterfaceNames, false);
+
+        // Pre-analyze the members and add default implicit modifiers if not present
+        for (JMember member: interfaceBlock) {
+          if (member instanceof JFieldDeclaration) {
+            for (String mod: ((JFieldDeclaration) member).mods()) {
+              if (mod != "public" && mod != "static" && mod != "final")
+                JAST.compilationUnit.reportSemanticError(line, "Interface fields cannot have %s modifier", mod);
+            }
+            ((JFieldDeclaration) member).maybeAddMod("public");
+            ((JFieldDeclaration) member).maybeAddMod("static");
+            ((JFieldDeclaration) member).maybeAddMod("final");
+          } else if (member instanceof JMethodDeclaration) {
+            for (String mod: ((JMethodDeclaration) member).mods()) {
+              if (mod != "public" && mod != "abstract")
+                JAST.compilationUnit.reportSemanticError(line, "Interface methods cannot have %s modifier", mod);
+            }
+            ((JMethodDeclaration) member).maybeAddMod("public");
+            ((JMethodDeclaration) member).maybeAddMod("abstract");
+          }
+          member.preAnalyze(this.context, partial);
+        }
+
+        // Get the Class rep for the (partial) class and make it
+        // the
+        // representation for this type
+        Type id = this.context.lookupType(name);
+        if (id != null && !JAST.compilationUnit.errorHasOccurred()) {
+            id.setClassRep(partial.toClass());
+        }
+    }
+
+    public JAST analyze(Context context) {
+      // Analyze all members
+      for (JMember member : interfaceBlock) {
+          ((JAST) member).analyze(this.context);
+      }
+
+      // Copy declared fields for purposes of initialization.
+      for (JMember member : interfaceBlock) {
+        if (member instanceof JFieldDeclaration) {
+          for (JVariableDeclarator decl: ((JFieldDeclaration) member).decls()) {
+            if (decl.initializer() == null)
+              JAST.compilationUnit.reportSemanticError(line, "Interface fields must be initialized");
+          }
+          staticFieldInitializations.add((JFieldDeclaration) member);
+        }
+      }
+
+      thisType.checkedAbstractMethods(line);
+
+      return this;
+    }
+
+    // TO BE IMPLEMENTED
+    public void codegen(CLEmitter output) {}
+
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JInterfaceDeclaration line=\"%d\" name=\"%s\""
                 + " superInterfaces=%s>\n", line(), name, superInterfaces.toString());
@@ -87,13 +204,5 @@ class JInterfaceDeclaration extends JAST {
         }
         p.indentLeft();
         p.println("</JInterfaceDeclaration>");
-    }
-
-    // TO BE IMPLEMENTED
-    public void codegen(CLEmitter output) {}
-
-    // TO BE IMPLEMENTED
-    public JAST analyze(Context context) {
-        return this;
     }
 }
