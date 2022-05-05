@@ -174,6 +174,11 @@ class JLessThanOp extends JComparison {
      */
 
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
+        lhs.codegen(output);
+        rhs.codegen(output);
+
+        output.addBranchInstruction(onTrue ? IF_ICMPLT : IF_ICMPGE,
+                targetLabel);
     }
 
 }
@@ -193,13 +198,15 @@ class JGreaterEqualOp extends JComparison {
      *            rhs operand.
      */
 
+
     public JGreaterEqualOp(int line, JExpression lhs, JExpression rhs) {
         super(line, ">=", lhs, rhs);
     }
 
     /**
      * Branching code generation for &lt;= operation.
-     * 
+     *
+     *
      * @param output
      *            the code emitter (basically an abstraction for producing the
      *            .class file).

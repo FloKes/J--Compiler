@@ -3,7 +3,6 @@
 package junit;
 
 import junit.framework.TestCase;
-import pass.Factorial;
 
 public class FactorialTest extends TestCase {
 
@@ -14,9 +13,4 @@ public class FactorialTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-
-    public void testFactorial() {
-        this.assertEquals(Factorial.factorial(5), 120);
-    }
-
 }
