@@ -1,7 +1,7 @@
 package pass;
 
-public class LogicalOr {
-    public boolean logicalOr(boolean x, boolean y){
+public class logicalOr {
+    public boolean lOr(boolean x, boolean y){
         return x || y;
     }    
 }

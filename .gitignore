@@ -25,3 +25,7 @@ src/jminusminus/ParseException.java
 src/jminusminus/SimpleCharStream.java
 src/jminusminus/Token.java
 src/jminusminus/TokenMgrError.java
+
+# Ignore Mac DS_Store files
+.DS_Store
+**/.DS_Store
