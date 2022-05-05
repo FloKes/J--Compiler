@@ -127,8 +127,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
      */
 
     public void declareThisType(Context context) {
-        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
-                : JAST.compilationUnit.packageName() + "/" + name;
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
         CLEmitter partial = new CLEmitter(false);
         partial.addClass(mods, qualifiedName, Type.OBJECT.jvmName(), null,
                 false); // Object for superClass, just for now
@@ -161,13 +160,19 @@ class JClassDeclaration extends JAST implements JTypeDecl {
                     "Cannot extend a final type: %s", superType.toString());
         }
 
+        ArrayList<String> superInterfaceNames = new ArrayList<String>();
+        for (int i = 0; i < superInterfaces.size(); ++i) {
+          superInterfaces.set(i, superInterfaces.get(i).resolve(this.context));
+          thisType.checkAccess(line, superInterfaces.get(i));
+          superInterfaceNames.add(superInterfaces.get(i).jvmName());
+        }
+
         // Create the (partial) class
         CLEmitter partial = new CLEmitter(false);
 
         // Add the class header to the partial class
-        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
-                : JAST.compilationUnit.packageName() + "/" + name;
-        partial.addClass(mods, qualifiedName, superType.jvmName(), null, false);
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
+        partial.addClass(mods, qualifiedName, superType.jvmName(), superInterfaceNames, false);
 
         // Pre-analyze the members and add them to the partial
         // class
@@ -205,7 +210,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
     public JAST analyze(Context context) {
         // Analyze all members
-        for (JMember member : classBlock) {
+        for (JMember member: classBlock) {
             ((JAST) member).analyze(this.context);
         }
 
@@ -223,9 +228,10 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
         // Finally, ensure that a non-abstract class has
         // no abstract methods.
-        if (!thisType.isAbstract() && thisType.abstractMethods().size() > 0) {
+        ArrayList<Method> abstractMethods = thisType.checkedAbstractMethods(line);
+        if (!thisType.isAbstract() && abstractMethods.size() > 0) {
             String methods = "";
-            for (Method method : thisType.abstractMethods()) {
+            for (Method method : abstractMethods) {
                 methods += "\n" + method;
             }
             JAST.compilationUnit.reportSemanticError(line,
