@@ -39,6 +39,12 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(WhileStatementTest.class);
         suite.addTestSuite(ForStatementTest.class);
         suite.addTestSuite(ForEachStatementTest.class);
+        suite.addTestSuite(AssignAddTest.class);
+        suite.addTestSuite(AssignDivTest.class);
+        suite.addTestSuite(AssignMinusTest.class);
+        suite.addTestSuite(AssignRemTest.class);
+        suite.addTestSuite(AssignStarTest.class);
+        suite.addTestSuite(LogicalOrTest.class);
         return suite;
     }
 
