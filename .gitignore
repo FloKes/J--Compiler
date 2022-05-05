@@ -5,7 +5,6 @@ classes/*
 lib/
 lib/*
 
-
 # IntelliJ stuff
 .idea/
 .idea/*
