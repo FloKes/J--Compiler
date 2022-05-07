@@ -13,7 +13,7 @@ import static jminusminus.CLConstants.GOTO;
 class JTryStatement extends JStatement {
 
     /** Try block. */
-    private JStatement tryBlock;
+    private JBlock tryBlock;
 
     /** Array of all catch clauses (exception type and block) */
     private ArrayList<JCatchClause> catchClauses;
@@ -57,11 +57,11 @@ class JTryStatement extends JStatement {
      */
 
     public JStatement analyze(Context context) {
-        /*
+        tryBlock.analyze(context);
         for (int i = 0; i < this.catchClauses.size(); i++) {
             this.catchClauses.get(i).analyze(context);
         }
-        */
+        finallyBlock.analyze(context);
         return this;
     }
 
