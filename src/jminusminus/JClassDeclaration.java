@@ -52,6 +52,9 @@ class JClassDeclaration extends JAST implements JTypeDecl {
     /** Static initialization blocks of this class */
     private ArrayList<JMember> staticInitializationBlocks;
 
+    /** Names of the super interfaces */
+    private ArrayList<String> superInterfaceNames;
+
     /**
      * Constructs an AST node for a class declaration given the line number, list
      * of class modifiers, name of the class, its super class type, and the
@@ -84,6 +87,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
         instanceInitializationBlocks = new ArrayList<JMember>();
         staticInitializationBlocks = new ArrayList<JMember>();
+        superInterfaceNames = new ArrayList<String>();
     }
 
     /**
@@ -172,7 +176,6 @@ class JClassDeclaration extends JAST implements JTypeDecl {
                     "Cannot extend a final type: %s", superType.toString());
         }
 
-        ArrayList<String> superInterfaceNames = new ArrayList<String>();
         for (int i = 0; i < superInterfaces.size(); ++i) {
           superInterfaces.set(i, superInterfaces.get(i).resolve(this.context));
           thisType.checkAccess(line, superInterfaces.get(i));
@@ -274,7 +277,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         // The class header
         String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
                 : JAST.compilationUnit.packageName() + "/" + name;
-        output.addClass(mods, qualifiedName, superType.jvmName(), null, false);
+        output.addClass(mods, qualifiedName, superType.jvmName(), superInterfaceNames, false);
 
         // The implicit empty constructor?
         if (!hasExplicitConstructor) {
