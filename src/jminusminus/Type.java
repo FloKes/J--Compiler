@@ -427,31 +427,6 @@ class Type {
         return true;
     }
 
-    
-    /**
-     * Do argument types match (or subtypes of the expected types)?
-     * 
-     * @param argTypes1
-     *            arguments (classReps) of one method.
-     * @param argTypes2
-     *            arguments (classReps) of another method.
-     * @return {@code true} iff all corresponding types of argTypes1 and 
-     *         argTypes2 match (or subtypes); {@code false} otherwise.
-     */
-
-    public static boolean argTypesMatchOrSuper(Class<?>[] argTypes1,
-            Class<?>[] argTypes2) {
-        if (argTypes1.length != argTypes2.length) {
-            return false;
-        }
-        for (int i = 0; i < argTypes1.length; i++) {
-            if (!Type.descriptorForAndSuper(argTypes1[i]).contains(Type.descriptorFor(argTypes2[i]))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * Returns the simple (unqualified) name for this Type. For example, String 
      * in place of java.lang.String.
@@ -506,29 +481,6 @@ class Type {
                                 : cls == char.class ? "C"
                                         : cls == boolean.class ? "Z" : "?")
                                 : "L" + cls.getName().replace('.', '/') + ";";
-    }
-
-    /**
-     * A helper translating a type's internal representation to its (JVM)
-     * descriptor, containing all super interfaces and classes descriptor too.
-     * 
-     * @param cls
-     *            internal representation whose descriptor is required.
-     * @return the JVM descriptor.
-     */
-
-    private static ArrayList<String> descriptorForAndSuper(Class<?> cls) {
-        ArrayList<String> descriptors = new ArrayList();
-
-        descriptors.add(Type.descriptorFor(cls));
-        if (cls.getSuperclass() != null) 
-            descriptors.addAll(descriptorForAndSuper(cls.getSuperclass()));
-
-        ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(cls.getInterfaces()));
-        for (int i = 0; i < interfaces.size(); ++i) {
-            descriptors.addAll(descriptorForAndSuper(interfaces.get(i)));
-        }
-        return descriptors;
     }
 
     /**
@@ -597,9 +549,6 @@ class Type {
      * @return Method with given name and argument types, or {@code null}.
      */
 
-     // This was buggy for the default code too. It did not check if the argument type is the subtype of the expected type. In that case
-     // it should be completely fine to call the function. For example, if you have a function foo(BaseClass a), then you should be able
-     // to call that function with a SubClass extends BaseClass type. This is called subsignature.
     public Method methodFor(String name, Type[] argTypes) {
         Class[] classes = new Class[argTypes.length];
         for (int i = 0; i < argTypes.length; i++) {
@@ -611,7 +560,7 @@ class Type {
         while (cls != null) {
             java.lang.reflect.Method[] methods = cls.getDeclaredMethods();
             for (java.lang.reflect.Method method : methods) {
-                if (method.getName().equals(name) && Type.argTypesMatchOrSuper(classes, method.getParameterTypes())) {
+                if (method.getName().equals(name) && Type.argTypesMatch(classes, method.getParameterTypes())) {
                     return new Method(method);
                 }
             }
