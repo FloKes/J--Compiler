@@ -34,6 +34,9 @@ class JInterfaceDeclaration extends JAST implements JTypeDecl {
     /** Static (class) fields of this class. */
     private ArrayList<JFieldDeclaration> staticFieldInitializations;
 
+    /** Names of the super interfaces */
+    private ArrayList<String> superInterfaceNames;
+
     /**
      * Constructs an AST node for an interface declaration given the line number, list
      * of interface modifiers, name of the interface, super interfaces, and the
@@ -58,6 +61,7 @@ class JInterfaceDeclaration extends JAST implements JTypeDecl {
         this.superInterfaces = superInterfaces;
         this.interfaceBlock = interfaceBlock;
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
+        superInterfaceNames = new ArrayList<String>();
     }
 
     public String name() {
@@ -108,7 +112,6 @@ class JInterfaceDeclaration extends JAST implements JTypeDecl {
         // Construct a class context
         this.context = new ClassContext(this, context);
 
-        ArrayList<String> superInterfaceNames = new ArrayList<String>();
         for (int i = 0; i < superInterfaces.size(); ++i) {
           superInterfaces.set(i, superInterfaces.get(i).resolve(this.context));
           thisType.checkAccess(line, superInterfaces.get(i));
@@ -174,8 +177,54 @@ class JInterfaceDeclaration extends JAST implements JTypeDecl {
       return this;
     }
 
-    // TO BE IMPLEMENTED
-    public void codegen(CLEmitter output) {}
+    /**
+     * Generates code for the interface declaration.
+     *
+     * @param output
+     *            the code emitter (basically an abstraction for producing the
+     *            .class file).
+     */
+
+    public void codegen(CLEmitter output) {
+        // The class header
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
+        output.addClass(mods, qualifiedName, Type.OBJECT.jvmName(), superInterfaceNames, false);
+
+        // The members
+        for (JMember member: interfaceBlock) {
+            ((JAST) member).codegen(output);
+        }
+
+        // Generate code for static fields on class initialization
+        if (staticFieldInitializations.size() > 0) {
+            codegenClassInit(output);
+        }
+    }
+
+    /**
+     * Generates code for interface initialization, in j-- this means static field
+     * initializations.
+     *
+     * @param output
+     *            the code emitter (basically an abstraction for producing the
+     *            .class file).
+     */
+
+    private void codegenClassInit(CLEmitter output) {
+      ArrayList<String> mods = new ArrayList<String>();
+      mods.add("public");
+      mods.add("static");
+      output.addMethod(mods, "<clinit>", "()V", null, false);
+
+      // If there are instance initializations, generate code
+      // for them
+      for (JFieldDeclaration staticField : staticFieldInitializations) {
+          staticField.codegenInitializations(output);
+      }
+
+      // Return
+      output.addNoArgInstruction(RETURN);
+    }
 
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JInterfaceDeclaration line=\"%d\" name=\"%s\""
