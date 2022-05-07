@@ -83,5 +83,30 @@ class JTryStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
+        p.printf("<JTryStatement line=\"%d\">\n", line());
+        p.indentRight();
+            p.printf("<TryBlock>\n");
+            p.indentRight();
+                tryBlock.writeToStdOut(p);
+                p.indentLeft();
+            p.printf("</TryBlock>\n");
+            p.printf("<CatchStatements>\n");
+            if (catchClauses != null) {
+                for (int i = 0; i < catchClauses.size(); i++) {
+                    p.indentRight();
+                    catchClauses.get(i).writeToStdOut(p);
+                    p.indentLeft();
+                }
+            }
+            p.printf("</CatchStatements>\n");
+            if (finallyBlock != null) {
+                p.printf("<FinallyStatement>\n");
+                p.indentRight();
+                finallyBlock.writeToStdOut(p);
+                p.indentLeft();
+                p.printf("</FinallyStatement>\n");
+            }
+            p.indentLeft();
+        p.printf("</JTryStatement>\n");
     }
 }

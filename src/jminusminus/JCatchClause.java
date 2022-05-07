@@ -70,6 +70,11 @@ class JCatchClause extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
+        p.printf("<JCatchClause line=\"%d\">\n", line());
+        p.indentRight();
+        exception.writeToStdOut(p);
+        block.writeToStdOut(p);
+        p.indentLeft();
+        p.printf("</JCatchClause>\n");
     }
-
 }
