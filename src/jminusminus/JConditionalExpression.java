@@ -43,7 +43,6 @@ class JConditionalExpression extends JExpression {
         this.elsePart = elsePart;
     }
 
-    // TO BE IMPLEMENTED
     public JExpression analyze(Context context) {
         condition = (JExpression) condition.analyze(context);
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
@@ -58,8 +57,29 @@ class JConditionalExpression extends JExpression {
         return this;
     }
 
-    // TO BE IMPLEMENTED
+    /**
+     * Code generation for a conditional expression. We generate code to branch over the
+     * consequent if !test; the consequent is followed by an unconditonal branch
+     * over (any) alternate.
+     * 
+     * @param output
+     *            the code emitter (basically an abstraction for producing the
+     *            .class file).
+     */
+
     public void codegen(CLEmitter output) {
+        String elseLabel = output.createLabel();
+        String endLabel = output.createLabel();
+        condition.codegen(output, elseLabel, false); // if the condition is false, we do a jump to the elseLabel branch in the bytecode
+        thenPart.codegen(output); // if the condition was true, we did not jump, thus we generate code for the thenPart
+        if (elsePart != null) { // if there exists an elsePart and we did not jump to it, then
+            output.addBranchInstruction(GOTO, endLabel); // we want to skip that branch, thus we do a jump to the endLabel branch (which just skips the elsePart)
+        }
+        output.addLabel(elseLabel); // add elseLabel, so that we can jump here in the code if the condition was false
+        if (elsePart != null) {
+            elsePart.codegen(output); // generate code for the elsePart under the elseLabel
+            output.addLabel(endLabel); // create the endLabel after the elsePart, so that we can skip elsePart if we ran thenPart
+        }
     }
 
 
