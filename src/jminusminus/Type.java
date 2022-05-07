@@ -549,6 +549,9 @@ class Type {
      * @return Method with given name and argument types, or {@code null}.
      */
 
+    // The method found will only match if the arguments match EXACTLY. This means 
+    // that there is no polymorphism available, thus we cannot really define a method
+    // that has an argument of interface type.
     public Method methodFor(String name, Type[] argTypes) {
         Class[] classes = new Class[argTypes.length];
         for (int i = 0; i < argTypes.length; i++) {
