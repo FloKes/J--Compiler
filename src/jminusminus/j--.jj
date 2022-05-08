@@ -935,6 +935,25 @@ private JStatement statement(): {
         { line = token.beginLine;
           statement = new JEmptyStatement( line ); } |
 
+        <TRY> { 
+            line = token.beginLine; 
+            JBlock finallyBlock = null;
+            ArrayList<JCatchClause> catchClauses = new ArrayList<JCatchClause>();
+            JBlock tryBlock = block();
+        }
+        (
+            <CATCH>
+            { 
+                catchClauses.add(catchClause()); 
+            }
+        )*
+        [
+        LOOKAHEAD(<FINALLY>)
+        <FINALLY>
+        finallyBlock = block()
+        ]
+        {statement = new JTryStatement(line, tryBlock, catchClauses, finallyBlock);} |
+
         // Must be a statementExpression
         statement = statementExpression()
         <SEMI>
@@ -943,6 +962,31 @@ private JStatement statement(): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     { return statement; }
+}
+
+/**
+*
+* Parse a catch clause
+*
+*/
+
+private JCatchClause catchClause(): {
+    int line = 0;
+    JFormalParameter exception = null; 
+    JBlock catchBlock = null;
+    }
+{
+    try {
+       <LPAREN> { 
+           exception = formalParameter(); 
+        }
+       <RPAREN> { 
+           catchBlock = block();
+        }
+    } catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return new JCatchClause(line, exception, catchBlock); }
 }
 
 /**
