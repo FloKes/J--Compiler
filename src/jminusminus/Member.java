@@ -173,8 +173,20 @@ class Method extends Member {
      */
 
     public boolean equals(Method that) {
-        return Type.argTypesMatch(this.method.getParameterTypes(), that.method
-                .getParameterTypes());
+        return this.matchesSignature(that) && this.returnType().equals(that.returnType());
+    }
+
+    // Somewhy in arraylist.contains this was called instead of the overridden equals(Method that).
+    // This is a fix for that.
+
+    public boolean equals(Object t) {
+        if (t instanceof Method) return this.equals((Method) t);
+        return false;
+    }
+
+    public boolean matchesSignature(Method that) {
+        return Type.argTypesMatch(this.method.getParameterTypes(), that.method.getParameterTypes())
+                && this.name().equals(that.name());
     }
 
     /**
@@ -217,6 +229,17 @@ class Field extends Member {
 
     public Type type() {
         return Type.typeFor(field.getType());
+    }
+
+    public boolean equals(Field that) {
+        return this.type().equals(that.type()) 
+                && this.field.getName().equals(that.field.getName())
+                && this.field.getDeclaringClass().equals(that.field.getDeclaringClass());
+    }
+
+    public boolean equals(Object t) {
+        if (t instanceof Field) return this.equals((Field) t);
+        return false;
     }
 
     /**

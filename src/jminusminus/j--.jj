@@ -480,8 +480,8 @@ private ArrayList<String> modifiers(): {
  *
  * <pre>
  *   interfaceDeclaration ::= INTERFACE IDENTIFIER
- *                           [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
- *                           interfaceBody
+ *                              [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
+ *                              interfaceBody
  * </pre>
  *
  *
@@ -494,16 +494,16 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
     String name = "";
     ArrayList<JMember> interfaceBody = null;
     Type extended = null;
-    ArrayList<Type> extendedInterfaces = new ArrayList<Type>();
+    ArrayList<Type> superInterfaces = new ArrayList<Type>();
 }
 {
     try {
         <INTERFACE> { line = token.beginLine; }
         <IDENTIFIER> { name = token.image; }
         [
-            <EXTENDS> extended = qualifiedIdentifier() { extendedInterfaces.add(extended); }
+            <EXTENDS> extended = qualifiedIdentifier() { superInterfaces.add(extended); }
             (
-              <COMMA> extended = qualifiedIdentifier() { extendedInterfaces.add(extended); }
+              <COMMA> extended = qualifiedIdentifier() { superInterfaces.add(extended); }
             )*
         ]
         interfaceBody = interfaceBody()
@@ -512,7 +512,7 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JInterfaceDeclaration(line, mods, name, extendedInterfaces, interfaceBody);
+        return new JInterfaceDeclaration(line, mods, name, superInterfaces, interfaceBody);
     }
 }
 
@@ -522,8 +522,11 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
  *
  * <pre>
  *   interfaceBody ::= LCURLY
- *                      {modifiers interfaceMemberDecl}
- *                      RCURLY
+ *                      {
+ *                       ;
+ *                       | modifiers interfaceMemberDecl
+ *                      }
+*                      RCURLY
  * </pre>
  *
  * @return list of members in the interface body.
@@ -540,6 +543,7 @@ private ArrayList<JMember> interfaceBody(): {
         (
             mods = modifiers()
             aMember = interfaceMemberDecl(mods) { members.add(aMember); }
+          | <SEMI>
         )*
         <RCURLY>
     }
@@ -626,7 +630,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
     Type superClass = Type.OBJECT;
     ArrayList<JMember> classBody = null;
     Type implemented = null;
-    ArrayList<Type> implementedInterfaces = new ArrayList<Type>();
+    ArrayList<Type> superInterfaces = new ArrayList<Type>();
 }
 {
     try {
@@ -636,9 +640,9 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
             <EXTENDS> superClass = qualifiedIdentifier()
         ]
         [
-            <IMPLEMENTS> implemented = qualifiedIdentifier() { implementedInterfaces.add(implemented); }
+            <IMPLEMENTS> implemented = qualifiedIdentifier() { superInterfaces.add(implemented); }
             (
-                <COMMA> implemented = qualifiedIdentifier() { implementedInterfaces.add(implemented); }
+                <COMMA> implemented = qualifiedIdentifier() { superInterfaces.add(implemented); }
             )*
         ]
         classBody = classBody()
@@ -647,7 +651,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JClassDeclaration(line, mods, name, superClass, implementedInterfaces, classBody);
+        return new JClassDeclaration(line, mods, name, superClass, superInterfaces, classBody);
     }
 }
 

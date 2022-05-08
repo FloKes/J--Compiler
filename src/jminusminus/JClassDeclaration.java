@@ -29,7 +29,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
     private Type superType;
 
     /** Implemented interface types. */
-    private ArrayList<Type> implementedInterfaces;
+    private ArrayList<Type> superInterfaces;
 
     /** This class type. */
     private Type thisType;
@@ -52,6 +52,9 @@ class JClassDeclaration extends JAST implements JTypeDecl {
     /** Static initialization blocks of this class */
     private ArrayList<JMember> staticInitializationBlocks;
 
+    /** Names of the super interfaces */
+    private ArrayList<String> superInterfaceNames;
+
     /**
      * Constructs an AST node for a class declaration given the line number, list
      * of class modifiers, name of the class, its super class type, and the
@@ -65,23 +68,26 @@ class JClassDeclaration extends JAST implements JTypeDecl {
      *            class name.
      * @param superType
      *            super class type.
+     * @param superInterfaces
+     *            implemented interface types.  
      * @param classBlock
      *            class block.
      */
 
     public JClassDeclaration(int line, ArrayList<String> mods, String name,
-            Type superType, ArrayList<Type> implementedInterfaces, ArrayList<JMember> classBlock) {
+            Type superType, ArrayList<Type> superInterfaces, ArrayList<JMember> classBlock) {
         super(line);
         this.mods = mods;
         this.name = name;
         this.superType = superType;
-        this.implementedInterfaces = implementedInterfaces;
+        this.superInterfaces = superInterfaces;
         this.classBlock = classBlock;
         hasExplicitConstructor = false;
         instanceFieldInitializations = new ArrayList<JFieldDeclaration>();
         staticFieldInitializations = new ArrayList<JFieldDeclaration>();
         instanceInitializationBlocks = new ArrayList<JMember>();
         staticInitializationBlocks = new ArrayList<JMember>();
+        superInterfaceNames = new ArrayList<String>();
     }
 
     /**
@@ -137,8 +143,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
      */
 
     public void declareThisType(Context context) {
-        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
-                : JAST.compilationUnit.packageName() + "/" + name;
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
         CLEmitter partial = new CLEmitter(false);
         partial.addClass(mods, qualifiedName, Type.OBJECT.jvmName(), null,
                 false); // Object for superClass, just for now
@@ -171,13 +176,18 @@ class JClassDeclaration extends JAST implements JTypeDecl {
                     "Cannot extend a final type: %s", superType.toString());
         }
 
+        for (int i = 0; i < superInterfaces.size(); ++i) {
+          superInterfaces.set(i, superInterfaces.get(i).resolve(this.context));
+          thisType.checkAccess(line, superInterfaces.get(i));
+          superInterfaceNames.add(superInterfaces.get(i).jvmName());
+        }
+
         // Create the (partial) class
         CLEmitter partial = new CLEmitter(false);
 
         // Add the class header to the partial class
-        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
-                : JAST.compilationUnit.packageName() + "/" + name;
-        partial.addClass(mods, qualifiedName, superType.jvmName(), null, false);
+        String qualifiedName = JAST.compilationUnit.packageName() == "" ? name : JAST.compilationUnit.packageName() + "/" + name;
+        partial.addClass(mods, qualifiedName, superType.jvmName(), superInterfaceNames, false);
 
         // Pre-analyze the members and add them to the partial
         // class
@@ -215,7 +225,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
     public JAST analyze(Context context) {
         // Analyze all members
-        for (JMember member : classBlock) {
+        for (JMember member: classBlock) {
             ((JAST) member).analyze(this.context);
         }
 
@@ -241,9 +251,10 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
         // Finally, ensure that a non-abstract class has
         // no abstract methods.
-        if (!thisType.isAbstract() && thisType.abstractMethods().size() > 0) {
+        ArrayList<Method> abstractMethods = thisType.checkedAbstractMethods(line);
+        if (!thisType.isAbstract() && abstractMethods.size() > 0) {
             String methods = "";
-            for (Method method : thisType.abstractMethods()) {
+            for (Method method : abstractMethods) {
                 methods += "\n" + method;
             }
             JAST.compilationUnit.reportSemanticError(line,
@@ -266,7 +277,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
         // The class header
         String qualifiedName = JAST.compilationUnit.packageName() == "" ? name
                 : JAST.compilationUnit.packageName() + "/" + name;
-        output.addClass(mods, qualifiedName, superType.jvmName(), null, false);
+        output.addClass(mods, qualifiedName, superType.jvmName(), superInterfaceNames, false);
 
         // The implicit empty constructor?
         if (!hasExplicitConstructor) {
@@ -290,7 +301,7 @@ class JClassDeclaration extends JAST implements JTypeDecl {
 
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JClassDeclaration line=\"%d\" name=\"%s\""
-                + " super=\"%s\" implementedInterfaces=%s>\n", line(), name, superType.toString(), implementedInterfaces.toString());
+                + " super=\"%s\" superInterfaces=%s>\n", line(), name, superType.toString(), superInterfaces.toString());
         p.indentRight();
         if (context != null) {
             context.writeToStdOut(p);

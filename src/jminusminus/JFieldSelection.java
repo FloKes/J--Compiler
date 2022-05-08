@@ -3,6 +3,7 @@
 package jminusminus;
 
 import static jminusminus.CLConstants.*;
+import java.util.ArrayList;
 
 /**
  * The AST node for a field selection operation. It has a target object, a field
@@ -100,12 +101,15 @@ class JFieldSelection extends JExpression implements JLhs {
                 type = Type.ANY;
                 return this;
             }
-            field = targetType.fieldFor(fieldName);
-            if (field == null) {
-                JAST.compilationUnit.reportSemanticError(line(),
-                        "Cannot find a field: " + fieldName);
+            ArrayList<Field> fields = targetType.fieldFor(fieldName);
+            if (fields.size() == 0) {
+                JAST.compilationUnit.reportSemanticError(line(), "Cannot find a field: " + fieldName);
+                type = Type.ANY;
+            } else if (fields.size() > 1) {
+                JAST.compilationUnit.reportSemanticError(line(), "Ambiguous reference to field: " + fieldName);
                 type = Type.ANY;
             } else {
+                field = fields.get(0);
                 context.definingType().checkAccess(line, (Member) field);
                 type = field.type();
 
