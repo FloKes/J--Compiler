@@ -54,14 +54,23 @@ class JTryStatement extends JStatement {
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
-     */
+    */
 
     public JStatement analyze(Context context) {
+        boolean hasCatchClause = false;
         tryBlock.analyze(context);
-        for (int i = 0; i < this.catchClauses.size(); i++) {
-            this.catchClauses.get(i).analyze(context);
+        if (!catchClauses.isEmpty()){
+            hasCatchClause = true;
+            for (int i = 0; i < this.catchClauses.size(); i++) {
+                this.catchClauses.get(i).analyze(context);
+            }
         }
-        finallyBlock.analyze(context);
+        if (finallyBlock != null) {
+            finallyBlock.analyze(context);
+        } else if (hasCatchClause == false) {
+            JAST.compilationUnit.reportSemanticError(line, "finally clause is required in try-catch-finally statement, if no catch clauses are present");
+        }
+
         return this;
     }
 
@@ -76,6 +85,7 @@ class JTryStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+
     }
 
     /**

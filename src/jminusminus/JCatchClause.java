@@ -44,13 +44,13 @@ class JCatchClause extends JStatement {
      */
 
     public JCatchClause analyze(Context context) {
-        /*
         block = block.analyze(context);
-        exception = (JFormalParameter) exception.analyze(context);
+        exception.setType(exception.type().resolve(context.methodContext()));
+
         if (!Throwable.class.isAssignableFrom(exception.type().classRep())) {
-            JAST.compilationUnit.reportSemanticError(line, String.format("%s not sublcass of throwable", exception.type().getClass().getName()), exception.type().getClass().getName());
+            JAST.compilationUnit.reportSemanticError(exception.line(), "Attempting to catch a non-throwable type");
         }
-        */
+
         return this;
     }
 
@@ -63,6 +63,7 @@ class JCatchClause extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+
     }
 
     /**

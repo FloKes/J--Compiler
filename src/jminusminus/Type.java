@@ -60,6 +60,9 @@ class Type {
     /** java.lang.Exception */
     public final static Type EXCEPTION = typeFor(java.lang.Exception.class);
 
+     /** java.lang.Exception */
+     public final static Type THROWABLE = typeFor(java.lang.Throwable.class);
+
     /** The type java.lang.String. */
     public static Type STRING = typeFor(java.lang.String.class);
 
