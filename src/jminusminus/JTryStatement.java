@@ -2,6 +2,8 @@
 
 package jminusminus;
 
+import java.util.ArrayList;
+
 import static jminusminus.CLConstants.GOTO;
 
 /**
@@ -10,16 +12,14 @@ import static jminusminus.CLConstants.GOTO;
 
 class JTryStatement extends JStatement {
 
-    /** Try statement. */
-    private JStatement tryStatement;
+    /** Try block. */
+    private JBlock tryBlock;
 
-    /** Expression type and identifier */
-    private JFormalParameter exception;
-    /** Catch statement. */
-    private JStatement catchStatement;
+    /** Array of all catch clauses (exception type and block) */
+    private ArrayList<JCatchClause> catchClauses;
 
-    /** Finally statement. */
-    private JStatement finallyStatement;
+    /** Finally block. */
+    private JBlock finallyBlock;
 
     /**
      * Constructs an AST node for a try-catch-finally-statement given its line number, the
@@ -27,28 +27,24 @@ class JTryStatement extends JStatement {
      * finally statement.
      *
      * @param line
-     *            line in which the if-statement occurs in the source file.
-     * @param tryStatement
-     *            test expression.
-     * @param exception
-     *            the type of exception
-     * @param catchStatement
-     *            then clause.
-     * @param finallyStatement
-     *            else clause.
+     *
+     * @param tryBlock
+     *
+     * @param catchClauses
+     *
+     * @param finallyBlock
+     *
      */
 
     public JTryStatement(int line,
-                         JStatement tryStatement,
-                         JFormalParameter exception,
-                         JStatement catchStatement,
-                         JStatement finallyStatement)
+                         JBlock tryBlock,
+                         ArrayList<JCatchClause> catchClauses,
+                         JBlock finallyBlock)
     {
         super(line);
-        this.tryStatement = tryStatement;
-        this.exception = exception;
-        this.catchStatement = catchStatement;
-        this.finallyStatement = finallyStatement;
+        this.tryBlock = tryBlock;
+        this.catchClauses = catchClauses;
+        this.finallyBlock = finallyBlock;
     }
 
     /**
@@ -58,16 +54,23 @@ class JTryStatement extends JStatement {
      * @param context
      *            context in which names are resolved.
      * @return the analyzed (and possibly rewritten) AST subtree.
-     */
+    */
 
     public JStatement analyze(Context context) {
-        exception = (JFormalParameter) exception.analyze(context);
-        exception.type().mustMatchExpected(line(), Type.EXCEPTION);
-        tryStatement = (JStatement) tryStatement.analyze(context);
-        catchStatement = (JStatement) catchStatement.analyze(context);
-        if (finallyStatement != null) {
-            finallyStatement = (JStatement) finallyStatement.analyze(context);
+        boolean hasCatchClause = false;
+        tryBlock.analyze(context);
+        if (!catchClauses.isEmpty()){
+            hasCatchClause = true;
+            for (int i = 0; i < this.catchClauses.size(); i++) {
+                this.catchClauses.get(i).analyze(context);
+            }
         }
+        if (finallyBlock != null) {
+            finallyBlock.analyze(context);
+        } else if (hasCatchClause == false) {
+            JAST.compilationUnit.reportSemanticError(line, "finally clause is required in try-catch-finally statement, if no catch clauses are present");
+        }
+
         return this;
     }
 
@@ -82,6 +85,7 @@ class JTryStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+
     }
 
     /**
@@ -91,30 +95,28 @@ class JTryStatement extends JStatement {
     public void writeToStdOut(PrettyPrinter p) {
         p.printf("<JTryStatement line=\"%d\">\n", line());
         p.indentRight();
-        p.printf("<TryStatement>\n");
-        p.indentRight();
-        tryStatement.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</TryStatement>\n");
-        p.printf("<CatchStatement>\n");
-        p.indentRight();
-        p.printf("<Exception>\n");
-        p.indentRight();
-        exception.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</Exception>\n");
-        catchStatement.writeToStdOut(p);
-        p.indentLeft();
-        p.printf("</CatchStatement>\n");
-        if (finallyStatement != null) {
-            p.printf("<FinallyStatement>\n");
+            p.printf("<TryBlock>\n");
             p.indentRight();
-            finallyStatement.writeToStdOut(p);
+                tryBlock.writeToStdOut(p);
+                p.indentLeft();
+            p.printf("</TryBlock>\n");
+            p.printf("<CatchStatements>\n");
+            if (catchClauses != null) {
+                for (int i = 0; i < catchClauses.size(); i++) {
+                    p.indentRight();
+                    catchClauses.get(i).writeToStdOut(p);
+                    p.indentLeft();
+                }
+            }
+            p.printf("</CatchStatements>\n");
+            if (finallyBlock != null) {
+                p.printf("<FinallyStatement>\n");
+                p.indentRight();
+                finallyBlock.writeToStdOut(p);
+                p.indentLeft();
+                p.printf("</FinallyStatement>\n");
+            }
             p.indentLeft();
-            p.printf("</FinallyStatement>\n");
-        }
-        p.indentLeft();
         p.printf("</JTryStatement>\n");
     }
-
 }
