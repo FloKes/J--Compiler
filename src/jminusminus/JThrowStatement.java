@@ -97,6 +97,7 @@ class JThrowStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
+        /**
         if (expr == null) {
             output.addNoArgInstruction(RETURN);
         } else {
@@ -109,6 +110,7 @@ class JThrowStatement extends JStatement {
                 output.addNoArgInstruction(ARETURN);
             }
         }
+        */
     }
 
     /**
