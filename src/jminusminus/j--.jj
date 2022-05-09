@@ -1515,19 +1515,19 @@ private JExpression assignmentExpression(): {
 
             <MINUS_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JMinusAssignOp(line, lhs, rhs); } |
 
             <STAR_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JStarAssignOp(line, lhs, rhs); } |
 
             <DIV_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JDivAssignOp(line, lhs, rhs); } |
 
             <REM_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); }
+            { lhs = new JRemAssignOp(line, lhs, rhs); }
 
         ]
     }
