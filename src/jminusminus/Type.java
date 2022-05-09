@@ -8,6 +8,8 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * For representing j-- types. All types are represented underneath (in the
@@ -59,6 +61,9 @@ class Type {
 
     /** java.lang.Exception */
     public final static Type EXCEPTION = typeFor(java.lang.Exception.class);
+
+     /** java.lang.Exception */
+     public final static Type THROWABLE = typeFor(java.lang.Throwable.class);
 
     /** The type java.lang.String. */
     public static Type STRING = typeFor(java.lang.String.class);
@@ -260,16 +265,53 @@ class Type {
      */
 
     public ArrayList<Method> abstractMethods() {
-        ArrayList<Method> inheritedAbstractMethods = superClass() == null ? new ArrayList<Method>()
-                : superClass().abstractMethods();
+        ArrayList<Method> inheritedAbstractMethods = new ArrayList<Method>();
+        if (superClass() != null) inheritedAbstractMethods.addAll(superClass().abstractMethods());
+        ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(classRep.getInterfaces()));
+        for (int i = 0; i < interfaces.size(); ++i) {
+            for (Method method: typeFor(interfaces.get(i)).abstractMethods()) {
+                if (!inheritedAbstractMethods.contains(method)) {
+                    inheritedAbstractMethods.add(method);
+                }
+            }
+        }
         ArrayList<Method> abstractMethods = new ArrayList<Method>();
         ArrayList<Method> declaredConcreteMethods = declaredConcreteMethods();
         ArrayList<Method> declaredAbstractMethods = declaredAbstractMethods();
         abstractMethods.addAll(declaredAbstractMethods);
-        for (Method method : inheritedAbstractMethods) {
-            if (!declaredConcreteMethods.contains(method)
-                    && !declaredAbstractMethods.contains(method)) {
+        for (Method method: inheritedAbstractMethods) {
+            // It took me 5 million years to figure out, why this was not working. Maybe it is my JDK, maybe not, but 
+            // declaredConcreteMethods.contains did not call the overloaded equals(Method t) function, but the original equals(Object t) function
+            // thus it returned false every time. Thanks to this, the original j-- (non expanded) was wrong as well (hallelujah). But
+            // my virtuose intellect found this naughty little problem. yay. definitely writing about this in the report
+            if (!declaredConcreteMethods.contains(method) && !declaredAbstractMethods.contains(method)) {
                 abstractMethods.add(method);
+            }
+        }
+        return abstractMethods;
+    }
+
+    // we can have multiple methods with different signature (we can overload as much as we want). - done
+    // When we override (that is, signatures match) an inherited function in a subtype, 
+    // then the overriding should be return-type-substitutable (= match up in our case)(and throws should not conflict either). - done
+    // If we have multiple functions with the same signature inherited
+    // then the return type should be substitutable (= match up in our case) (throws do not matter here) - done
+    public ArrayList<Method> checkedAbstractMethods(int line) {
+        ArrayList<Method> abstractMethods = abstractMethods();
+        ArrayList<Method> declaredConcreteMethods = declaredConcreteMethods();
+
+        for (int i = 0; i < abstractMethods.size(); i++) {
+            Method m1 = abstractMethods.get(i);
+            for (int j = 0; j < i; j++) {
+                Method m2 = abstractMethods.get(j);
+                if (m1.matchesSignature(m2) && !m1.returnType().equals(m2.returnType())) {
+                    JAST.compilationUnit.reportSemanticError(line, "Inherited methods with the same signature have to be return-type-substitutable for method: %s", m1);
+                }
+            }
+            for (Method concreteMethod: declaredConcreteMethods) {
+                if (m1.matchesSignature(concreteMethod) && !m1.returnType().equals(concreteMethod.returnType())) {
+                    JAST.compilationUnit.reportSemanticError(line, "Overriding inherited method should be return-type-substitutable for method: %s", m1);
+                }
             }
         }
         return abstractMethods;
@@ -510,6 +552,9 @@ class Type {
      * @return Method with given name and argument types, or {@code null}.
      */
 
+    // The method found will only match if the arguments match EXACTLY. This means 
+    // that there is no polymorphism available, thus we cannot really define a method
+    // that has an argument of interface type.
     public Method methodFor(String name, Type[] argTypes) {
         Class[] classes = new Class[argTypes.length];
         for (int i = 0; i < argTypes.length; i++) {
@@ -521,14 +566,21 @@ class Type {
         while (cls != null) {
             java.lang.reflect.Method[] methods = cls.getDeclaredMethods();
             for (java.lang.reflect.Method method : methods) {
-                if (method.getName().equals(name)
-                        && Type.argTypesMatch(classes, method
-                                .getParameterTypes())) {
+                if (method.getName().equals(name) && Type.argTypesMatch(classes, method.getParameterTypes())) {
                     return new Method(method);
                 }
             }
             cls = cls.getSuperclass();
         }
+        
+        // the checking for overriding happens in abstractClasses (as all of the classes are abstract in an interface)
+        ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(classRep.getInterfaces()));
+        for (int i = 0; i < interfaces.size(); ++i) {
+            Method interfaceMethod = typeFor(interfaces.get(i)).methodFor(name, argTypes);
+            if (interfaceMethod != null) 
+                return interfaceMethod;
+        }
+        
         return null;
     }
 
@@ -568,19 +620,59 @@ class Type {
      * @return the Field or {@code null} if it's not there.
      */
 
-    public Field fieldFor(String name) {
+    // we can have fields with the same name defined in different interfaces
+    // but if an interface/class inherits both of those, than it is ambiguous, thus
+    // neither one should be used. If either one is used, its an error. - we return a list of fields and check for collision in JFieldSelection/JVariable,
+    // as fieldFor is only being called when there is an actual reference to a field. - done
+    // If a class inherits the same static field from multiple interfaces, then thats
+    // only one instance. - done
+
+    public ArrayList<Field> fieldFor(String name) {
         Class<?> cls = classRep;
+        ArrayList<Field> fields = new ArrayList<Field>();
         while (cls != null) {
-            java.lang.reflect.Field[] fields = cls.getDeclaredFields();
-            for (java.lang.reflect.Field field : fields) {
+            java.lang.reflect.Field[] declaredFields = cls.getDeclaredFields();
+            for (java.lang.reflect.Field field: declaredFields) {
                 if (field.getName().equals(name)) {
-                    return new Field(field);
+                    fields.add(new Field(field));
+                    return fields;
                 }
             }
             cls = cls.getSuperclass();
         }
-        return null;
+
+        ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>(Arrays.asList(classRep.getInterfaces()));
+        for (int i = 0; i < interfaces.size(); ++i) {
+            ArrayList<Field> interfaceFields = typeFor(interfaces.get(i)).fieldFor(name);
+            for (Field inheritedField: interfaceFields) {
+                // this removes duplicates even if both the colliding declarations are in the same class, but after
+                // consulting with the teacher and TAs, I should not fix this, as it is buggy in the original j-- (for classes) too
+                if (!fields.contains(inheritedField)) {
+                    fields.add(inheritedField);
+                }
+            }
+        }
+
+        return fields;
     }
+
+    private void removeDuplicates(ArrayList<Field> array) {
+        for (int i = 0; i < array.size(); i++) {
+            Field next = array.get(i);
+    
+          // check if this has already appeared before
+          for (int j = 0; j < i; j++) {
+            // if it has, stop the search and remove it
+            if (next.equals(array.get(j))) {
+              array.remove(i);
+              // decrement i since we just removed the i'th element
+              i--;
+              // stop the search
+              break;
+            }
+          }
+        }
+      }
 
     /**
      * Converts an array of argument types to a string representation of a

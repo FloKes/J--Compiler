@@ -3,6 +3,7 @@
 package jminusminus;
 
 import static jminusminus.CLConstants.*;
+import java.util.ArrayList;
 
 /**
  * The AST node for an identifier used as a primary expression.
@@ -68,14 +69,17 @@ class JVariable extends JExpression implements JLhs {
         if (iDefn == null) {
             // Not a local, but is it a field?
             Type definingType = context.definingType();
-            Field field = definingType.fieldFor(name);
-            if (field == null) {
+            ArrayList<Field> fields = definingType.fieldFor(name);
+            if (fields.size() == 0) {
                 type = Type.ANY;
-                JAST.compilationUnit.reportSemanticError(line,
-                        "Cannot find name: " + name);
+                JAST.compilationUnit.reportSemanticError(line, "Cannot find name: " + name);
+            } else if (fields.size() > 1) {
+                JAST.compilationUnit.reportSemanticError(line(), "Ambiguous reference to field: " + name);
+                type = Type.ANY;
             } else {
                 // Rewrite a variable denoting a field as an
                 // explicit field selection
+                Field field = fields.get(0);
                 type = field.type();
                 JExpression newTree = new JFieldSelection(line(), field
                         .isStatic()

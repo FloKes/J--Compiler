@@ -480,8 +480,8 @@ private ArrayList<String> modifiers(): {
  *
  * <pre>
  *   interfaceDeclaration ::= INTERFACE IDENTIFIER
- *                           [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
- *                           interfaceBody
+ *                              [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
+ *                              interfaceBody
  * </pre>
  *
  *
@@ -494,16 +494,16 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
     String name = "";
     ArrayList<JMember> interfaceBody = null;
     Type extended = null;
-    ArrayList<Type> extendedInterfaces = new ArrayList<Type>();
+    ArrayList<Type> superInterfaces = new ArrayList<Type>();
 }
 {
     try {
         <INTERFACE> { line = token.beginLine; }
         <IDENTIFIER> { name = token.image; }
         [
-            <EXTENDS> extended = qualifiedIdentifier() { extendedInterfaces.add(extended); }
+            <EXTENDS> extended = qualifiedIdentifier() { superInterfaces.add(extended); }
             (
-              <COMMA> extended = qualifiedIdentifier() { extendedInterfaces.add(extended); }
+              <COMMA> extended = qualifiedIdentifier() { superInterfaces.add(extended); }
             )*
         ]
         interfaceBody = interfaceBody()
@@ -512,7 +512,7 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JInterfaceDeclaration(line, mods, name, extendedInterfaces, interfaceBody);
+        return new JInterfaceDeclaration(line, mods, name, superInterfaces, interfaceBody);
     }
 }
 
@@ -522,8 +522,11 @@ private JInterfaceDeclaration interfaceDeclaration(ArrayList<String> mods): {
  *
  * <pre>
  *   interfaceBody ::= LCURLY
- *                      {modifiers interfaceMemberDecl}
- *                      RCURLY
+ *                      {
+ *                       ;
+ *                       | modifiers interfaceMemberDecl
+ *                      }
+*                      RCURLY
  * </pre>
  *
  * @return list of members in the interface body.
@@ -540,6 +543,7 @@ private ArrayList<JMember> interfaceBody(): {
         (
             mods = modifiers()
             aMember = interfaceMemberDecl(mods) { members.add(aMember); }
+          | <SEMI>
         )*
         <RCURLY>
     }
@@ -626,7 +630,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
     Type superClass = Type.OBJECT;
     ArrayList<JMember> classBody = null;
     Type implemented = null;
-    ArrayList<Type> implementedInterfaces = new ArrayList<Type>();
+    ArrayList<Type> superInterfaces = new ArrayList<Type>();
 }
 {
     try {
@@ -636,9 +640,9 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
             <EXTENDS> superClass = qualifiedIdentifier()
         ]
         [
-            <IMPLEMENTS> implemented = qualifiedIdentifier() { implementedInterfaces.add(implemented); }
+            <IMPLEMENTS> implemented = qualifiedIdentifier() { superInterfaces.add(implemented); }
             (
-                <COMMA> implemented = qualifiedIdentifier() { implementedInterfaces.add(implemented); }
+                <COMMA> implemented = qualifiedIdentifier() { superInterfaces.add(implemented); }
             )*
         ]
         classBody = classBody()
@@ -647,7 +651,7 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     {
-        return new JClassDeclaration(line, mods, name, superClass, implementedInterfaces, classBody);
+        return new JClassDeclaration(line, mods, name, superClass, superInterfaces, classBody);
     }
 }
 
@@ -837,6 +841,8 @@ private JStatement blockStatement(): {
  *   statement ::= block
  *               | IF parExpression statement [ELSE statement]
  *               | WHILE parExpression statement
+ *               | FOR LPAREN ((statementExpression (COMMA statementExpression)*) | ([FINAL] type variableDeclarators)) SEMI expression SEMI (statementExpression (COMMA statementExpression)*) RPAREN statement
+ *               | FOR LPAREN formalParameter COLON IDENTIFIER RPAREN statement
  *               | RETURN [expression] SEMI
  *               | SEMI
  *               | statementExpression SEMI
@@ -853,6 +859,13 @@ private JStatement statement(): {
     JStatement alternate  = null;
     JStatement body       = null;
     JExpression expr      = null;
+    Type type = null;
+    ArrayList<JVariableDeclarator> declarators = new ArrayList<JVariableDeclarator>();
+    ArrayList<JStatement> forUpdate = new ArrayList<JStatement>();
+    ArrayList<JStatement> forInit = new ArrayList<JStatement>();
+    JFormalParameter formalParameter = null;
+    JVariable array = null;
+    String name = null;
 }
 {
     try {
@@ -877,6 +890,53 @@ private JStatement statement(): {
         body = statement()
         { statement = new JWhileStatement(line, test, body); } |
 
+        <FOR> { line = token.beginLine; }
+        <LPAREN>
+        (
+            LOOKAHEAD( formalParameter() <COLON> )
+            formalParameter = formalParameter()
+            <COLON>
+            <IDENTIFIER> { name = token.image; array = new JVariable(line, name); }
+            <RPAREN>
+            body = statement()
+            {
+                statement = new JForEachStatement(line, formalParameter,  array, body);
+            } |
+            (
+                // Check if we have declarators or statements for forInit
+                (
+                    LOOKAHEAD( type() <IDENTIFIER>)
+                    type = type()
+                    declarators = variableDeclarators(type) |
+                    LOOKAHEAD(statementExpression())
+                    statement = statementExpression()
+                    { forInit.add(statement); }
+                    (
+                        <COMMA> statement = statementExpression()
+                        { forInit.add(statement); }
+                    )*
+                )
+                <SEMI>
+                test = expression()
+                <SEMI>
+                statement = statementExpression()
+                { forUpdate.add(statement); }
+                (
+                    <COMMA> statement = statementExpression()
+                    { forUpdate.add(statement); }
+                )*
+                <RPAREN>
+                body = statement()
+                {
+                    if (!declarators.isEmpty()){
+                        statement = new JForStatement(line, declarators,  test, forUpdate, body);
+                    } else {
+                    statement = new JForStatement(line, forInit,  test, forUpdate, body, true);
+                    }
+                }
+            )
+        ) |
+
         <RETURN> { line = token.beginLine; }
         [
             expr = expression()
@@ -888,6 +948,25 @@ private JStatement statement(): {
         { line = token.beginLine;
           statement = new JEmptyStatement( line ); } |
 
+        <TRY> { 
+            line = token.beginLine; 
+            JBlock finallyBlock = null;
+            ArrayList<JCatchClause> catchClauses = new ArrayList<JCatchClause>();
+            JBlock tryBlock = block();
+        }
+        (
+            <CATCH>
+            { 
+                catchClauses.add(catchClause()); 
+            }
+        )*
+        [
+        LOOKAHEAD(<FINALLY>)
+        <FINALLY>
+        finallyBlock = block()
+        ]
+        {statement = new JTryStatement(line, tryBlock, catchClauses, finallyBlock);} |
+
         // Must be a statementExpression
         statement = statementExpression()
         <SEMI>
@@ -896,6 +975,31 @@ private JStatement statement(): {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     { return statement; }
+}
+
+/**
+*
+* Parse a catch clause
+*
+*/
+
+private JCatchClause catchClause(): {
+    int line = 0;
+    JFormalParameter exception = null; 
+    JBlock catchBlock = null;
+    }
+{
+    try {
+       <LPAREN> { 
+           exception = formalParameter(); 
+        }
+       <RPAREN> { 
+           catchBlock = block();
+        }
+    } catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return new JCatchClause(line, exception, catchBlock); }
 }
 
 /**
@@ -1364,19 +1468,19 @@ private JExpression assignmentExpression(): {
 
             <MINUS_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JMinusAssignOp(line, lhs, rhs); } |
 
             <STAR_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JStarAssignOp(line, lhs, rhs); } |
 
             <DIV_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); } |
+            { lhs = new JDivAssignOp(line, lhs, rhs); } |
 
             <REM_ASSIGN>
             rhs = assignmentExpression()
-            { lhs = new JPlusAssignOp(line, lhs, rhs); }
+            { lhs = new JRemAssignOp(line, lhs, rhs); }
 
         ]
     }

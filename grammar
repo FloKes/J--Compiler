@@ -15,7 +15,12 @@ interfaceDeclaration ::= INTERFACE IDENTIFIER
                           [EXTENDS qualifiedIdentifier {COMMA qualifiedIdentifier}]
                           interfaceBody
 
-interfaceBody ::= LCURLY {modifiers interfaceMemberDecl} RCURLY
+interfaceBody ::= LCURLY 
+                  {
+                    ;
+                    | modifiers interfaceMemberDecl
+                  } 
+                  RCURLY
 
 interfaceMemberDecl ::= (VOID | type) IDENTIFIER  // method
                         formalParameters

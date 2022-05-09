@@ -51,19 +51,8 @@ class JLiteralDouble extends JExpression {
      */
 
     public void codegen(CLEmitter output) {
-        // FIXME: We cannot switch on a double. Casting to int, does a floor on the number, so not reliable.
-        // Only 1.0 => 1, whereas right now (int) 1.6 => 1
         double i = Double.parseDouble(text);
-        switch ((int) i) {
-        case 0:
-            output.addNoArgInstruction(DCONST_0);
-            break;
-        case 1:
-            output.addNoArgInstruction(DCONST_1);
-            break;
-        default:
-            output.addLDCInstruction(i);
-        }
+        output.addLDCInstruction(i);
     }
 
     /**

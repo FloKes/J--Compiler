@@ -51,6 +51,26 @@ class JFieldDeclaration extends JAST implements JMember {
     }
 
     /**
+     * Add modifiers implicitly from analyze, if they are not present.
+     * 
+     */
+
+    public void maybeAddMod(String mod) {
+        if (!mods.contains(mod))
+            mods.add(mod);
+    }
+
+    /**
+     * Returns the list of declarations.
+     * 
+     * @return list of declarations.
+     */
+
+    public ArrayList<JVariableDeclarator> decls() {
+        return decls;
+    }
+
+    /**
      * Declares fields in the parent's (partial) class.
      * 
      * @param context

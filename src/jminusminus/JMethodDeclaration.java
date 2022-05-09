@@ -78,6 +78,31 @@ class JMethodDeclaration extends JAST implements JMember {
     }
 
     /**
+     * Returns the list of modifiers.
+     * 
+     * @return list of modifiers.
+     */
+
+    public ArrayList<String> mods() {
+        return mods;
+    }
+
+    /**
+     * Add modifiers implicitly from analyze, if they are not present
+     * 
+     */
+
+    public void maybeAddMod(String mod) {
+        if (!mods.contains(mod)) {
+            mods.add(mod);
+
+            this.isAbstract = mods.contains("abstract");
+            this.isStatic = mods.contains("static");
+            this.isPrivate = mods.contains("private");
+        }
+    }
+
+    /**
      * Declares this method in the parent (class) context.
      * 
      * @param context

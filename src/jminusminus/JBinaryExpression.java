@@ -111,6 +111,8 @@ class JPlusOp extends JBinaryExpression {
                     .analyze(context);
         } else if (lhs.type() == Type.INT && rhs.type() == Type.INT) {
             type = Type.INT;
+        }else if(lhs.type() == Type.DOUBLE && rhs.type() == Type.DOUBLE) {
+            type = Type.DOUBLE;
         } else {
             type = Type.ANY;
             JAST.compilationUnit.reportSemanticError(line(),
@@ -131,12 +133,16 @@ class JPlusOp extends JBinaryExpression {
      */
 
     public void codegen(CLEmitter output) {
-        if (type == Type.INT) {
-            lhs.codegen(output);
-            rhs.codegen(output);
-            output.addNoArgInstruction(IADD);
-        }
-    }
+		if (type == Type.INT) {
+			lhs.codegen(output);
+			rhs.codegen(output);
+			output.addNoArgInstruction(IADD);
+		} else if (type == Type.DOUBLE) {
+			lhs.codegen(output);
+			rhs.codegen(output);
+			output.addNoArgInstruction(DADD);
+		}
+	}
 
 }
 
