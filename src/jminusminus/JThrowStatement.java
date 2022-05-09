@@ -10,6 +10,7 @@ class JThrowStatement extends JStatement {
 
     /** The expression that is thrown. */
     private JExpression expr;
+    private Class<?> throwableType;
 
     /**
      * Constructs an AST node for a throw-statement given its
@@ -35,7 +36,11 @@ class JThrowStatement extends JStatement {
      */
 
     public JStatement analyze(Context context) {
-        
+        expr.analyze(context);
+        throwableType = expr.type().resolve(context.methodContext()).classRep();
+        if (!Throwable.class.isAssignableFrom(throwableType)) {
+            JAST.compilationUnit.reportSemanticError(line(), "Attempting to throw something that's non-throwable");
+        }
         return this;
     }
 
@@ -52,20 +57,7 @@ class JThrowStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-        /**
-        if (expr == null) {
-            output.addNoArgInstruction(RETURN);
-        } else {
-            expr.codegen(output);
-            if (expr.type() == Type.INT
-                || expr.type() == Type.BOOLEAN
-                || expr.type() == Type.CHAR) {
-                output.addNoArgInstruction(IRETURN);
-            } else {
-                output.addNoArgInstruction(ARETURN);
-            }
-        }
-        */
+        
     }
 
     /**
