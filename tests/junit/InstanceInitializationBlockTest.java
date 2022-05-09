@@ -16,7 +16,7 @@ public class InstanceInitializationBlockTest extends TestCase {
         super.tearDown();
     }
 
-    public void testStaticInitBlock () {
+    public void testInstanceInitBlock () {
         this.assertEquals(42, instanceInitBlock.x);
     }
 }
