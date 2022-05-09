@@ -75,10 +75,9 @@ class JTryStatement extends JStatement {
     }
 
     /**
-     * Code generation for a try-statement.
-     * 
-     * For each catch clause we have, we need to invoke CLEmitter.addExceptionHandler
-     * to register an exception handler.
+     * Code generation for an if-statement. We generate code to branch over the
+     * consequent if !test; the consequent is followed by an unconditonal branch
+     * over (any) alternate.
      * 
      * @param output
      *            the code emitter (basically an abstraction for producing the
@@ -86,42 +85,7 @@ class JTryStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-        // Generate start and end label for try-block.
-        // Exception handling will be active within this area
-        // and these handlers are registered within the codegen
-        // of the catchClauses. 
-        String tryStartLabel = output.createLabel();
-        String tryEndLabel = output.createLabel();
-        String finallyLabel = null;
 
-        // This label will represent end of all try-catch-finally code.
-        String endLabel = output.createLabel();
-
-        // Add the start label of the try-block, generate its code and add end label of try-block.
-        output.addLabel(tryStartLabel);
-        tryBlock.codegen(output);
-        output.addLabel(tryEndLabel);
-
-        // Might need clean up code here?
-
-        // If all code in try block was succesfully executed without exception,
-        // skip all catch code.
-        output.addBranchInstruction(GOTO, finallyBlock != null ? finallyLabel : endLabel);
-
-        for (JCatchClause catchClause : catchClauses) {
-            // Register an exception handler with the CLEmitter
-            // and use the catchLabel for this specific handler in 
-            // case of exception. 
-            catchClause.codegen(output, tryStartLabel, tryEndLabel, finallyLabel, endLabel);
-        }
-
-        // Finally code here
-        if (finallyBlock != null) {
-            output.addLabel(finallyLabel);
-            finallyBlock.codegen(output);
-        }
-
-        output.addLabel(endLabel);
     }
 
     /**

@@ -2,8 +2,6 @@
 
 package jminusminus;
 
-import static jminusminus.CLConstants.GOTO;
-
 /**
  * The AST node for a catch-statement.
  */
@@ -56,25 +54,6 @@ class JCatchClause extends JStatement {
         return this;
     }
 
-    public void codegen(CLEmitter output, 
-                           String tryStartLabel, 
-                           String tryEndLabel,
-                           String finallyLabel,
-                           String endLabel) {
-        String catchLabel = output.createLabel();
-
-        // Register exception handler
-        output.addExceptionHandler(
-                tryStartLabel,
-                tryEndLabel,
-                catchLabel,
-                exception.type().classRep().getName() // should give fully qualified name in internal form
-        );
-        output.addLabel(catchLabel);
-        block.codegen(output);
-        output.addBranchInstruction(GOTO, finallyLabel != null ? finallyLabel : endLabel);
-    }
-
     /**
      * Generates code for the while loop.
      * 
@@ -82,8 +61,9 @@ class JCatchClause extends JStatement {
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
      */
-    @Override
+
     public void codegen(CLEmitter output) {
+
     }
 
     /**
