@@ -80,7 +80,7 @@ class JCatchClause extends JStatement {
                 tryStartLabel,
                 tryEndLabel,
                 catchLabel,
-                exception.type().classRep().getName() // should give fully qualified name in internal form
+                exception.type().jvmName()
         );
         output.addLabel(catchLabel);
         block.codegen(output);
