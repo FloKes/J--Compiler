@@ -49,6 +49,9 @@ public class JMinusMinusTest extends TestCase {
         }
 
         // We want all tests to pass
+        if (errorHasOccurred) {
+            System.out.println("WARNING: NOT ALL PASS TESTS PASSED");
+        }
         assertFalse(errorHasOccurred);
     }
 
@@ -80,6 +83,9 @@ public class JMinusMinusTest extends TestCase {
         }
 
         // We want all tests to fail
+        if (!errorHasOccurred) {
+            System.out.println("WARNING: NOT ALL FAIL TESTS FAILED");
+        }
         assertTrue(errorHasOccurred);
     }
 
