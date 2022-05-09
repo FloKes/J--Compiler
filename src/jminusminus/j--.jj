@@ -888,6 +888,8 @@ private JStatement blockStatement(): {
  *   statement ::= block
  *               | IF parExpression statement [ELSE statement]
  *               | WHILE parExpression statement
+ *               | FOR LPAREN ((statementExpression (COMMA statementExpression)*) | ([FINAL] type variableDeclarators)) SEMI expression SEMI (statementExpression (COMMA statementExpression)*) RPAREN statement
+ *               | FOR LPAREN formalParameter COLON IDENTIFIER RPAREN statement
  *               | RETURN [expression] SEMI
  *               | SEMI
  *               | statementExpression SEMI
@@ -904,6 +906,13 @@ private JStatement statement(): {
     JStatement alternate  = null;
     JStatement body       = null;
     JExpression expr      = null;
+    Type type = null;
+    ArrayList<JVariableDeclarator> declarators = new ArrayList<JVariableDeclarator>();
+    ArrayList<JStatement> forUpdate = new ArrayList<JStatement>();
+    ArrayList<JStatement> forInit = new ArrayList<JStatement>();
+    JFormalParameter formalParameter = null;
+    JVariable array = null;
+    String name = null;
 }
 {
     try {
@@ -927,6 +936,53 @@ private JStatement statement(): {
         test = parExpression()
         body = statement()
         { statement = new JWhileStatement(line, test, body); } |
+
+        <FOR> { line = token.beginLine; }
+        <LPAREN>
+        (
+            LOOKAHEAD( formalParameter() <COLON> )
+            formalParameter = formalParameter()
+            <COLON>
+            <IDENTIFIER> { name = token.image; array = new JVariable(line, name); }
+            <RPAREN>
+            body = statement()
+            {
+                statement = new JForEachStatement(line, formalParameter,  array, body);
+            } |
+            (
+                // Check if we have declarators or statements for forInit
+                (
+                    LOOKAHEAD( type() <IDENTIFIER>)
+                    type = type()
+                    declarators = variableDeclarators(type) |
+                    LOOKAHEAD(statementExpression())
+                    statement = statementExpression()
+                    { forInit.add(statement); }
+                    (
+                        <COMMA> statement = statementExpression()
+                        { forInit.add(statement); }
+                    )*
+                )
+                <SEMI>
+                test = expression()
+                <SEMI>
+                statement = statementExpression()
+                { forUpdate.add(statement); }
+                (
+                    <COMMA> statement = statementExpression()
+                    { forUpdate.add(statement); }
+                )*
+                <RPAREN>
+                body = statement()
+                {
+                    if (!declarators.isEmpty()){
+                        statement = new JForStatement(line, declarators,  test, forUpdate, body);
+                    } else {
+                    statement = new JForStatement(line, forInit,  test, forUpdate, body, true);
+                    }
+                }
+            )
+        ) |
 
         <RETURN> { line = token.beginLine; }
         [

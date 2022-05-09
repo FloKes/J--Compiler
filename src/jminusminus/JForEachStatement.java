@@ -213,7 +213,6 @@ class JForEachStatement extends JStatement {
             hiddenArrayDeclaration.writeToStdOut(p);
             p.indentLeft();
             p.printf("</HiddenArray>\n");
-            p.indentRight();
             forStatement.writeToStdOut(p);
         }
 //        p.printf("<HiddenArray>\n");
@@ -250,5 +249,4 @@ class JForEachStatement extends JStatement {
 //        p.indentLeft();
 //        p.printf("</ForEachStatement>\n");
     }
-
 }
