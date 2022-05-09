@@ -786,6 +786,7 @@ public class Parser {
      *               | TRY block 
      *                  { CATCH LPAREN formalParameter RPAREN block }  zero or more
      *                      [FINALLY block] //  must be present if no catches 
+     *               | THROW expression SEMI
      * </pre>
      *
      * @return an AST for a statement.
