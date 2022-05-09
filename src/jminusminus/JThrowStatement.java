@@ -57,7 +57,8 @@ class JThrowStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-        
+        expr.codegen(output);
+        output.addNoArgInstruction(ATHROW);
     }
 
     /**
