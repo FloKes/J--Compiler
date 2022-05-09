@@ -116,6 +116,7 @@ class JTryStatement extends JStatement {
             // Register an exception handler with the CLEmitter
             // and use the catchLabel for this specific handler in 
             // case of exception. 
+            catchClause.codegen(output, tryStartLabel, tryEndLabel, finallyLabel, endLabel);
         }
 
         // Finally code here
