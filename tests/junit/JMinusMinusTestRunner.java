@@ -47,6 +47,7 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(LogicalOrTest.class);
         suite.addTestSuite(DoubleTypeTest.class);
         suite.addTestSuite(ThrowTryCatchTest.class);
+        suite.addTestSuite(ThrowTryCatchFinallyTest.class);
         return suite;
     }
 
