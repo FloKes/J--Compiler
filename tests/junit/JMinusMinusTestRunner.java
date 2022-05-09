@@ -39,6 +39,8 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(WhileStatementTest.class);
         suite.addTestSuite(ForStatementTest.class);
         suite.addTestSuite(ForEachStatementTest.class);
+        suite.addTestSuite(StaticInitializationBlockTest.class);
+        suite.addTestSuite(InstanceInitializationBlockTest.class);
         suite.addTestSuite(AssignAddTest.class);
         suite.addTestSuite(AssignDivTest.class);
         suite.addTestSuite(AssignMinusTest.class);
@@ -46,6 +48,7 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(AssignStarTest.class);
         suite.addTestSuite(LogicalOrTest.class);
         suite.addTestSuite(DoubleTypeTest.class);
+      
         return suite;
     }
 

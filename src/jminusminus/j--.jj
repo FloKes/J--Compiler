@@ -384,10 +384,10 @@ private JAST typeDeclaration(): {
     try {
         mods = modifiers()
         (LOOKAHEAD(<CLASS>)
-            classDeclaration = classDeclaration(mods) 
+            classDeclaration = classDeclaration(mods)
         |
             classDeclaration = interfaceDeclaration(mods)
-        )   
+        )
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
@@ -555,19 +555,19 @@ private ArrayList<JMember> interfaceBody(): {
 
 /**
  * Parse an interface member declaration.
- * 
+ *
  * <pre>
  *   memberDecl ::= (VOID | type) IDENTIFIER  // method
  *                    formalParameters
  *                    SEMI
- *                  | type variableDeclarators SEMI 
+ *                  | type variableDeclarators SEMI
  * </pre>
- * 
+ *
  * @param mods the interface member modifiers.
  *
  * @return an AST for an interfaceMemberDecl.
  */
-    
+
 private JMember interfaceMemberDecl(ArrayList<String> mods): {
     int line = 0;
     Type type = null;
@@ -586,7 +586,7 @@ private JMember interfaceMemberDecl(ArrayList<String> mods): {
             )
             { line = token.beginLine; }
             <IDENTIFIER> { name = token.image; }
-            params = formalParameters() 
+            params = formalParameters()
             <SEMI>
             {
                 memberDecl = new JMethodDeclaration(line, mods, name, type, params, null);
@@ -601,7 +601,7 @@ private JMember interfaceMemberDecl(ArrayList<String> mods): {
             }
         )
     }
-    catch (ParseException e) { 
+    catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     { return memberDecl; }
@@ -730,6 +730,19 @@ private JMember memberDecl(ArrayList<String> mods): {
                                                          name, params, body);
             }
         ) |
+
+        LOOKAHEAD(<LCURLY>)
+        (
+            body = block()
+            {
+                if (mods.contains("static")) {
+                    memberDecl = new JStaticInitBlock(line, body);
+                } else {
+                    memberDecl = new JInstanceInitBlock(line, body);
+                }
+            }
+        ) |
+
         LOOKAHEAD((<VOID> | type()) <IDENTIFIER> <LPAREN>)
         (
             (
@@ -794,66 +807,6 @@ private JBlock block(): {
     { return new JBlock(line, statements); }
 }
 
-/**
- * Parse a static initialization block.
- *
- * <pre>
- *   block ::= STATIC LCURLY {blockStatement} RCURLY
- * </pre>
- *
- * @return an AST for a static initialization block.
- */
-
-private JStaticInitBlock staticInitBlock(): {
-    int line = 0;
-    JStatement aStatement = null;
-    ArrayList<JStatement> statements = new ArrayList<JStatement>();
-}
-{
-    try {
-        LOOKAHEAD(<STATIC> <LCURLY>)
-        <STATIC> <LCURLY> { line = token.beginLine; }
-        (
-            aStatement = blockStatement()
-            { statements.add(aStatement); }
-        )*
-        <RCURLY>
-    }
-    catch (ParseException e) {
-        recoverFromError(new int[] { SEMI, EOF }, e);
-    }
-    { return new JStaticInitBlock(line, new JBlock(line, statements)); }
-}
-
-/**
- * Parse a instance initialization block.
- *
- * <pre>
- *   block ::= LCURLY {blockStatement} RCURLY
- * </pre>
- *
- * @return an AST for a instance initialization block.
- */
-
-private JInstanceInitBlock instanceInitBlock(): {
-    int line = 0;
-    JStatement aStatement = null;
-    ArrayList<JStatement> statements = new ArrayList<JStatement>();
-}
-{
-    try {
-        <LCURLY> { line = token.beginLine; }
-        (
-            aStatement = blockStatement()
-            { statements.add(aStatement); }
-        )*
-        <RCURLY>
-    }
-    catch (ParseException e) {
-        recoverFromError(new int[] { SEMI, EOF }, e);
-    }
-    { return new JInstanceInitBlock(line, new JBlock(line, statements)); }
-}
 
 /**
  * Parse a block statement.
@@ -1561,7 +1514,7 @@ private JExpression conditionalExpression(): {
             thenPart = assignmentExpression()
             <COLON>
             elsePart = conditionalExpression()
-            { condition = new JConditionalExpression(line, condition, thenPart, elsePart); }  
+            { condition = new JConditionalExpression(line, condition, thenPart, elsePart); }
         ]
     }
     catch (ParseException e) {
@@ -1597,7 +1550,7 @@ private JExpression conditionalOrExpression(): {
  *                                  {LAND equalityExpression}
  * </pre>
 
- * 
+ *
  * @return an AST for a conditionalAndExpression.
  */
 
