@@ -13,6 +13,6 @@ public class StaticInitializationBlock {
     public static void main(String[] args) {
         StaticInitializationBlock statInit = new StaticInitializationBlock();
 
-        System.out.println("x = " + statInit.x);
+        System.out.println("x = " + StaticInitializationBlock.x);
     }
 }

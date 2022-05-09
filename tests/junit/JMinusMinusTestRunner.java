@@ -39,6 +39,8 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(WhileStatementTest.class);
         suite.addTestSuite(ForStatementTest.class);
         suite.addTestSuite(ForEachStatementTest.class);
+        suite.addTestSuite(StaticInitializationBlockTest.class);
+        suite.addTestSuite(InstanceInitializationBlockTest.class);
         return suite;
     }
 
