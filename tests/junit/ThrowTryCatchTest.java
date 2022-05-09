@@ -15,7 +15,7 @@ public class ThrowTryCatchTest extends TestCase {
         super.tearDown();
     }
 
-    public void testDivide() {
+    public void testThrowTryCatch() {
         this.assertEquals(10, _throw._throw());
     }
 }
