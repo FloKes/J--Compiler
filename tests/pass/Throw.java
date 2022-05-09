@@ -10,7 +10,7 @@ public class Throw {
         }
         catch(Exception e)
         {
-            return;
+            ;
         }
     }
 }

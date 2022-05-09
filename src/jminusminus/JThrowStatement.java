@@ -116,6 +116,7 @@ class JThrowStatement extends JStatement {
      */
 
     public void writeToStdOut(PrettyPrinter p) {
+        /**
         if (expr != null) {
             p.printf("<JReturnStatement line=\"%d\">\n", line());
             p.indentRight();
@@ -125,5 +126,6 @@ class JThrowStatement extends JStatement {
         } else {
             p.printf("<JReturnStatement line=\"%d\"/>\n", line());
         }
+        */
     }
 }
