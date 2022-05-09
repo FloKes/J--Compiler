@@ -3,8 +3,7 @@
 package jminusminus;
 
 import java.util.ArrayList;
-
-import static jminusminus.CLConstants.GOTO;
+import java.util.UUID;
 
 /**
  * The AST node for a for-statement.
@@ -74,12 +73,14 @@ class JForEachStatement extends JStatement {
         localContext = new LocalContext(context);
         localContext.nextOffset();
 
-        // TODO Ask TA or teacher when we should do the #array = array part as in javaspec link
-        // TODO Find a hidden array name that is not already in the scope. If we have two
-        // two ForEach statements we will get a shadowing error on #array
-        // Add the declaration of the hidden array before the for loop
         JExpression arrayExpression = array.analyze(localContext);
         String hiddenArrayName = "#array";
+        // If by some miracle #array already exists in the context
+        IDefn previousDefnArray = localContext.lookup(hiddenArrayName);
+        while (previousDefnArray != null) {
+            hiddenArrayName = UUID.randomUUID().toString();
+            previousDefnArray = localContext.lookup(hiddenArrayName);
+        }
         JVariableDeclarator hiddenArray = new JVariableDeclarator(line(), hiddenArrayName, array.type(), arrayExpression);
         ArrayList<JVariableDeclarator> prevDecls = new ArrayList<>();
         prevDecls.add(hiddenArray);
@@ -99,29 +100,27 @@ class JForEachStatement extends JStatement {
         /**
          * A certain amount of AST tree rewriting, usually to make implicit constructs more
          * explicit.
-         * TODO are we supposed to the stuff below in this step?
          */
         String indexName = "#index";
+        IDefn previousDefnIndex = localContext.lookup(indexName);
+        while (previousDefnIndex != null) {
+            indexName = UUID.randomUUID().toString();
+            previousDefnIndex = localContext.lookup(indexName);
+        }
         JVariableDeclarator index = new JVariableDeclarator(line(), indexName, Type.INT, new JLiteralInt(line(), "0"));
         ArrayList<JVariableDeclarator> decls = new ArrayList<>();
         decls.add(index);
-//        JVariableDeclaration declaration = new JVariableDeclaration(line(),
-//                new ArrayList<>(), decls);
-//        this.declaration = declaration.analyze(localContext);
-
 
         //Condition which checks when we should stop incrementing
         JVariable hiddenArrayVariable = new JVariable(line(), hiddenArrayName);
         JExpression hiddenArrayExpression = hiddenArrayVariable.analyze(localContext);
         var lengthField = new JFieldSelection(line(), hiddenArrayExpression, "length");
-        // TODO change to less than when it is implemented
         JVariable indexVariable = new JVariable(line(), indexName);
         condition = new JLessThanOp(line(), indexVariable, lengthField);
-//        condition = condition.analyze(localContext);
 
         // Updating the #index variable
         JExpression updateIndex = new JPostIncrementOp(line(), indexVariable);
-        // So as not to save to stack
+        // So as not to save to stack in codegen
         updateIndex.isStatementExpression = true;
         forUpdate.add(updateIndex);
 
@@ -134,8 +133,6 @@ class JForEachStatement extends JStatement {
 
         JBlock bodyBlock = (JBlock) body;
         bodyBlock.statements().add(0, newBodyVarDeclaration);
-//        body = bodyBlock.analyze(localContext);
-
 
         // Rewriting to normal For statement
         forStatement = new JForStatement(line, decls, condition, forUpdate, bodyBlock);
@@ -153,46 +150,8 @@ class JForEachStatement extends JStatement {
      */
 
     public void codegen(CLEmitter output) {
-        //        T[] #a = Expression;
-//        L1: L2: ... Lm:
-//        for (int #i = 0; #i < #a.length; #i++) {
-//            VariableModifiersopt TargetType Identifier = #a[#i];
-//            Statement
-//        }
-//
         hiddenArrayDeclaration.codegen(output);
         forStatement.codegen(output);
-////        T[] #a = Expression;
-////        L1: L2: ... Lm:
-////        for (int #i = 0; #i < #a.length; #i++) {
-////            VariableModifiersopt TargetType Identifier = #a[#i];
-////            Statement
-////        }
-////
-//        hiddenArrayDeclaration.codegen(output);
-//        declaration.codegen(output);
-//
-//        // Need two labels
-//        String test = output.createLabel();
-//        String out = output.createLabel();
-//
-//        // Branch out of the loop on the test condition
-//        // being false
-//        output.addLabel(test);
-//        condition.codegen(output, out, false);
-//
-//        // Codegen body
-//        body.codegen(output);
-//
-//        for (JStatement statement : forUpdate) {
-//            statement.codegen(output);
-//        }
-//
-////         Unconditional jump back up to test
-//        output.addBranchInstruction(GOTO, test);
-//
-//        // The label below and outside the loop
-//        output.addLabel(out);
     }
 
     /**
@@ -215,38 +174,5 @@ class JForEachStatement extends JStatement {
             p.printf("</HiddenArray>\n");
             forStatement.writeToStdOut(p);
         }
-//        p.printf("<HiddenArray>\n");
-//        p.indentRight();
-//        hiddenArrayDeclaration.writeToStdOut(p);
-//        p.indentLeft();
-//        p.printf("</HiddenArray>\n");
-//        p.indentLeft();
-//        p.printf("<ForEachStatement line=\"%d\">\n", line());
-//        p.indentRight();
-//        p.printf("<ForInit>\n");
-//        p.indentRight();
-//        declaration.writeToStdOut(p);
-//        p.indentLeft();
-//        p.printf("</ForInit>\n");
-//
-//        p.printf("<Condition>\n");
-//        p.indentRight();
-//        condition.writeToStdOut(p);
-//        p.indentLeft();
-//        p.printf("</Condition>\n");
-//        p.printf("<ForUpdate>\n");
-//        p.indentRight();
-//        for (JStatement statement : forUpdate) {
-//            statement.writeToStdOut(p);
-//        }
-//        p.indentLeft();
-//        p.printf("</ForUpdate>\n");
-//        p.printf("<Body>\n");
-//        p.indentRight();
-//        body.writeToStdOut(p);
-//        p.indentLeft();
-//        p.printf("</Body>\n");
-//        p.indentLeft();
-//        p.printf("</ForEachStatement>\n");
     }
 }
