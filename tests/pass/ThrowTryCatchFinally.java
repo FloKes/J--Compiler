@@ -5,7 +5,7 @@ import java.lang.System;
 
 public class ThrowTryCatchFinally {
     public int _throw () {
-        int x;
+        int x = 1;
         try
         {
             throw new Exception("Testing exceptions, yay!");

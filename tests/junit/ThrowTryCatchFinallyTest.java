@@ -15,7 +15,7 @@ public class ThrowTryCatchFinallyTest extends TestCase {
         super.tearDown();
     }
 
-    public void testDivide() {
+    public void testThrowTryCatchFinally() {
         this.assertEquals(20, _throw._throw());
     }
 }
