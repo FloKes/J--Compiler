@@ -56,7 +56,7 @@ class JCatchClause extends JStatement {
         return this;
     }
 
-    public void codegenTwo(CLEmitter output, 
+    public void codegen(CLEmitter output, 
                            String tryStartLabel, 
                            String tryEndLabel,
                            String finallyLabel,
@@ -82,6 +82,7 @@ class JCatchClause extends JStatement {
      *            the code emitter (basically an abstraction for producing the
      *            .class file).
      */
+    @Override
     public void codegen(CLEmitter output) {
     }
 
