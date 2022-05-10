@@ -668,12 +668,28 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
  */
 
 private ArrayList<JMember> classBody(): {
+    int line = 0;
     ArrayList<String> mods = null;
     JMember aMember        = null;
+    JBlock body = null;
     ArrayList<JMember> members = new ArrayList<JMember>();
 }
 {
     try {
+        LOOKAHEAD(<LCURLY>)
+        (
+            mods = modifiers()
+            body = block()
+            {
+                if (mods.contains("static")) {
+                    aMember = new JStaticInitBlock(line, body);
+                    members.add(aMember);
+                } else {
+                    aMember = new JInstanceInitBlock(line, body);
+                    members.add(aMember);
+                }
+            }
+        ) |
         <LCURLY>
         (
             mods = modifiers()
@@ -728,18 +744,6 @@ private JMember memberDecl(ArrayList<String> mods): {
             {
                 memberDecl = new JConstructorDeclaration(line, mods,
                                                          name, params, body);
-            }
-        ) |
-
-        LOOKAHEAD(<LCURLY>)
-        (
-            body = block()
-            {
-                if (mods.contains("static")) {
-                    memberDecl = new JStaticInitBlock(line, body);
-                } else {
-                    memberDecl = new JInstanceInitBlock(line, body);
-                }
             }
         ) |
 
@@ -948,16 +952,16 @@ private JStatement statement(): {
         { line = token.beginLine;
           statement = new JEmptyStatement( line ); } |
 
-        <TRY> { 
-            line = token.beginLine; 
+        <TRY> {
+            line = token.beginLine;
             JBlock finallyBlock = null;
             ArrayList<JCatchClause> catchClauses = new ArrayList<JCatchClause>();
             JBlock tryBlock = block();
         }
         (
             <CATCH>
-            { 
-                catchClauses.add(catchClause()); 
+            {
+                catchClauses.add(catchClause());
             }
         )*
         [
@@ -985,15 +989,15 @@ private JStatement statement(): {
 
 private JCatchClause catchClause(): {
     int line = 0;
-    JFormalParameter exception = null; 
+    JFormalParameter exception = null;
     JBlock catchBlock = null;
     }
 {
     try {
-       <LPAREN> { 
-           exception = formalParameter(); 
+       <LPAREN> {
+           exception = formalParameter();
         }
-       <RPAREN> { 
+       <RPAREN> {
            catchBlock = block();
         }
     } catch (ParseException e) {
