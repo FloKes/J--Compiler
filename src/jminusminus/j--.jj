@@ -686,6 +686,15 @@ private ArrayList<JMember> classBody(): {
                     members.add(aMember);
                 }
             ) |
+            LOOKAHEAD(<STATIC> <LCURLY>)
+            (
+                <STATIC> { line = token.beginLine; }
+                body = block()
+                {
+                    aMember = new JStaticInitBlock(line, body);
+                    members.add(aMember);
+                }
+            ) |
             (
                 mods = modifiers()
                 aMember = memberDecl(mods) { members.add(aMember); }

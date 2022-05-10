@@ -4,7 +4,10 @@ package pass;
 
 class Simple {
 
+
     {;}
+
+    static { ; }
 
     public void simple()
     {
