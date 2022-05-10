@@ -150,11 +150,9 @@ class JPlusAssignOp extends JAssignment {
         }
         rhs = (JExpression) rhs.analyze(context);
         if (lhs.type().equals(Type.INT)) {
-            System.out.println("COMES INT");
             rhs.type().mustMatchExpected(line(), Type.INT);
             type = Type.INT;
         } else if (lhs.type().equals(Type.DOUBLE)){
-            System.out.println("COMES DOUBLE");
             rhs.type().mustMatchExpected(line(), Type.DOUBLE);
             type = Type.DOUBLE;
         }else if (lhs.type().equals(Type.STRING)) {
