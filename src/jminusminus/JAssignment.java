@@ -186,7 +186,6 @@ class JPlusAssignOp extends JAssignment {
             output.addNoArgInstruction(IADD);
         }
         if (!isStatementExpression) {
-            // Generate code to leave the r-value atop stack
             ((JLhs) lhs).codegenDuplicateRvalue(output);
         }
         ((JLhs) lhs).codegenStore(output);
@@ -266,7 +265,6 @@ class JMinusAssignOp extends JAssignment {
             output.addNoArgInstruction(DSUB);
         }
         if (!isStatementExpression) {
-            // Generate code to leave the r-value atop stack
             ((JLhs) lhs).codegenDuplicateRvalue(output);
         }
         ((JLhs) lhs).codegenStore(output);
@@ -341,7 +339,6 @@ class JStarAssignOp extends JAssignment {
             output.addNoArgInstruction(DMUL);
         }
         if (!isStatementExpression) {
-            // Generate code to leave the r-value atop stack
             ((JLhs) lhs).codegenDuplicateRvalue(output);
         }
         ((JLhs) lhs).codegenStore(output);
