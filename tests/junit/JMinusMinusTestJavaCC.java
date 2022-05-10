@@ -27,6 +27,7 @@ public class JMinusMinusTestJavaCC extends TestCase {
      */
 
     public void testPass() {
+        boolean outputOnce = true;
         File passTestsDir = new File(System.getProperty("PASS_TESTS_DIR"));
         File genClassDir = new File(System.getProperty("GEN_CLASS_DIR"));
         File[] files = passTestsDir.listFiles();
@@ -41,6 +42,10 @@ public class JMinusMinusTestJavaCC extends TestCase {
                 args = new String[] { "-d", genClassDir.getAbsolutePath(),
                         files[i].toString() };
                 JavaCCMain.main(args);
+                if (JavaCCMain.errorHasOccurred() && outputOnce) {
+                    System.out.println("ERROR: " + args);
+                    outputOnce = false;
+                }
                 System.out.printf("\n\n");
 
                 // true even if a single test fails

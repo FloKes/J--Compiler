@@ -660,13 +660,15 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
  *
  * <pre>
  *   classBody ::= LCURLY
+ *                   | ;
+ *                   | STATIC block
+ *                   | block
  *                   {modifiers memberDecl}
  *                 RCURLY
  * </pre>
  *
  * @return list of members in the class body.
  */
-
 private ArrayList<JMember> classBody(): {
     int line = 0;
     ArrayList<String> mods = null;
@@ -676,26 +678,33 @@ private ArrayList<JMember> classBody(): {
 }
 {
     try {
-        LOOKAHEAD(<LCURLY>)
+        <LCURLY>
         (
-            mods = modifiers()
-            body = block()
-            {
-                if (mods.contains("static")) {
-                    aMember = new JStaticInitBlock(line, body);
-                    members.add(aMember);
-                } else {
+            LOOKAHEAD(<LCURLY>)
+            (
+                { line = token.beginLine; }
+                body = block()
+                {
                     aMember = new JInstanceInitBlock(line, body);
                     members.add(aMember);
                 }
-            }
-        ) |
-        <LCURLY>
-        (
-            mods = modifiers()
-            aMember = memberDecl(mods) { members.add(aMember); }
+            ) |
+            LOOKAHEAD(<STATIC> <LCURLY>)
+            (
+                <STATIC> { line = token.beginLine; }
+                body = block()
+                {
+                    aMember = new JStaticInitBlock(line, body);
+                    members.add(aMember);
+                }
+            ) |
+            (
+                mods = modifiers()
+                aMember = memberDecl(mods) { members.add(aMember); }
+            )
         )*
         <RCURLY>
+
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
@@ -1577,6 +1586,98 @@ private JExpression conditionalAndExpression(): {
     { return lhs; }
 }
 
+
+/**
+ * Parse a conditional-and expression.
+ *
+ * <pre>
+ *   conditionalAndExpression ::= equalityExpression        // level 10
+ *                                  {LAND equalityExpression}
+ * </pre>
+
+ *
+ * @return an AST for a conditionalAndExpression.
+ */
+
+private JExpression bitwiseOrExpression(): {
+    int line = 0;
+    JExpression lhs = null, rhs = null;
+}
+{
+    try {
+        lhs = bitwiseXorExpression() { line = lhs.line(); }
+        (
+            <BITWISE_OR>
+            rhs = bitwiseXorExpression()
+            { lhs = new JBitwiseOrOp(line, lhs, rhs); }
+        )*
+    }
+    catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return lhs; }
+}
+/**
+ * Parse a conditional-and expression.
+ *
+ * <pre>
+ *   conditionalAndExpression ::= equalityExpression        // level 10
+ *                                  {LAND equalityExpression}
+ * </pre>
+
+ *
+ * @return an AST for a conditionalAndExpression.
+ */
+
+private JExpression bitwiseXorExpression(): {
+    int line = 0;
+    JExpression lhs = null, rhs = null;
+}
+{
+    try {
+        lhs = bitwiseAndExpression() { line = lhs.line(); }
+        (
+            <BITWISE_XOR>
+            rhs = bitwiseAndExpression()
+            { lhs = new JBitwiseXorOp(line, lhs, rhs); }
+        )*
+    }
+    catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return lhs; }
+}
+
+/**
+ * Parse a conditional-and expression.
+ *
+ * <pre>
+ *   conditionalAndExpression ::= equalityExpression        // level 10
+ *                                  {LAND equalityExpression}
+ * </pre>
+
+ *
+ * @return an AST for a conditionalAndExpression.
+ */
+
+private JExpression bitwiseAndExpression(): {
+    int line = 0;
+    JExpression lhs = null, rhs = null;
+}
+{
+    try {
+        lhs = equalityExpression() { line = lhs.line(); }
+        (
+            <BITWISE_AND>
+            rhs = equalityExpression()
+            { lhs = new JBitwiseAndOp(line, lhs, rhs); }
+        )*
+    }
+    catch (ParseException e) {
+        recoverFromError(new int[] { SEMI, EOF }, e);
+    }
+    { return lhs; }
+}
 /**
  * Parse an equality expression.
  *
@@ -1793,6 +1894,10 @@ private JExpression simpleUnaryExpression(): {
         <LNOT> { line = token.beginLine; }
         unaryExpr = unaryExpression()
         { expr = new JLogicalNotOp(line, unaryExpr); } |
+
+        <UNARY_COMP> { line = token.beginLine; }
+        unaryExpr = unaryExpression()
+        { expr = new JBitwiseComplementOp(line, unaryExpr); } |
 
         LOOKAHEAD(<LPAREN> basicType() <RPAREN>)
         <LPAREN> { line = token.beginLine; }
