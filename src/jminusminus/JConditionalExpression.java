@@ -72,14 +72,10 @@ class JConditionalExpression extends JExpression {
         String endLabel = output.createLabel();
         condition.codegen(output, elseLabel, false); // if the condition is false, we do a jump to the elseLabel branch in the bytecode
         thenPart.codegen(output); // if the condition was true, we did not jump, thus we generate code for the thenPart
-        if (elsePart != null) { // if there exists an elsePart and we did not jump to it, then
-            output.addBranchInstruction(GOTO, endLabel); // we want to skip that branch, thus we do a jump to the endLabel branch (which just skips the elsePart)
-        }
+        output.addBranchInstruction(GOTO, endLabel); // we want to skip the else branch if we did not jump to it previously, thus we do a jump to the endLabel
         output.addLabel(elseLabel); // add elseLabel, so that we can jump here in the code if the condition was false
-        if (elsePart != null) {
-            elsePart.codegen(output); // generate code for the elsePart under the elseLabel
-            output.addLabel(endLabel); // create the endLabel after the elsePart, so that we can skip elsePart if we ran thenPart
-        }
+        elsePart.codegen(output); // generate code for the elsePart under the elseLabel
+        output.addLabel(endLabel); // create the endLabel after the elsePart, so that we can skip elsePart if we ran thenPart
     }
 
 
