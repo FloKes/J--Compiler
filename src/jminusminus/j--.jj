@@ -666,7 +666,6 @@ private JClassDeclaration classDeclaration(ArrayList<String> mods): {
  *
  * @return list of members in the class body.
  */
-
 private ArrayList<JMember> classBody(): {
     int line = 0;
     ArrayList<String> mods = null;
@@ -678,33 +677,62 @@ private ArrayList<JMember> classBody(): {
     try {
         <LCURLY>
         (
-            mods = modifiers()
-            {
-                if (mods.contains("static")) {
-                    LOOKAHEAD(<LCURLY>) 
-                    {
-                        body = block();
-                        aMember = new JStaticInitBlock(line, body);
-                        members.add(aMember);
-                    }
-                } else {
-                    LOOKAHEAD(<LCURLY>) 
-                    {
-                        body = block();
-                        aMember = new JInstanceInitBlock(line, body);
-                        members.add(aMember);
-                    } |
-                    aMember = memberDecl(mods) { members.add(aMember); }
+            LOOKAHEAD(<LCURLY>)
+            (
+                { line = token.beginLine; }
+                body = block()
+                {
+                    aMember = new JInstanceInitBlock(line, body);
+                    members.add(aMember);
                 }
-            }
-        )* 
+            ) |
+            (
+                mods = modifiers()
+                aMember = memberDecl(mods) { members.add(aMember); }
+            )
+        )*
         <RCURLY>
+
     }
     catch (ParseException e) {
         recoverFromError(new int[] { SEMI, EOF }, e);
     }
     { return members; }
 }
+
+// private ArrayList<JMember> classBody(): {
+//     int line = 0;
+//     ArrayList<String> mods = null;
+//     JMember aMember        = null;
+//     JBlock body = null;
+//     ArrayList<JMember> members = new ArrayList<JMember>();
+// }
+// {
+//     try {
+//         LOOKAHEAD(<LCURLY>)
+//         (
+//             mods = modifiers()
+//             body = block()
+//             {
+//                 if (mods.contains("static")) {
+//                     aMember = new JStaticInitBlock(line, body);
+//                     members.add(aMember);
+//                 } else {
+//                     aMember = new JInstanceInitBlock(line, body);
+//                     members.add(aMember);
+//                 }
+//             }
+//         ) |
+//         (
+//             aMember = memberDecl(mods) { members.add(aMember); }
+//         )
+
+//     }
+//     catch (ParseException e) {
+//         recoverFromError(new int[] { SEMI, EOF }, e);
+//     }
+//     { return members; }
+// }
 
 /**
  * Parse a member declaration.

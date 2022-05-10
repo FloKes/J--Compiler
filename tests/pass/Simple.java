@@ -4,21 +4,19 @@ package pass;
 
 class Simple {
 
-    static {;}
-
     {;}
 
-    public void simple() 
+    public void simple()
     {
         ;
     }
 
-    public void complex() 
+    public void complex()
     {
         ;
     }
 
-    public static void semi() 
+    public static void semi()
     {
         ;
     }
@@ -27,7 +25,7 @@ class Simple {
         ;
     }
 
-    void none() 
+    void none()
     {
         ;
     }
