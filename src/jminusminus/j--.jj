@@ -1573,10 +1573,10 @@ private JExpression conditionalAndExpression(): {
 }
 {
     try {
-        lhs = equalityExpression() { line = lhs.line(); }
+        lhs = bitwiseOrExpression() { line = lhs.line(); }
         (
             <LAND>
-            rhs = equalityExpression()
+            rhs = bitwiseOrExpression()
             { lhs = new JLogicalAndOp(line, lhs, rhs); }
         )*
     }
@@ -1586,18 +1586,6 @@ private JExpression conditionalAndExpression(): {
     { return lhs; }
 }
 
-
-/**
- * Parse a conditional-and expression.
- *
- * <pre>
- *   conditionalAndExpression ::= equalityExpression        // level 10
- *                                  {LAND equalityExpression}
- * </pre>
-
- *
- * @return an AST for a conditionalAndExpression.
- */
 
 private JExpression bitwiseOrExpression(): {
     int line = 0;
@@ -1815,7 +1803,15 @@ private JExpression multiplicativeExpression(): {
         (
             <STAR>
             rhs = unaryExpression()
-            { lhs = new JMultiplyOp(line, lhs, rhs); }
+            { lhs = new JMultiplyOp(line, lhs, rhs); } |
+
+            <DIV>
+            rhs = unaryExpression()
+            { lhs = new JDivideOp(line, lhs, rhs); } |
+
+            <REM>
+            rhs = unaryExpression()
+            { lhs = new JRemainderOp(line, lhs, rhs); }
         )*
     }
     catch (ParseException e) {
