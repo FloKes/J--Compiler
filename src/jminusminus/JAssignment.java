@@ -150,9 +150,11 @@ class JPlusAssignOp extends JAssignment {
         }
         rhs = (JExpression) rhs.analyze(context);
         if (lhs.type().equals(Type.INT)) {
+            System.out.println("COMES INT");
             rhs.type().mustMatchExpected(line(), Type.INT);
             type = Type.INT;
         } else if (lhs.type().equals(Type.DOUBLE)){
+            System.out.println("COMES DOUBLE");
             rhs.type().mustMatchExpected(line(), Type.DOUBLE);
             type = Type.DOUBLE;
         }else if (lhs.type().equals(Type.STRING)) {
@@ -183,7 +185,11 @@ class JPlusAssignOp extends JAssignment {
         } else {
             ((JLhs) lhs).codegenLoadLhsRvalue(output);
             rhs.codegen(output);
-            output.addNoArgInstruction(IADD);
+            if (lhs.type().equals(Type.INT)) {
+                output.addNoArgInstruction(IADD);
+            } else if (lhs.type().equals(Type.DOUBLE)){
+                output.addNoArgInstruction(DADD);
+            }
         }
         if (!isStatementExpression) {
             ((JLhs) lhs).codegenDuplicateRvalue(output);
@@ -483,7 +489,6 @@ class JRemAssignOp extends JAssignment {
             output.addNoArgInstruction(DREM);
         }
         if (!isStatementExpression) {
-            // Generate code to leave the r-value atop stack
             ((JLhs) lhs).codegenDuplicateRvalue(output);
         }
         ((JLhs) lhs).codegenStore(output);
