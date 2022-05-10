@@ -676,25 +676,28 @@ private ArrayList<JMember> classBody(): {
 }
 {
     try {
-        LOOKAHEAD(<LCURLY>)
-        (
-            mods = modifiers()
-            body = block()
-            {
-                if (mods.contains("static")) {
-                    aMember = new JStaticInitBlock(line, body);
-                    members.add(aMember);
-                } else {
-                    aMember = new JInstanceInitBlock(line, body);
-                    members.add(aMember);
-                }
-            }
-        ) |
         <LCURLY>
         (
             mods = modifiers()
-            aMember = memberDecl(mods) { members.add(aMember); }
-        )*
+            {
+                if (mods.contains("static")) {
+                    LOOKAHEAD(<LCURLY>) 
+                    {
+                        body = block();
+                        aMember = new JStaticInitBlock(line, body);
+                        members.add(aMember);
+                    }
+                } else {
+                    LOOKAHEAD(<LCURLY>) 
+                    {
+                        body = block();
+                        aMember = new JInstanceInitBlock(line, body);
+                        members.add(aMember);
+                    } |
+                    aMember = memberDecl(mods) { members.add(aMember); }
+                }
+            }
+        )* 
         <RCURLY>
     }
     catch (ParseException e) {
