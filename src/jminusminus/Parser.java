@@ -786,6 +786,7 @@ public class Parser {
      *               | TRY block 
      *                  { CATCH LPAREN formalParameter RPAREN block }  zero or more
      *                      [FINALLY block] //  must be present if no catches 
+     *               | THROW expression SEMI
      * </pre>
      *
      * @return an AST for a statement.
@@ -899,6 +900,11 @@ public class Parser {
                 finallyBlock = block();
             }
             return new JTryStatement(line, tryBlock, catchClauses, finallyBlock);
+        } else if (have(THROW)) {
+            JExpression expr = expression();
+            JThrowStatement throwStatement = new JThrowStatement(line, expr);
+            mustBe(SEMI);
+            return throwStatement;
         } else { // Must be a statementExpression
             JStatement statement = statementExpression();
             mustBe(SEMI);
