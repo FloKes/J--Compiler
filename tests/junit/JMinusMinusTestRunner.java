@@ -50,6 +50,8 @@ public class JMinusMinusTestRunner {
         suite.addTestSuite(DoubleTypeTest.class);
         suite.addTestSuite(ThrowTryCatchTest.class);
         suite.addTestSuite(ThrowTryCatchFinallyTest.class);
+        suite.addTestSuite(InterfacesTest.class);
+        suite.addTestSuite(ConditionalExpressionTest.class);
         return suite;
     }
 

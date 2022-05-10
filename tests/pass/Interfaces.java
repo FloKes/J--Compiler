@@ -8,11 +8,16 @@ interface IA {
 
 class CA implements IA {
     public String identity(String a) {
-        return a;
+        return a + "CA";
     }
 }
 
 public class Interfaces {
+
+    public static String message(String a) {
+        CA cls = new CA();
+        return ((IA)cls).identity(a);
+    }
 
     public static void main(String[] args) {
         CA cls = new CA();

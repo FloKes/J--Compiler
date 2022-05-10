@@ -7,6 +7,6 @@ public class ConditionalExpression {
     }
 
     public static void main(String[] args) {
-        System.out.println(this.conditional(false, 1, false, 2, 3)); // should return 3
+        System.out.println(conditional(false, 1, false, 2, 3)); // should return 3
     }
 }
