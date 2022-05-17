@@ -2,6 +2,7 @@ package pass;
 
 public class DoubleType {
     public int testDouble () {
+        double newop = 0.5353;
         double op1 = 8.0;
         double op2 = 1.0;
         double op3 = op1 * op2;

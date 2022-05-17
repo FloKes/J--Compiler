@@ -381,9 +381,18 @@ class Scanner {
         case EOFCH:
             return new TokenInfo(EOF, line);
         case '0':
-            // Handle only simple decimal integers for now.
-            // TODO: Handle double that starts with 0, e.g. 0.5234
+            buffer = new StringBuffer();
+            buffer.append(ch);
             nextCh();
+            if (ch == '.') {
+                buffer.append(ch);
+                nextCh();
+                while (isDigit(ch)) {
+                    buffer.append(ch);
+                    nextCh();
+                }
+                return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+            } 
             return new TokenInfo(INT_LITERAL, "0", line);
         case '1':
         case '2':
