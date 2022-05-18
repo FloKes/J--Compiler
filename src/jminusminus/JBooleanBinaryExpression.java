@@ -267,11 +267,10 @@ class JLogicalOrOp extends JBooleanBinaryExpression {
      * @param onTrue
      *            should we branch on true?
      */
-
+    // Could be written as directly the complement of && might include that in rep.
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
         if (onTrue) {
             lhs.codegen(output, targetLabel, true);
-            //Below can be commented out and It will still work.
             rhs.codegen(output, targetLabel, true);
         } else {
             String trueLabel = output.createLabel();
