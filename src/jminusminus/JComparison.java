@@ -106,7 +106,7 @@ class JGreaterThanOp extends JComparison {
             lhs.codegen(output);
             rhs.codegen(output);
             // put onto stack the res of double comparison
-            output.addNoArgInstruction(onTrue ? DCMPG : DCMPL); 
+            output.addNoArgInstruction(DCMPG); 
             // check result
             output.addBranchInstruction(onTrue ? IFGT : IFLE, targetLabel);
         }
